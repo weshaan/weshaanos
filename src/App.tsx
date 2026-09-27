@@ -89,7 +89,11 @@ Let's build something.`}
       <>
         <h2>Hello</h2>
         <p>
-          I'm the developer. This desktop is my personal portfolio. Explore folders and dock apps to learn more ;)
+          I'm the developer. This desktop is my personal portfolio. It captures a snapshot of some of my work and holds
+          fragments of some hobbies. Explore folders and dock apps to learn more ;)
+          <br />
+          <br />
+          You can close this window by clicking on the red-yellow-green circles above
         </p>
         <p>
           P.S. if you're just here for a quick look of my work, please use the quick actions widget on the right for a
@@ -240,7 +244,9 @@ function App() {
 
   return (
     <div className={`desktop ${desktopState}`} data-window-theme={theme}>
-      {!unlocked && <LockScreen onUnlock={handleUnlock} exiting={lockExiting} />}
+      {!unlocked && (
+        <LockScreen onUnlock={handleUnlock} exiting={lockExiting} unlockEnabled={introDone} />
+      )}
       {!introDone && <HelloIntro onComplete={() => setIntroDone(true)} />}
       <div className="desktop__session">
         <div className="desktop__wallpaper" role="presentation" />

@@ -70,16 +70,11 @@ export function BrowserWindow({
       <div className="browser-window__frame">
         <aside className="browser-window__sidebar">
           <div className="browser-window__sidebar-top">
-            <div className="browser-window__traffic">
-              <button
-                type="button"
-                className="browser-window__dot browser-window__dot--close"
-                onClick={onClose}
-                aria-label="Close"
-              />
+            <button type="button" className="browser-window__traffic" onClick={onClose} aria-label="Close">
+              <span className="browser-window__dot browser-window__dot--close" aria-hidden />
               <span className="browser-window__dot browser-window__dot--min" aria-hidden />
               <span className="browser-window__dot browser-window__dot--max" aria-hidden />
-            </div>
+            </button>
           </div>
           <div className="browser-window__sidebar-scroll">{sidebar}</div>
         </aside>

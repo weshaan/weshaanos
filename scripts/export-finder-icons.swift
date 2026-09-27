@@ -15,32 +15,6 @@ func workspaceIcon(for url: URL) -> NSImage {
   return icon
 }
 
-func folderWithSymbol(_ symbolName: String) -> NSImage? {
-  let size = NSSize(width: 1024, height: 1024)
-  let folder = NSWorkspace.shared.icon(for: .folder)
-  folder.size = size
-  guard let sym = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil) else { return nil }
-
-  let canvas = NSImage(size: size)
-  canvas.lockFocus()
-  folder.draw(in: NSRect(origin: .zero, size: size))
-
-  let config = NSImage.SymbolConfiguration(pointSize: 260, weight: .medium)
-  let symImg = sym.withSymbolConfiguration(config)!
-  symImg.isTemplate = true
-  NSColor(calibratedWhite: 1, alpha: 0.62).set()
-  let symSize = NSSize(width: 340, height: 340)
-  let symRect = NSRect(
-    x: (size.width - symSize.width) / 2,
-    y: (size.height - symSize.height) / 2 - 24,
-    width: symSize.width,
-    height: symSize.height
-  )
-  symImg.draw(in: symRect)
-  canvas.unlockFocus()
-  return canvas
-}
-
 let outDir = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : FileManager.default.currentDirectoryPath
 let fm = FileManager.default
 let home = fm.homeDirectoryForCurrentUser
@@ -53,12 +27,7 @@ func export(_ name: String, _ url: URL) {
 print("Exporting workspace icons…")
 
 if let desktop = fm.urls(for: .desktopDirectory, in: .userDomainMask).first {
-  if let composed = folderWithSymbol("desktopcomputer") {
-    savePNG(composed, path: "\(outDir)/desktop-folder.png")
-    print("  desktop-folder (composed)")
-  } else {
-    export("desktop-folder", desktop)
-  }
+  export("desktop-folder", desktop)
 }
 
 let dirs: [(String, FileManager.SearchPathDirectory)] = [

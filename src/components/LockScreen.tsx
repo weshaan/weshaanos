@@ -6,29 +6,34 @@ import './LockScreen.css'
 type Props = {
   onUnlock: () => void
   exiting?: boolean
+  /** False while the hello intro overlay is still up (keys must not dismiss the lock screen). */
+  unlockEnabled?: boolean
 }
 
-export function LockScreen({ onUnlock, exiting }: Props) {
+export function LockScreen({ onUnlock, exiting, unlockEnabled = true }: Props) {
   const { lockTime, lockDate } = useClock()
   const screenRef = useRef<HTMLDivElement>(null)
 
   const tryUnlock = useCallback(() => {
-    if (exiting) return
+    if (!unlockEnabled || exiting) return
     onUnlock()
-  }, [exiting, onUnlock])
+  }, [unlockEnabled, exiting, onUnlock])
 
   useEffect(() => {
+    if (!unlockEnabled) return
     screenRef.current?.focus()
-  }, [])
+  }, [unlockEnabled])
 
   useEffect(() => {
+    if (!unlockEnabled) return
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return
       tryUnlock()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [tryUnlock])
+  }, [tryUnlock, unlockEnabled])
 
   return (
     <div
@@ -37,7 +42,7 @@ export function LockScreen({ onUnlock, exiting }: Props) {
       className={exiting ? 'lock-screen lock-screen--exit' : 'lock-screen'}
       role="dialog"
       aria-modal="true"
-      aria-label="Locked. Click anywhere or press any key to continue."
+      aria-label="Locked. Press anything to continue."
       onClick={tryUnlock}
     >
       <div className="lock-screen__wallpaper" role="presentation" />
@@ -60,7 +65,7 @@ export function LockScreen({ onUnlock, exiting }: Props) {
           <span className="lock-screen__avatar-emoji">🦚</span>
         </div>
         <p className="lock-screen__name">Eshaan Walia</p>
-        <p className="lock-screen__hint">Click anywhere to continue</p>
+        <p className="lock-screen__hint">Press anything to continue</p>
       </div>
     </div>
   )

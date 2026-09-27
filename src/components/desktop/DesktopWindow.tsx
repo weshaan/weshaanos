@@ -62,16 +62,11 @@ export function DesktopWindow({
         {...titleBarProps}
         style={{ touchAction: 'none', cursor: 'grab' }}
       >
-        <div className="desktop-window__traffic">
-          <button
-            type="button"
-            className="desktop-window__dot desktop-window__dot--close"
-            onClick={onClose}
-            aria-label="Close"
-          />
+        <button type="button" className="desktop-window__traffic" onClick={onClose} aria-label="Close">
+          <span className="desktop-window__dot desktop-window__dot--close" aria-hidden />
           <span className="desktop-window__dot desktop-window__dot--min" aria-hidden />
           <span className="desktop-window__dot desktop-window__dot--max" aria-hidden />
-        </div>
+        </button>
         <div className="desktop-window__title-block">
           <span className="desktop-window__title">{title}</span>
           {subtitle ? <span className="desktop-window__subtitle">{subtitle}</span> : null}

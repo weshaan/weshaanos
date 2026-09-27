@@ -14,20 +14,13 @@ function centerWindow(width: number, height: number): WindowPoint {
   return { x, y }
 }
 
-/** Welcome About — left of center (right edge at mid-screen), vertically centered. */
-function aboutWindowPosition(): WindowPoint {
-  if (typeof window === 'undefined') return { x: 332, y: 376 }
-  const width = Math.min(440, Math.round(window.innerWidth * 0.92))
-  const approxHeight = 248
-  const x = Math.round(window.innerWidth / 2 - width) + 84
-  const y = Math.round((window.innerHeight - approxHeight) / 2) + 96
-  return { x, y }
-}
-
 const defaultPositions: Record<string, () => WindowPoint> = {
   resume: () => centerWindow(720, 640),
   finder: () => centerWindow(920, 560),
-  profile: aboutWindowPosition,
+  profile: () => {
+    const p = centerWindow(440, 320)
+    return { x: p.x, y: p.y + 25 }
+  },
 }
 
 function defaultPositionFor(id: DesktopWindowId): WindowPoint {
