@@ -91,11 +91,11 @@ Let's build something.`}
         <h2>Hello</h2>
         <p>
           I'm the developer. This desktop is my personal portfolio. It captures a snapshot of some of my work and holds
-          fragments of some hobbies. Explore folders and dock apps to learn more ;)
+          fragments of some hobbies.
           <br />
           <br />
           You can close this window by clicking on the red-yellow-green circles above. To stop/change music use the
-          widget on the right.
+          widget on the right. Explore folders and dock apps to learn more ;)
           <br />
           <br />
           P.S. if you're just here for a quick look of my work, please use the quick actions widget on the right for a
