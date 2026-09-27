@@ -3,6 +3,7 @@ import { DesktopIcons, type DesktopItemId } from './components/DesktopIcons'
 import { Dock } from './components/Dock'
 import { HelloIntro } from './components/HelloIntro'
 import { LockScreen } from './components/LockScreen'
+import { triggerMusicAutoplay } from './music/autoplay'
 import { FinderWindow } from './components/FinderWindow'
 import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
@@ -93,9 +94,10 @@ Let's build something.`}
           fragments of some hobbies. Explore folders and dock apps to learn more ;)
           <br />
           <br />
-          You can close this window by clicking on the red-yellow-green circles above
-        </p>
-        <p>
+          You can close this window by clicking on the red-yellow-green circles above. To stop/change music use the
+          widget on the right.
+          <br />
+          <br />
           P.S. if you're just here for a quick look of my work, please use the quick actions widget on the right for a
           speedy peek!
         </p>
@@ -147,6 +149,7 @@ function App() {
 
   const handleUnlock = useCallback(() => {
     if (lockExiting || unlocked) return
+    triggerMusicAutoplay()
     setLockExiting(true)
     window.setTimeout(() => {
       setUnlocked(true)

@@ -1,7 +1,7 @@
-import type { CSSProperties } from 'react'
 import { useClock } from '../hooks/useClock'
 import { useSecondHandRotation } from '../hooks/useSecondHandRotation'
 import { CloudIcon, MoonIcon, PartlyCloudyIcon } from './icons/WeatherSymbols'
+import { MusicPlayerWidget } from './MusicPlayerWidget'
 import './Widgets.css'
 
 const forecast = [
@@ -68,27 +68,7 @@ export function Widgets({ onReminder }: Props) {
           </div>
         </div>
 
-        <div className="widget widget--battery">
-          <div
-            className="widget-battery__gauge"
-            style={
-              {
-                '--level': 0.8,
-                '--battery-ring-color': '#34c759',
-                '--battery-label-color': '#34c759',
-              } as CSSProperties
-            }
-          >
-            <svg viewBox="0 0 72 72" className="widget-battery__svg" aria-hidden>
-              <circle cx="36" cy="36" r="30" className="widget-battery__track" />
-              <circle cx="36" cy="36" r="30" className="widget-battery__fill" />
-            </svg>
-            <div className="widget-battery__icon">
-              <LaptopIcon />
-            </div>
-          </div>
-          <span className="widget-battery__pct">80%</span>
-        </div>
+        <MusicPlayerWidget />
       </div>
 
       <div className="widget widget--calendar">
@@ -131,14 +111,5 @@ export function Widgets({ onReminder }: Props) {
         </div>
       </div>
     </aside>
-  )
-}
-
-function LaptopIcon() {
-  return (
-    <svg width="22" height="17" viewBox="0 0 28 22" aria-hidden>
-      <rect x="3" y="2" width="22" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M0 20h28l-2-3H2l-2 3z" fill="currentColor" />
-    </svg>
   )
 }

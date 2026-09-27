@@ -1,0 +1,16 @@
+{
+  "tracks": [
+    {
+      "id": "johnny-joined",
+      "title": "i still hear your voice",
+      "artist": "Johnny Joined, Lynxie",
+      "file": "johnny-joined-i-still-hear-your-voice.mp3"
+    },
+    {
+      "id": "youth-tell-me-why",
+      "title": "tell me why",
+      "artist": "youth®",
+      "file": "youth-tell-me-why.mp3"
+    }
+  ]
+}
