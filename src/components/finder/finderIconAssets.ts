@@ -29,6 +29,14 @@ export function getFinderItemIcon(entry: FinderGridEntry): string {
         return '/finder/app-terminal.png'
       case 'settings':
         return '/finder/app-settings.png'
+      case 'weather':
+        return '/dock/weather.png'
+      case 'calendar':
+        return '/dock/calendar.png'
+      case 'calculator':
+        return '/dock/calculator.png'
+      case 'pdfviewer':
+        return '/finder/app-pdf-viewer.png'
       default:
         break
     }

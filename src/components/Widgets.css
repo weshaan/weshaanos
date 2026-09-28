@@ -415,6 +415,22 @@
   color: #fff;
 }
 
+.widget--calendar-button {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.widget--calendar-button:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.widget--calendar-button:disabled {
+  cursor: default;
+}
+
 .widget-calendar__dayname {
   font-size: 9px;
   font-weight: 700;

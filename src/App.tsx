@@ -9,6 +9,7 @@ import { type FinderLocationId, isFinderDesktopFolderId } from './components/fin
 import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
 import { CalculatorWindow } from './components/calculator/CalculatorWindow'
+import { CalendarWindow } from './components/calendar/CalendarWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
@@ -20,9 +21,9 @@ const ResumePdfWindow = lazy(() =>
   import('./components/ResumePdfWindow').then((m) => ({ default: m.ResumePdfWindow })),
 )
 
-type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather' | 'calculator'
+type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather' | 'calculator' | 'calendar'
 
-type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator'>
+type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator' | 'calendar'>
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
   projects: {
@@ -202,7 +203,7 @@ function App() {
         open('settings')
         break
       case 'calendar':
-        openFinderAt('projects')
+        open('calendar')
         break
       case 'weather':
         open('weather')
@@ -234,7 +235,10 @@ function App() {
           onPositionChange={(p) => setWindowPosition(id, p)}
           onFocus={() => focusWindow(id)}
           onClose={() => closeWindow(id)}
-          onOpenItem={(itemId) => openWindow(itemId)}
+          onOpenItem={(itemId) => {
+            if (itemId === 'pdfviewer') openWindow('resume')
+            else openWindow(itemId)
+          }}
           pendingLocation={finderPendingLocation}
           onPendingLocationHandled={() => setFinderPendingLocation(null)}
         />
@@ -258,6 +262,20 @@ function App() {
     if (id === 'calculator') {
       return (
         <CalculatorWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
+    if (id === 'calendar') {
+      return (
+        <CalendarWindow
           key={id}
           windowId={id}
           zIndex={zIndex}
@@ -320,6 +338,7 @@ function App() {
           <Widgets
             weatherEnabled={unlocked}
             onOpenWeather={() => open('weather')}
+            onOpenCalendar={() => open('calendar')}
             onReminder={(action) => {
               if (action === 'resume') open('resume')
               else if (action === 'profile') open('profile')

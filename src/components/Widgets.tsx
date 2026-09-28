@@ -10,6 +10,7 @@ type Props = {
   onReminder: (action: ReminderAction) => void
   weatherEnabled?: boolean
   onOpenWeather?: () => void
+  onOpenCalendar?: () => void
 }
 
 const reminders: { id: ReminderAction; label: string; list: string }[] = [
@@ -19,7 +20,7 @@ const reminders: { id: ReminderAction; label: string; list: string }[] = [
   { id: 'mail', label: 'Send an email', list: 'Inbox' },
 ]
 
-export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather }: Props) {
+export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOpenCalendar }: Props) {
   const { widgetTime, now, seconds } = useClock()
   const secondHandRotation = useSecondHandRotation(seconds)
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
@@ -47,7 +48,13 @@ export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather }: Pr
         <MusicPlayerWidget />
       </div>
 
-      <div className="widget widget--calendar">
+      <button
+        type="button"
+        className="widget widget--calendar widget--calendar-button"
+        onClick={onOpenCalendar}
+        disabled={!onOpenCalendar}
+        aria-label="Open Calendar chapters"
+      >
         <div className="widget-calendar__today">
           <div className="widget-calendar__dayname">{dayName}</div>
           <div className="widget-calendar__daynum">{dayNum}</div>
@@ -60,7 +67,7 @@ export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather }: Pr
             add a reminder
           </div>
         </div>
-      </div>
+      </button>
 
       <div className="widget widget--reminders">
         <div className="widget-reminders__title">Quick Actions</div>

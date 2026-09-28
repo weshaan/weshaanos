@@ -11,8 +11,8 @@
 
 .calculator-window {
   position: fixed;
-  width: 252px;
-  border-radius: 18px;
+  width: 228px;
+  border-radius: 16px;
   overflow: hidden;
   background: #000;
   color: #fff;
@@ -26,8 +26,8 @@
 .calculator-window__titlebar {
   display: flex;
   align-items: center;
-  min-height: 40px;
-  padding: 10px 14px 6px;
+  min-height: 36px;
+  padding: 8px 12px 5px;
   background: #000;
   user-select: none;
 }
@@ -39,7 +39,7 @@
 .calculator-window__traffic {
   justify-self: start;
   display: flex;
-  gap: 8px;
+  gap: 7px;
   align-items: center;
   margin: -4px -6px;
   padding: 4px 6px;
@@ -49,8 +49,8 @@
 }
 
 .calculator-window__dot {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.15);
 }
@@ -69,23 +69,23 @@
 }
 
 .calculator-window__displays {
-  padding: 4px 20px 16px;
-  min-height: 72px;
+  padding: 3px 16px 12px;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: stretch;
-  gap: 4px;
+  gap: 3px;
 }
 
 .calculator-window__expression {
   flex-shrink: 0;
-  min-height: 24px;
-  font-size: 20px;
+  min-height: 22px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0.01em;
   text-align: right;
-  line-height: 24px;
+  line-height: 22px;
   color: rgba(255, 255, 255, 0.92);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -97,7 +97,7 @@
 }
 
 .calculator-window__display {
-  font-size: clamp(36px, 12vw, 56px);
+  font-size: clamp(32px, 12vw, 50px);
   font-weight: 300;
   letter-spacing: -0.02em;
   text-align: right;
@@ -110,8 +110,8 @@
 .calculator-window__keypad {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 0 14px 16px;
+  gap: 8px;
+  padding: 0 12px 14px;
   box-sizing: border-box;
 }
 
@@ -125,7 +125,7 @@
   border: none;
   border-radius: 50%;
   font: inherit;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1;
   color: #fff;
@@ -147,8 +147,8 @@
 .calculator-key__backspace-icon {
   width: 42%;
   height: 42%;
-  max-width: 22px;
-  max-height: 22px;
+  max-width: 20px;
+  max-height: 20px;
   display: block;
 }
 
@@ -194,13 +194,13 @@
 }
 
 .calculator-key--fn {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
 .calculator-key--op {
   background: #ff9f0a;
-  font-size: 26px;
+  font-size: 23px;
   font-weight: 400;
 }
