@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useMusicPlayer } from '../hooks/useMusicPlayer'
+import { useMusicPlaylist } from '../hooks/useMusicPlaylist'
 import { setMusicAutoplayHandler } from '../music/autoplay'
-import type { MusicPlaylist } from '../music/types'
+import { setMusicPlaybackBridge } from '../music/playbackBridge'
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
@@ -11,44 +12,26 @@ function formatTime(seconds: number): string {
 }
 
 export function MusicPlayerWidget() {
-  const [tracks, setTracks] = useState<MusicPlaylist['tracks']>([])
-  const [loadError, setLoadError] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      try {
-        const res = await fetch('/music/playlist.json')
-        if (!res.ok) throw new Error('playlist missing')
-        const data = (await res.json()) as MusicPlaylist
-        if (!cancelled) {
-          setTracks(Array.isArray(data.tracks) ? data.tracks : [])
-          setLoadError(false)
-        }
-      } catch {
-        if (!cancelled) {
-          setTracks([])
-          setLoadError(true)
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
+  const { tracks, loadError } = useMusicPlaylist()
   const player = useMusicPlayer(tracks)
 
   useEffect(() => {
     if (!player.hasTracks) {
       setMusicAutoplayHandler(null)
+      setMusicPlaybackBridge(null)
       return
     }
     setMusicAutoplayHandler(() => {
       player.play()
     })
-    return () => setMusicAutoplayHandler(null)
-  }, [player.hasTracks, player.play, tracks])
+    setMusicPlaybackBridge({
+      playTrack: (trackId) => player.playTrackById(trackId),
+    })
+    return () => {
+      setMusicAutoplayHandler(null)
+      setMusicPlaybackBridge(null)
+    }
+  }, [player.hasTracks, player.play, player.playTrackById, tracks])
 
   const progress = player.duration > 0 ? Math.min(100, (player.currentTime / player.duration) * 100) : 0
 

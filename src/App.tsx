@@ -5,6 +5,7 @@ import { HelloIntro } from './components/HelloIntro'
 import { LockScreen } from './components/LockScreen'
 import { triggerMusicAutoplay } from './music/autoplay'
 import { FinderWindow } from './components/FinderWindow'
+import { type FinderLocationId, isFinderDesktopFolderId } from './components/finder/finderLocations'
 import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
 import { Widgets } from './components/Widgets'
@@ -40,12 +41,12 @@ const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }>
       </>
     ),
   },
-  movies: {
-    title: 'Movies',
+  misc: {
+    title: 'Misc',
     body: (
       <>
-        <h2>Motion</h2>
-        <p>Reels, demos, and video projects — embed players or link to your channel.</p>
+        <h2>Misc</h2>
+        <p>Odds and ends — experiments, notes, and anything that does not fit elsewhere.</p>
       </>
     ),
   },
@@ -125,6 +126,7 @@ function App() {
   const [introDone, setIntroDone] = useState(false)
   const [unlocked, setUnlocked] = useState(false)
   const [lockExiting, setLockExiting] = useState(false)
+  const [finderPendingLocation, setFinderPendingLocation] = useState<FinderLocationId | null>(null)
   const aboutWelcomeOpened = useRef(false)
 
   useEffect(() => {
@@ -147,6 +149,26 @@ function App() {
     [openWindow],
   )
 
+  const openFinderAt = useCallback(
+    (location: FinderLocationId) => {
+      setFinderPendingLocation(location)
+      if (!openIds.includes('finder')) openWindow('finder')
+      else focusWindow('finder')
+    },
+    [focusWindow, openIds, openWindow],
+  )
+
+  const openDesktopItem = useCallback(
+    (id: DesktopItemId) => {
+      if (id === 'resume') {
+        openWindow('resume')
+        return
+      }
+      if (isFinderDesktopFolderId(id)) openFinderAt(id)
+    },
+    [openFinderAt, openWindow],
+  )
+
   const handleUnlock = useCallback(() => {
     if (lockExiting || unlocked) return
     triggerMusicAutoplay()
@@ -166,19 +188,19 @@ function App() {
         open('terminal')
         break
       case 'vscode':
-        open('localhost')
+        openFinderAt('localhost')
         break
       case 'finder':
         open('finder')
         break
       case 'notes':
-        open('projects')
+        openFinderAt('projects')
         break
       case 'settings':
         open('settings')
         break
       case 'calendar':
-        open('projects')
+        openFinderAt('projects')
         break
       case 'brave':
       case 'slack':
@@ -207,6 +229,8 @@ function App() {
           onFocus={() => focusWindow(id)}
           onClose={() => closeWindow(id)}
           onOpenItem={(itemId) => openWindow(itemId)}
+          pendingLocation={finderPendingLocation}
+          onPendingLocationHandled={() => setFinderPendingLocation(null)}
         />
       )
     }
@@ -255,12 +279,12 @@ function App() {
         <div className="desktop__wallpaper" role="presentation" />
         <MenuBar />
         <div className="desktop__chrome">
-          <DesktopIcons onOpen={open} />
+          <DesktopIcons onOpen={openDesktopItem} />
           <Widgets
             onReminder={(action) => {
               if (action === 'resume') open('resume')
               else if (action === 'profile') open('profile')
-              else if (action === 'projects') open('projects')
+              else if (action === 'projects') openFinderAt('projects')
               else open('mail')
             }}
           />

@@ -1,17 +1,29 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { BrowserWindow } from './browser/BrowserWindow'
 import {
   FINDER_LOCATIONS,
   FINDER_SIDEBAR,
+  finderEntryKey,
+  isFinderDesktopFolderId,
+  type FinderGridEntry,
   type FinderLaunchId,
   type FinderLocationId,
   type FinderSidebarEntry,
 } from './finder/finderLocations'
 import { FinderGridIcon } from './finder/FinderGridIcon'
 import { getFinderItemIcon } from './finder/finderIconAssets'
-import { useFinderNavigation } from './finder/useFinderNavigation'
+import { finderItemsForLocation } from './finder/finderMusic'
+import { getEntryKind, getEntryListSubtitle } from './finder/finderItemMeta'
+import { playTrackFromFinder } from '../music/playbackBridge'
+import { useMusicPlaylist } from '../hooks/useMusicPlaylist'
+import { searchFinderAll } from './finder/finderSearch'
+import { sortFinderEntries, type FinderSortBy, type FinderViewMode } from './finder/finderSort'
+import { FinderToolbar } from './finder/FinderToolbar'
+import { type FinderNavSnapshot, useFinderNavigation } from './finder/useFinderNavigation'
 import type { WindowPoint } from '../hooks/useDraggableWindow'
 import './FinderWindow.css'
+
+const FINDER_DEFAULT_ICON_SCALE = 72
 
 type Props = {
   windowId: string
@@ -21,6 +33,8 @@ type Props = {
   onFocus: () => void
   onClose: () => void
   onOpenItem?: (id: FinderLaunchId) => void
+  pendingLocation?: FinderLocationId | null
+  onPendingLocationHandled?: () => void
 }
 
 export function FinderWindow({
@@ -31,37 +45,162 @@ export function FinderWindow({
   onFocus,
   onClose,
   onOpenItem,
+  pendingLocation = null,
+  onPendingLocationHandled,
 }: Props) {
-  const [iconScale, setIconScale] = useState(88)
-  const { locationId, goTo, goBack, goForward, canGoBack, canGoForward } = useFinderNavigation('desktop')
+  const [iconScale, setIconScale] = useState(FINDER_DEFAULT_ICON_SCALE)
+  const [sortBy, setSortBy] = useState<FinderSortBy>('name')
+  const [viewMode, setViewMode] = useState<FinderViewMode>('icons')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const { tracks: musicTracks } = useMusicPlaylist()
+  const {
+    locationId,
+    goTo,
+    goBack,
+    goForward,
+    jumpTo,
+    openDesktopFolder,
+    getNavigationSnapshot,
+    restoreNavigationSnapshot,
+    canGoBack,
+    canGoForward,
+  } = useFinderNavigation('home')
+
+  const preSearchNavRef = useRef<FinderNavSnapshot | null>(null)
+
+  useEffect(() => {
+    if (!pendingLocation) return
+    if (isFinderDesktopFolderId(pendingLocation)) openDesktopFolder(pendingLocation)
+    else jumpTo(pendingLocation)
+    onPendingLocationHandled?.()
+  }, [pendingLocation, jumpTo, openDesktopFolder, onPendingLocationHandled])
+
+  useEffect(() => {
+    setSelectedKey(null)
+  }, [locationId])
 
   const location = FINDER_LOCATIONS[locationId]
   const selectedSidebarId = location.sidebarId
 
+  const searchActive = searchQuery.trim().length > 0
+  const inSearchMode = searchOpen || searchActive
+  const searchResults = useMemo(() => searchFinderAll(searchQuery, musicTracks), [searchQuery, musicTracks])
+
+  useEffect(() => {
+    if (inSearchMode && !preSearchNavRef.current) {
+      preSearchNavRef.current = getNavigationSnapshot()
+    }
+    if (!inSearchMode) preSearchNavRef.current = null
+  }, [inSearchMode, getNavigationSnapshot])
+
+  const clearSearchUi = useCallback(() => {
+    setSearchQuery('')
+    setSearchOpen(false)
+    setSelectedKey(null)
+  }, [])
+
+  const exitSearchRestoreFolder = useCallback(() => {
+    const snap = preSearchNavRef.current
+    if (snap) restoreNavigationSnapshot(snap)
+    preSearchNavRef.current = null
+    clearSearchUi()
+  }, [clearSearchUi, restoreNavigationSnapshot])
+
+  const commitSearchNavigation = useCallback(() => {
+    preSearchNavRef.current = null
+    clearSearchUi()
+  }, [clearSearchUi])
+
+  const locationItems = useMemo(
+    () => finderItemsForLocation(locationId, musicTracks),
+    [locationId, musicTracks],
+  )
+
+  const folderItems = useMemo(
+    () => sortFinderEntries(locationItems, sortBy),
+    [locationItems, sortBy],
+  )
+
+  const openEntry = useCallback(
+    (entry: FinderGridEntry) => {
+      if (entry.kind === 'place') goTo(entry.place)
+      else if (entry.kind === 'music') playTrackFromFinder(entry.trackId)
+      else onOpenItem?.(entry.launch)
+    },
+    [goTo, onOpenItem],
+  )
+
+  const openSearchResult = useCallback(
+    (resultLocationId: FinderLocationId, entry: FinderGridEntry) => {
+      if (entry.kind === 'music') {
+        jumpTo('music-beats')
+        playTrackFromFinder(entry.trackId)
+      } else if (isFinderDesktopFolderId(resultLocationId)) openDesktopFolder(resultLocationId)
+      else jumpTo(resultLocationId)
+      setSelectedKey(finderEntryKey(entry))
+      commitSearchNavigation()
+    },
+    [jumpTo, openDesktopFolder, commitSearchNavigation],
+  )
+
+  const itemCount = searchActive ? searchResults.length : locationItems.length
+  const statusMeta = searchActive
+    ? `${itemCount === 1 ? '1 result' : `${itemCount} results`}, 358.81 GB available`
+    : undefined
+
+  const toolbarTitle = searchActive ? 'Searching' : location.title
+
+  const handleContentPaneClick = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      if ((e.target as HTMLElement).closest('.finder-grid__item, .finder-list__row')) return
+      if (inSearchMode) exitSearchRestoreFolder()
+      else setSelectedKey(null)
+    },
+    [exitSearchRestoreFolder, inSearchMode],
+  )
+
   const sidebar = (
     <nav className="finder-sidebar" aria-label="Finder sidebar">
-      {renderSidebarSection(undefined, FINDER_SIDEBAR.filter((i) => !i.section), selectedSidebarId, goTo)}
+      {renderSidebarSection(undefined, FINDER_SIDEBAR.filter((i) => !i.section), selectedSidebarId, (id) => {
+        if (inSearchMode) {
+          preSearchNavRef.current = null
+          clearSearchUi()
+        }
+        goTo(id)
+      })}
       {renderSidebarSection(
         'Favourites',
         FINDER_SIDEBAR.filter((i) => i.section === 'favourites'),
         selectedSidebarId,
-        goTo,
+        (id) => {
+          if (inSearchMode) {
+            preSearchNavRef.current = null
+            clearSearchUi()
+          }
+          goTo(id)
+        },
       )}
       {renderSidebarSection(
         'Locations',
         FINDER_SIDEBAR.filter((i) => i.section === 'locations'),
         selectedSidebarId,
-        goTo,
+        (id) => {
+          if (inSearchMode) {
+            preSearchNavRef.current = null
+            clearSearchUi()
+          }
+          goTo(id)
+        },
       )}
     </nav>
   )
 
-  const itemCount = location.items.length
-
   return (
     <BrowserWindow
       windowId={windowId}
-      title={location.title}
+      title={toolbarTitle}
       zIndex={zIndex}
       position={position}
       onPositionChange={onPositionChange}
@@ -70,43 +209,117 @@ export function FinderWindow({
       sidebar={sidebar}
       pathSegments={location.path}
       itemCount={itemCount}
-      iconScale={iconScale}
-      onIconScaleChange={setIconScale}
+      statusMeta={statusMeta}
       canGoBack={canGoBack}
       canGoForward={canGoForward}
       onBack={goBack}
       onForward={goForward}
       className="finder-window"
+      iconScale={iconScale}
+      onIconScaleChange={setIconScale}
+      iconScaleDisabled={viewMode === 'list' || searchActive}
+      toolbarActions={
+        <FinderToolbar
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          searchOpen={searchOpen}
+          onSearchOpenChange={(open) => {
+            if (!open && inSearchMode) exitSearchRestoreFolder()
+            else setSearchOpen(open)
+          }}
+          onAirDrop={() => onOpenItem?.('mail')}
+        />
+      }
     >
-      <div className="finder-grid" style={{ ['--finder-icon-size' as string]: `${iconScale}px` }}>
-        {location.items.length === 0 ? (
+      <div
+        className={`finder-content-pane${viewMode === 'list' && !searchActive ? ' finder-content-pane--list' : ''}`}
+        onClick={handleContentPaneClick}
+      >
+        {searchActive ? (
+          searchResults.length === 0 ? (
+            <p className="finder-grid__empty">No results for “{searchQuery.trim()}”</p>
+          ) : (
+            <ul className="finder-list finder-list--search">
+              {searchResults.map((result) => {
+                const key = result.entryKey
+                const selected = selectedKey === result.entryKey
+                return (
+                  <li key={key}>
+                    <button
+                      type="button"
+                      className={`finder-list__row${selected ? ' finder-list__row--selected' : ''}`}
+                      onClick={() => setSelectedKey(result.entryKey)}
+                      onDoubleClick={() => openSearchResult(result.locationId, result.entry)}
+                    >
+                      <FinderGridIcon
+                        src={getFinderItemIcon(result.entry)}
+                        size={28}
+                        label={result.entry.label}
+                      />
+                      <span className="finder-list__name">{result.entry.label}</span>
+                      <span className="finder-list__kind">{result.kind}</span>
+                      <span className="finder-list__folder">{result.folderTitle}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )
+        ) : folderItems.length === 0 ? (
           <p className="finder-grid__empty">{location.emptyMessage ?? 'No items'}</p>
-        ) : (
-          <ul className="finder-grid__list">
-            {location.items.map((entry) => {
-              const key = entry.kind === 'place' ? `place-${entry.place}` : `launch-${entry.launch}`
+        ) : viewMode === 'list' ? (
+          <ul className="finder-list">
+            {folderItems.map((entry) => {
+              const key = finderEntryKey(entry)
+              const selected = selectedKey === key
               return (
                 <li key={key}>
                   <button
                     type="button"
-                    className="finder-grid__item"
-                    onDoubleClick={() => {
-                      if (entry.kind === 'place') goTo(entry.place)
-                      else onOpenItem?.(entry.launch)
-                    }}
+                    className={`finder-list__row${selected ? ' finder-list__row--selected' : ''}`}
+                    onClick={() => setSelectedKey(key)}
+                    onDoubleClick={() => openEntry(entry)}
                   >
-                    <FinderGridIcon
-                      src={getFinderItemIcon(entry)}
-                      size={iconScale}
-                      label={entry.label}
-                    />
-                    <span className="finder-grid__label">{entry.label}</span>
+                    <FinderGridIcon src={getFinderItemIcon(entry)} size={28} label={entry.label} />
+                    <span className="finder-list__name">{entry.label}</span>
+                    <span className="finder-list__kind">{getEntryKind(entry)}</span>
+                    <span className="finder-list__date">{getEntryListSubtitle(entry)}</span>
                   </button>
                 </li>
               )
             })}
           </ul>
+        ) : (
+          <div
+            className="finder-grid"
+            style={{ ['--finder-icon-size' as string]: `${iconScale}px` }}
+          >
+            <ul className="finder-grid__list">
+              {folderItems.map((entry) => {
+                const key = finderEntryKey(entry)
+                const selected = selectedKey === key
+                return (
+                  <li key={key}>
+                    <button
+                      type="button"
+                      className={`finder-grid__item${selected ? ' finder-grid__item--selected' : ''}`}
+                      onClick={() => setSelectedKey(key)}
+                      onDoubleClick={() => openEntry(entry)}
+                    >
+                      <FinderGridIcon src={getFinderItemIcon(entry)} size={iconScale} label={entry.label} />
+                      <span className="finder-grid__label">{entry.label}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         )}
+
       </div>
     </BrowserWindow>
   )
@@ -146,7 +359,7 @@ function renderSidebarSection(
 
 function SidebarIcon({ kind }: { kind: FinderSidebarEntry['icon'] }) {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden className="finder-sidebar__icon">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden className="finder-sidebar__icon">
       {kind === 'clock' && (
         <>
           <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.2" />

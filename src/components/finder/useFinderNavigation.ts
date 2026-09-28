@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react'
-import type { FinderLocationId } from './finderLocations'
+import type { FinderDesktopFolderId, FinderLocationId } from './finderLocations'
 
-type NavState = {
+export type FinderNavSnapshot = {
   stack: FinderLocationId[]
   index: number
 }
 
 export function useFinderNavigation(initial: FinderLocationId = 'desktop') {
-  const [state, setState] = useState<NavState>({ stack: [initial], index: 0 })
+  const [state, setState] = useState<FinderNavSnapshot>({ stack: [initial], index: 0 })
 
   const locationId = state.stack[state.index] ?? initial
   const canGoBack = state.index > 0
@@ -30,5 +30,32 @@ export function useFinderNavigation(initial: FinderLocationId = 'desktop') {
     setState((s) => (s.index < s.stack.length - 1 ? { ...s, index: s.index + 1 } : s))
   }, [])
 
-  return { locationId, goTo, goBack, goForward, canGoBack, canGoForward }
+  const jumpTo = useCallback((id: FinderLocationId) => {
+    setState({ stack: [id], index: 0 })
+  }, [])
+
+  const openDesktopFolder = useCallback((folder: FinderDesktopFolderId) => {
+    setState({ stack: ['desktop', folder], index: 1 })
+  }, [])
+
+  const getNavigationSnapshot = useCallback((): FinderNavSnapshot => {
+    return { stack: [...state.stack], index: state.index }
+  }, [state.index, state.stack])
+
+  const restoreNavigationSnapshot = useCallback((snapshot: FinderNavSnapshot) => {
+    setState({ stack: [...snapshot.stack], index: snapshot.index })
+  }, [])
+
+  return {
+    locationId,
+    goTo,
+    goBack,
+    goForward,
+    jumpTo,
+    openDesktopFolder,
+    getNavigationSnapshot,
+    restoreNavigationSnapshot,
+    canGoBack,
+    canGoForward,
+  }
 }

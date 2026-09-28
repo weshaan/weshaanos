@@ -93,6 +93,15 @@ export function useMusicPlayer(tracks: MusicTrack[]) {
   const onAudioPlay = useCallback(() => setPlaying(true), [])
   const onAudioPause = useCallback(() => setPlaying(false), [])
 
+  const playTrackById = useCallback(
+    (trackId: string) => {
+      const i = tracks.findIndex((t) => t.id === trackId)
+      if (i < 0) return
+      goTo(i, true)
+    },
+    [tracks, goTo],
+  )
+
   return {
     audioRef,
     track,
@@ -101,6 +110,7 @@ export function useMusicPlayer(tracks: MusicTrack[]) {
     currentTime,
     duration,
     play: playCurrent,
+    playTrackById,
     togglePlay,
     previous,
     next,

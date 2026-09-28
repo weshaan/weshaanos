@@ -66,6 +66,12 @@ if fm.fileExists(atPath: resumePDF.path) {
   export("resume-document", resumePDF)
 }
 
+let sampleMp3 = fm.temporaryDirectory.appendingPathComponent("portfolio-finder-sample.mp3")
+if !fm.fileExists(atPath: sampleMp3.path) {
+  try? Data().write(to: sampleMp3)
+}
+export("music-audio", sampleMp3)
+
 for (name, path) in [
   ("app-mail", "/System/Applications/Mail.app"),
   ("app-terminal", "/System/Applications/Utilities/Terminal.app"),

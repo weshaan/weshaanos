@@ -1,7 +1,7 @@
 import { FolderIcon } from './icons/FolderIcon'
 import './DesktopIcons.css'
 
-export type DesktopItemId = 'resume' | 'projects' | 'images' | 'movies' | 'localhost'
+export type DesktopItemId = 'resume' | 'projects' | 'images' | 'misc' | 'localhost'
 
 type DesktopItem = {
   id: DesktopItemId
@@ -14,7 +14,7 @@ const items: DesktopItem[] = [
   { id: 'resume', label: 'Resume' },
   { id: 'projects', label: 'Projects' },
   { id: 'images', label: 'Images' },
-  { id: 'movies', label: 'Movies' },
+  { id: 'misc', label: 'Misc' },
   { id: 'localhost', label: 'Localhost' },
 ]
 

@@ -295,6 +295,11 @@
   width: 120px;
 }
 
+.browser-window__icon-slider--disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
 .browser-window__icon-slider input[type='range'] {
   width: 100%;
   height: 4px;

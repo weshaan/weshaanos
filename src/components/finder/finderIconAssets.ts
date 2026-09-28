@@ -15,6 +15,10 @@ const GLYPH_ICONS: Record<FinderFolderGlyph, string> = {
 }
 
 export function getFinderItemIcon(entry: FinderGridEntry): string {
+  if (entry.kind === 'music') {
+    return '/finder/music-audio.png'
+  }
+
   if (entry.kind === 'launch') {
     switch (entry.launch) {
       case 'resume':
@@ -25,8 +29,22 @@ export function getFinderItemIcon(entry: FinderGridEntry): string {
         return '/finder/app-terminal.png'
       case 'settings':
         return '/finder/app-settings.png'
+      default:
+        break
+    }
+  }
+
+  if (entry.kind === 'place') {
+    switch (entry.place) {
       case 'localhost':
         return '/finder/developer-folder.png'
+      case 'images':
+        return GLYPH_ICONS.photo
+      case 'projects':
+      case 'projects-marketplace':
+      case 'projects-portfolio':
+      case 'projects-experiments':
+        return GLYPH_ICONS.generic
       default:
         break
     }

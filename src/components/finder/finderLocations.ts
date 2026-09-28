@@ -1,4 +1,3 @@
-import type { DesktopItemId } from '../DesktopIcons'
 import type { PathSegment } from '../browser/BrowserWindow'
 import type { FinderFolderGlyph } from '../icons/FinderFolderIcon'
 
@@ -11,10 +10,39 @@ export type FinderLocationId =
   | 'downloads'
   | 'pictures'
   | 'music'
+  | 'music-beats'
   | 'movies-nav'
   | 'home'
+  | 'projects'
+  | 'images'
+  | 'misc'
+  | 'localhost'
+  | 'projects-marketplace'
+  | 'projects-portfolio'
+  | 'projects-experiments'
 
-export type FinderLaunchId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings'
+export type FinderLaunchId = 'resume' | 'mail' | 'terminal' | 'settings'
+
+const DESKTOP_FOLDER_IDS = ['projects', 'images', 'misc', 'localhost'] as const
+export type FinderDesktopFolderId = (typeof DESKTOP_FOLDER_IDS)[number]
+
+export function isFinderDesktopFolderId(id: string): id is FinderDesktopFolderId {
+  return (DESKTOP_FOLDER_IDS as readonly string[]).includes(id)
+}
+
+export function finderEntryKey(entry: FinderGridEntry): string {
+  if (entry.kind === 'place') return `place-${entry.place}`
+  if (entry.kind === 'music') return `music-${entry.trackId}`
+  return `launch-${entry.launch}`
+}
+
+/** Where search / open should navigate for this item (one target per logical item). */
+export function finderEntryNavigateTo(entry: FinderGridEntry): FinderLocationId {
+  if (entry.kind === 'place') return entry.place
+  if (entry.kind === 'music') return 'music-beats'
+  if (entry.launch === 'resume') return 'documents'
+  return 'applications'
+}
 
 export type FinderGridEntry =
   | {
@@ -30,6 +58,13 @@ export type FinderGridEntry =
       launch: FinderLaunchId
       /** Shown as document icon style in grid (future); for now same folder chrome */
       variant?: 'folder'
+    }
+  | {
+      kind: 'music'
+      label: string
+      artist?: string
+      trackId: string
+      fileName: string
     }
 
 type FinderLocation = {
@@ -56,10 +91,10 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
     sidebarId: 'recents',
     path: [{ label: 'Recents', icon: 'folder' }],
     items: [
-      { kind: 'launch', label: 'Projects', glyph: 'generic', launch: 'projects' },
-      { kind: 'launch', label: 'Images', glyph: 'photo', launch: 'images' },
+      { kind: 'place', label: 'Projects', glyph: 'generic', place: 'projects' },
+      { kind: 'place', label: 'Images', glyph: 'photo', place: 'images' },
       { kind: 'launch', label: 'Resume', glyph: 'document', launch: 'resume' },
-      { kind: 'launch', label: 'Movies', glyph: 'film', launch: 'movies' },
+      { kind: 'place', label: 'Misc', glyph: 'generic', place: 'misc' },
     ],
   },
   shared: {
@@ -84,10 +119,10 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
     sidebarId: 'desktop',
     path: userPath('Desktop'),
     items: [
-      { kind: 'launch', label: 'Projects', glyph: 'generic', launch: 'projects' },
-      { kind: 'launch', label: 'Images', glyph: 'photo', launch: 'images' },
-      { kind: 'launch', label: 'Movies', glyph: 'film', launch: 'movies' },
-      { kind: 'launch', label: 'Localhost', glyph: 'generic', launch: 'localhost' },
+      { kind: 'place', label: 'Projects', glyph: 'generic', place: 'projects' },
+      { kind: 'place', label: 'Images', glyph: 'photo', place: 'images' },
+      { kind: 'place', label: 'Misc', glyph: 'generic', place: 'misc' },
+      { kind: 'place', label: 'Localhost', glyph: 'generic', place: 'localhost' },
     ],
   },
   documents: {
@@ -107,20 +142,91 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
     title: 'Pictures',
     sidebarId: 'pictures',
     path: userPath('Pictures'),
-    items: [{ kind: 'launch', label: 'Images', glyph: 'photo', launch: 'images' }],
+    items: [{ kind: 'place', label: 'Images', glyph: 'photo', place: 'images' }],
   },
   music: {
     title: 'Music',
     sidebarId: 'music',
     path: userPath('Music'),
+    items: [{ kind: 'place', label: 'beats', glyph: 'generic', place: 'music-beats' }],
+  },
+  'music-beats': {
+    title: 'beats',
+    sidebarId: 'music',
+    path: [...userPath('Music'), { label: 'beats', icon: 'folder' }],
     items: [],
-    emptyMessage: 'No music yet',
+    emptyMessage: 'No items in beats',
   },
   'movies-nav': {
     title: 'Movies',
     sidebarId: 'movies-nav',
     path: userPath('Movies'),
-    items: [{ kind: 'launch', label: 'Movies', glyph: 'film', launch: 'movies' }],
+    items: [],
+    emptyMessage: 'No movies yet',
+  },
+  projects: {
+    title: 'Projects',
+    sidebarId: 'desktop',
+    path: [...userPath('Desktop'), { label: 'Projects', icon: 'folder' }],
+    items: [
+      { kind: 'place', label: 'marketplace', glyph: 'generic', place: 'projects-marketplace' },
+      { kind: 'place', label: 'portfolio', glyph: 'generic', place: 'projects-portfolio' },
+      { kind: 'place', label: 'experiments', glyph: 'generic', place: 'projects-experiments' },
+    ],
+  },
+  'projects-marketplace': {
+    title: 'marketplace',
+    sidebarId: 'desktop',
+    path: [
+      ...userPath('Desktop'),
+      { label: 'Projects', icon: 'folder' },
+      { label: 'marketplace', icon: 'folder' },
+    ],
+    items: [],
+    emptyMessage: 'No items in marketplace',
+  },
+  'projects-portfolio': {
+    title: 'portfolio',
+    sidebarId: 'desktop',
+    path: [
+      ...userPath('Desktop'),
+      { label: 'Projects', icon: 'folder' },
+      { label: 'portfolio', icon: 'folder' },
+    ],
+    items: [],
+    emptyMessage: 'No items in portfolio',
+  },
+  'projects-experiments': {
+    title: 'experiments',
+    sidebarId: 'desktop',
+    path: [
+      ...userPath('Desktop'),
+      { label: 'Projects', icon: 'folder' },
+      { label: 'experiments', icon: 'folder' },
+    ],
+    items: [],
+    emptyMessage: 'No items in experiments',
+  },
+  images: {
+    title: 'Images',
+    sidebarId: 'desktop',
+    path: [...userPath('Desktop'), { label: 'Images', icon: 'folder' }],
+    items: [],
+    emptyMessage: 'No images yet',
+  },
+  misc: {
+    title: 'Misc',
+    sidebarId: 'desktop',
+    path: [...userPath('Desktop'), { label: 'Misc', icon: 'folder' }],
+    items: [],
+    emptyMessage: 'No items yet',
+  },
+  localhost: {
+    title: 'Localhost',
+    sidebarId: 'desktop',
+    path: [...userPath('Desktop'), { label: 'Localhost', icon: 'folder' }],
+    items: [],
+    emptyMessage: 'No dev projects here yet',
   },
   home: {
     title: 'weshaan',
