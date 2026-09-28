@@ -37,6 +37,8 @@ export function getFinderItemIcon(entry: FinderGridEntry): string {
         return '/dock/calculator.png'
       case 'pdfviewer':
         return '/finder/app-pdf-viewer.png'
+      case 'games':
+        return '/finder/app-games.png'
       default:
         break
     }

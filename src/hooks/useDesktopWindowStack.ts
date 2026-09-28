@@ -19,7 +19,8 @@ const defaultPositions: Record<string, () => WindowPoint> = {
   finder: () => centerWindow(860, 515),
   weather: () => centerWindow(960, 620),
   calculator: () => centerWindow(228, 430),
-  calendar: () => centerWindow(720, 520),
+  calendar: () => centerWindow(400, 320),
+  games: () => centerWindow(720, 520),
   profile: () => {
     const p = centerWindow(440, 320)
     return { x: p.x, y: p.y + 25 }

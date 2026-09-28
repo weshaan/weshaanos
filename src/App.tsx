@@ -10,20 +10,33 @@ import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
 import { CalculatorWindow } from './components/calculator/CalculatorWindow'
 import { CalendarWindow } from './components/calendar/CalendarWindow'
+import { GamesWindow } from './components/games/GamesWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
+import { useQuickActions } from './context/QuickActionsContext'
 import { useWindowTheme } from './context/WindowThemeContext'
 import { useDesktopWindowStack } from './hooks/useDesktopWindowStack'
+import { isProjectsFinderLocation } from './quickActions/location'
 import './App.css'
 
 const ResumePdfWindow = lazy(() =>
   import('./components/ResumePdfWindow').then((m) => ({ default: m.ResumePdfWindow })),
 )
 
-type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather' | 'calculator' | 'calendar'
+type WindowId =
+  | DesktopItemId
+  | 'mail'
+  | 'terminal'
+  | 'profile'
+  | 'settings'
+  | 'finder'
+  | 'weather'
+  | 'calculator'
+  | 'calendar'
+  | 'games'
 
-type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator' | 'calendar'>
+type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games'>
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
   projects: {
@@ -125,6 +138,7 @@ function App() {
     setWindowPosition,
     zById,
   } = useDesktopWindowStack()
+  const { markDone } = useQuickActions()
 
   const [introDone, setIntroDone] = useState(false)
   const [unlocked, setUnlocked] = useState(false)
@@ -145,31 +159,56 @@ function App() {
     return () => window.clearTimeout(id)
   }, [unlocked, openWindow])
 
+  const trackQuickActionWindow = useCallback(
+    (id: string) => {
+      if (id === 'resume') markDone('resume')
+      else if (id === 'profile') markDone('profile')
+      else if (id === 'mail') markDone('mail')
+    },
+    [markDone],
+  )
+
+  const openUserWindow = useCallback(
+    (id: WindowId) => {
+      trackQuickActionWindow(id)
+      openWindow(id)
+    },
+    [openWindow, trackQuickActionWindow],
+  )
+
   const open = useCallback(
     (id: WindowId | null) => {
-      if (id) openWindow(id)
+      if (id) openUserWindow(id)
     },
-    [openWindow],
+    [openUserWindow],
   )
 
   const openFinderAt = useCallback(
     (location: FinderLocationId) => {
+      if (isProjectsFinderLocation(location)) markDone('projects')
       setFinderPendingLocation(location)
       if (!openIds.includes('finder')) openWindow('finder')
       else focusWindow('finder')
     },
-    [focusWindow, openIds, openWindow],
+    [focusWindow, markDone, openIds, openWindow],
+  )
+
+  const handleFinderLocationChange = useCallback(
+    (locationId: FinderLocationId) => {
+      if (isProjectsFinderLocation(locationId)) markDone('projects')
+    },
+    [markDone],
   )
 
   const openDesktopItem = useCallback(
     (id: DesktopItemId) => {
       if (id === 'resume') {
-        openWindow('resume')
+        openUserWindow('resume')
         return
       }
       if (isFinderDesktopFolderId(id)) openFinderAt(id)
     },
-    [openFinderAt, openWindow],
+    [openFinderAt, openUserWindow],
   )
 
   const handleUnlock = useCallback(() => {
@@ -211,6 +250,9 @@ function App() {
       case 'calculator':
         open('calculator')
         break
+      case 'games':
+        open('games')
+        break
       case 'brave':
         open('profile')
         break
@@ -236,11 +278,12 @@ function App() {
           onFocus={() => focusWindow(id)}
           onClose={() => closeWindow(id)}
           onOpenItem={(itemId) => {
-            if (itemId === 'pdfviewer') openWindow('resume')
-            else openWindow(itemId)
+            if (itemId === 'pdfviewer') openUserWindow('resume')
+            else openUserWindow(itemId)
           }}
           pendingLocation={finderPendingLocation}
           onPendingLocationHandled={() => setFinderPendingLocation(null)}
+          onLocationChange={handleFinderLocationChange}
         />
       )
     }
@@ -276,6 +319,20 @@ function App() {
     if (id === 'calendar') {
       return (
         <CalendarWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
+    if (id === 'games') {
+      return (
+        <GamesWindow
           key={id}
           windowId={id}
           zIndex={zIndex}

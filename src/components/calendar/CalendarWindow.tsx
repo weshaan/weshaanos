@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { eventsOnDate } from '../../calendar/calendarEvents'
 import {
-  calendarChapters,
-  defaultChapterIndex,
-  type CalendarChapter,
-  type ChapterMoment,
-} from '../../calendar/chapterData'
+  addMonths,
+  addYears,
+  buildMonthGrid,
+  isSameDay,
+  weekdayLabels,
+} from '../../calendar/monthGrid'
+import { useClock } from '../../hooks/useClock'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './CalendarWindow.css'
 
@@ -17,9 +20,20 @@ type Props = {
   onClose: () => void
 }
 
-function firstMoment(chapter: CalendarChapter): ChapterMoment {
-  return chapter.moments[0]
+type PickerMode = 'month' | 'year' | null
+
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
+
+const YEAR_WHEEL_START = 1980
+const YEAR_WHEEL_END = 2040
+
+function yearsInWheel(): number[] {
+  const years: number[] = []
+  for (let y = YEAR_WHEEL_START; y <= YEAR_WHEEL_END; y++) years.push(y)
+  return years
 }
+
+const WHEEL_YEARS = yearsInWheel()
 
 export function CalendarWindow({
   windowId,
@@ -30,200 +44,293 @@ export function CalendarWindow({
   onClose,
 }: Props) {
   const { titleBarProps } = useDraggableWindow(position, onPositionChange)
-  const stripRef = useRef<HTMLDivElement>(null)
-  const chapterRefs = useRef<(HTMLElement | null)[]>([])
+  const { now } = useClock()
+  const yearWheelRef = useRef<HTMLDivElement>(null)
+  const viewYearRef = useRef(now.getFullYear())
+  const yearScrollRafRef = useRef(0)
 
-  const [chapterIndex, setChapterIndex] = useState(defaultChapterIndex)
-  const [selected, setSelected] = useState<{ chapterId: string; momentId: string }>(() => {
-    const ch = calendarChapters[defaultChapterIndex()]
-    const m = firstMoment(ch)
-    return { chapterId: ch.id, momentId: m.id }
-  })
+  const [view, setView] = useState(() => ({
+    year: now.getFullYear(),
+    month: now.getMonth(),
+  }))
+  const [selectedIso, setSelectedIso] = useState<string | null>(null)
+  const [picker, setPicker] = useState<PickerMode>(null)
 
-  const activeChapter = calendarChapters[chapterIndex]
-  const activeMoment = useMemo(() => {
-    const ch = calendarChapters.find((c) => c.id === selected.chapterId) ?? activeChapter
-    return ch.moments.find((m) => m.id === selected.momentId) ?? firstMoment(ch)
-  }, [selected, activeChapter])
+  const monthLabel = useMemo(
+    () =>
+      new Date(view.year, view.month, 1).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }),
+    [view.year, view.month],
+  )
 
-  const scrollToChapter = useCallback((index: number, momentId?: string) => {
-    const clamped = Math.max(0, Math.min(calendarChapters.length - 1, index))
-    setChapterIndex(clamped)
-    const el = chapterRefs.current[clamped]
-    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-    const ch = calendarChapters[clamped]
-    const m = momentId
-      ? ch.moments.find((x) => x.id === momentId) ?? firstMoment(ch)
-      : firstMoment(ch)
-    setSelected({ chapterId: ch.id, momentId: m.id })
+  const weeks = useMemo(() => buildMonthGrid(view.year, view.month), [view.year, view.month])
+  const selectedEvents = useMemo(
+    () => (selectedIso ? eventsOnDate(selectedIso) : []),
+    [selectedIso],
+  )
+
+  viewYearRef.current = view.year
+
+  const scrollYearIntoView = useCallback((year: number, behavior: ScrollBehavior = 'smooth') => {
+    const el = yearWheelRef.current
+    if (!el) return
+    const btn = el.querySelector<HTMLElement>(`[data-year="${year}"]`)
+    if (!btn) return
+    const top = btn.offsetTop - (el.clientHeight - btn.offsetHeight) / 2
+    el.scrollTo({ top: Math.max(0, top), behavior })
   }, [])
 
+  const yearAtWheelCenter = useCallback((el: HTMLElement): number => {
+    const center = el.scrollTop + el.clientHeight / 2
+    let bestYear = viewYearRef.current
+    let bestDist = Infinity
+    el.querySelectorAll<HTMLElement>('[data-year]').forEach((node) => {
+      const y = Number(node.dataset.year)
+      if (!Number.isFinite(y)) return
+      const mid = node.offsetTop + node.offsetHeight / 2
+      const dist = Math.abs(center - mid)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestYear = y
+      }
+    })
+    return bestYear
+  }, [])
+
+  useLayoutEffect(() => {
+    if (picker !== 'year') return
+    scrollYearIntoView(viewYearRef.current, 'instant')
+  }, [picker, scrollYearIntoView])
+
+  const goMonth = (delta: number) => {
+    setView((v) => addMonths(v.year, v.month, delta))
+  }
+
+  const stepYear = (delta: number) => {
+    setView((v) => {
+      const next = addYears(v.year, v.month, delta)
+      window.requestAnimationFrame(() => scrollYearIntoView(next.year, 'smooth'))
+      return next
+    })
+  }
+
+  const selectMonth = (monthIndex: number) => {
+    setView((v) => ({ ...v, month: monthIndex }))
+    setPicker(null)
+  }
+
+  const selectYear = (year: number) => {
+    setView((v) => ({ ...v, year }))
+    setPicker(null)
+  }
+
+  const togglePicker = (mode: 'month' | 'year') => {
+    setPicker((p) => (p === mode ? null : mode))
+  }
+
   useEffect(() => {
-    const strip = stripRef.current
-    if (!strip) return
+    if (picker !== 'year') return
+    const el = yearWheelRef.current
+    if (!el) return
 
     const onScroll = () => {
-      const center = strip.scrollLeft + strip.clientWidth / 2
-      let best = 0
-      let bestDist = Infinity
-      chapterRefs.current.forEach((el, i) => {
-        if (!el) return
-        const mid = el.offsetLeft + el.offsetWidth / 2
-        const dist = Math.abs(center - mid)
-        if (dist < bestDist) {
-          bestDist = dist
-          best = i
+      window.cancelAnimationFrame(yearScrollRafRef.current)
+      yearScrollRafRef.current = window.requestAnimationFrame(() => {
+        const bestYear = yearAtWheelCenter(el)
+        if (bestYear !== viewYearRef.current) {
+          setView((v) => ({ ...v, year: bestYear }))
         }
       })
-      if (best !== chapterIndex) {
-        setChapterIndex(best)
-        const ch = calendarChapters[best]
-        const m = firstMoment(ch)
-        setSelected({ chapterId: ch.id, momentId: m.id })
-      }
     }
 
-    strip.addEventListener('scroll', onScroll, { passive: true })
-    return () => strip.removeEventListener('scroll', onScroll)
-  }, [chapterIndex])
-
-  useEffect(() => {
-    const t = window.setTimeout(() => scrollToChapter(defaultChapterIndex()), 0)
-    return () => window.clearTimeout(t)
-  }, [scrollToChapter])
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault()
-        scrollToChapter(chapterIndex - 1)
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault()
-        scrollToChapter(chapterIndex + 1)
-      }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      window.cancelAnimationFrame(yearScrollRafRef.current)
     }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [chapterIndex, scrollToChapter])
-
-  const selectMoment = (chapter: CalendarChapter, moment: ChapterMoment) => {
-    const idx = calendarChapters.findIndex((c) => c.id === chapter.id)
-    if (idx >= 0) scrollToChapter(idx, moment.id)
-    else setSelected({ chapterId: chapter.id, momentId: moment.id })
-  }
+  }, [picker, yearAtWheelCenter])
 
   return (
     <div
-      className="calendar-window"
+      className="calendar-app-window"
       style={{ left: position.x, top: position.y, zIndex }}
       role="dialog"
-      aria-label="Calendar chapters"
+      aria-label="Calendar"
       data-window-id={windowId}
       onPointerDown={onFocus}
     >
       <header
-        className="calendar-window__titlebar"
+        className="calendar-app-window__titlebar"
         {...titleBarProps}
         style={{ touchAction: 'none', cursor: 'grab' }}
       >
-        <button type="button" className="calendar-window__traffic" onClick={onClose} aria-label="Close">
-          <span className="calendar-window__dot calendar-window__dot--close" />
-          <span className="calendar-window__dot calendar-window__dot--min" />
-          <span className="calendar-window__dot calendar-window__dot--max" />
+        <button type="button" className="calendar-app-window__traffic" onClick={onClose} aria-label="Close">
+          <span className="calendar-app-window__dot calendar-app-window__dot--close" />
+          <span className="calendar-app-window__dot calendar-app-window__dot--min" />
+          <span className="calendar-app-window__dot calendar-app-window__dot--max" />
         </button>
-        <span className="calendar-window__title">Chapters</span>
+        <span className="calendar-app-window__title">Calendar</span>
       </header>
 
-      <p className="calendar-window__hint">Scroll the strip · pick a day</p>
+      <div className="calendar-app-window__body">
+        <div className="calendar-app-window__nav">
+          <button
+            type="button"
+            className="calendar-app-window__nav-btn"
+            onClick={() => goMonth(-1)}
+            disabled={picker !== null}
+            aria-label="Previous month"
+          >
+            ‹
+          </button>
+          <h2 className="calendar-app-window__month">{monthLabel}</h2>
+          <button
+            type="button"
+            className="calendar-app-window__nav-btn"
+            onClick={() => goMonth(1)}
+            disabled={picker !== null}
+            aria-label="Next month"
+          >
+            ›
+          </button>
+        </div>
 
-      <div className="calendar-window__strip-wrap">
-        <div className="calendar-window__strip" ref={stripRef}>
-          {calendarChapters.map((chapter, i) => (
-            <article
-              key={chapter.id}
-              ref={(el) => {
-                chapterRefs.current[i] = el
-              }}
-              className={`calendar-chapter${i === chapterIndex ? ' calendar-chapter--active' : ''}`}
-              aria-current={i === chapterIndex ? 'true' : undefined}
-            >
-              <div
-                className="calendar-chapter__cover"
-                style={{
-                  background: `linear-gradient(145deg, ${chapter.cover.from} 0%, ${chapter.cover.via} 45%, ${chapter.cover.to} 100%)`,
-                }}
+        <div className="calendar-app-window__mode" role="tablist" aria-label="Calendar view">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={picker === 'month'}
+            className={`calendar-app-window__mode-btn${picker === 'month' ? ' calendar-app-window__mode-btn--active' : ''}`}
+            onClick={() => togglePicker('month')}
+          >
+            Month
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={picker === 'year'}
+            className={`calendar-app-window__mode-btn${picker === 'year' ? ' calendar-app-window__mode-btn--active' : ''}`}
+            onClick={() => togglePicker('year')}
+          >
+            Year
+          </button>
+        </div>
+
+        <div className="calendar-app-window__main">
+          {picker === 'month' && (
+            <div className="calendar-app-window__month-picker" role="listbox" aria-label="Choose month">
+              {MONTH_SHORT.map((label, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  role="option"
+                  aria-selected={view.month === index}
+                  className={`calendar-app-window__month-cell${view.month === index ? ' calendar-app-window__month-cell--selected' : ''}`}
+                  onClick={() => selectMonth(index)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {picker === 'year' && (
+            <div className="calendar-app-window__year-picker">
+              <button
+                type="button"
+                className="calendar-app-window__year-step"
+                onClick={() => stepYear(-1)}
+                aria-label="Previous year"
               >
-                <span className="calendar-chapter__period">{chapter.period}</span>
-                <h2 className="calendar-chapter__name">{chapter.title}</h2>
-                <p className="calendar-chapter__subtitle">{chapter.subtitle}</p>
+                ▲
+              </button>
+              <div className="calendar-app-window__year-wheel-wrap">
+                <div className="calendar-app-window__year-wheel-fade calendar-app-window__year-wheel-fade--top" aria-hidden />
+                <div className="calendar-app-window__year-wheel" ref={yearWheelRef}>
+                  {WHEEL_YEARS.map((y) => (
+                    <button
+                      key={y}
+                      type="button"
+                      data-year={y}
+                      className={`calendar-app-window__year-item${view.year === y ? ' calendar-app-window__year-item--selected' : ''}`}
+                      onClick={() => selectYear(y)}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+                <div className="calendar-app-window__year-wheel-fade calendar-app-window__year-wheel-fade--bottom" aria-hidden />
               </div>
-              <div className="calendar-chapter__moments">
-                {chapter.moments.map((moment) => {
-                  const isSelected =
-                    selected.chapterId === chapter.id && selected.momentId === moment.id
+              <button
+                type="button"
+                className="calendar-app-window__year-step"
+                onClick={() => stepYear(1)}
+                aria-label="Next year"
+              >
+                ▼
+              </button>
+            </div>
+          )}
+
+          {picker === null && (
+            <div className="calendar-app-window__days">
+              <div className="calendar-app-window__weekdays" aria-hidden>
+                {weekdayLabels().map((label, i) => (
+                  <span key={`${label}-${i}`} className="calendar-app-window__weekday">{label}</span>
+                ))}
+              </div>
+
+              <div className="calendar-app-window__grid" role="grid" aria-label={monthLabel}>
+                {weeks.flat().map((cell) => {
+                  const isToday = isSameDay(cell.date, now)
+                  const isSelected = cell.iso === selectedIso
                   return (
                     <button
-                      key={moment.id}
+                      key={cell.iso}
                       type="button"
-                      className={`calendar-moment-btn${isSelected ? ' calendar-moment-btn--selected' : ''}`}
-                      onClick={() => selectMoment(chapter, moment)}
+                      role="gridcell"
+                      className={[
+                        'calendar-app-window__day',
+                        !cell.inMonth ? 'calendar-app-window__day--outside' : '',
+                        isToday ? 'calendar-app-window__day--today' : '',
+                        isSelected ? 'calendar-app-window__day--selected' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => setSelectedIso(cell.iso)}
+                      aria-pressed={isSelected ? true : undefined}
+                      aria-label={cell.date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
                     >
-                      {moment.label}
+                      <span className="calendar-app-window__day-num">{cell.date.getDate()}</span>
                     </button>
                   )
                 })}
               </div>
-            </article>
-          ))}
+            </div>
+          )}
         </div>
 
-        <nav className="calendar-window__nav" aria-label="Chapter navigation">
-          <button
-            type="button"
-            className="calendar-window__nav-btn"
-            disabled={chapterIndex <= 0}
-            onClick={() => scrollToChapter(chapterIndex - 1)}
-            aria-label="Previous chapter"
-          >
-            ‹
-          </button>
-          <div className="calendar-window__nav-dots">
-            {calendarChapters.map((ch, i) => (
-              <button
-                key={ch.id}
-                type="button"
-                className={`calendar-window__nav-dot${i === chapterIndex ? ' calendar-window__nav-dot--active' : ''}`}
-                onClick={() => scrollToChapter(i)}
-                aria-label={`${ch.period}: ${ch.title}`}
-                aria-current={i === chapterIndex ? 'true' : undefined}
-              />
+        <div className="calendar-app-window__footer" aria-hidden={picker !== null}>
+          {picker === null &&
+            (selectedEvents.length === 0 ? (
+              <p className="calendar-app-window__empty">No events</p>
+            ) : (
+              <ul className="calendar-app-window__events">
+                {selectedEvents.map((ev) => (
+                  <li key={`${ev.date}-${ev.title}`} className="calendar-app-window__event">
+                    <span className="calendar-app-window__event-title">{ev.title}</span>
+                  </li>
+                ))}
+              </ul>
             ))}
-          </div>
-          <button
-            type="button"
-            className="calendar-window__nav-btn"
-            disabled={chapterIndex >= calendarChapters.length - 1}
-            onClick={() => scrollToChapter(chapterIndex + 1)}
-            aria-label="Next chapter"
-          >
-            ›
-          </button>
-        </nav>
+        </div>
       </div>
-
-      <section className="calendar-window__detail" aria-live="polite">
-        <span className="calendar-window__detail-date">{activeMoment.dateLine}</span>
-        <h3 className="calendar-window__detail-title">{activeMoment.title}</h3>
-        <p className="calendar-window__detail-body">{activeMoment.body}</p>
-        {activeMoment.tags && activeMoment.tags.length > 0 && (
-          <div className="calendar-window__tags">
-            {activeMoment.tags.map((tag) => (
-              <span key={tag} className="calendar-window__tag">{tag}</span>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   )
 }

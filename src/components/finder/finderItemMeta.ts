@@ -25,6 +25,7 @@ const MODIFIED_MS: Record<string, number> = {
   'launch-calendar': Date.parse('2026-03-28'),
   'launch-calculator': Date.parse('2026-01-09'),
   'launch-pdfviewer': Date.parse('2026-03-01'),
+  'launch-games': Date.parse('2026-03-22'),
 }
 
 export function getEntryKind(entry: FinderGridEntry): string {

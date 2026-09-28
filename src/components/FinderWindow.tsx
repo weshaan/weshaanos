@@ -35,6 +35,7 @@ type Props = {
   onOpenItem?: (id: FinderLaunchId) => void
   pendingLocation?: FinderLocationId | null
   onPendingLocationHandled?: () => void
+  onLocationChange?: (locationId: FinderLocationId) => void
 }
 
 export function FinderWindow({
@@ -47,6 +48,7 @@ export function FinderWindow({
   onOpenItem,
   pendingLocation = null,
   onPendingLocationHandled,
+  onLocationChange,
 }: Props) {
   const [iconScale, setIconScale] = useState(FINDER_DEFAULT_ICON_SCALE)
   const [sortBy, setSortBy] = useState<FinderSortBy>('name')
@@ -80,6 +82,10 @@ export function FinderWindow({
   useEffect(() => {
     setSelectedKey(null)
   }, [locationId])
+
+  useEffect(() => {
+    onLocationChange?.(locationId)
+  }, [locationId, onLocationChange])
 
   const location = FINDER_LOCATIONS[locationId]
   const selectedSidebarId = location.sidebarId

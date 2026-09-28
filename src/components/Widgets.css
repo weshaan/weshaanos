@@ -435,7 +435,7 @@
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  opacity: 0.75;
+  color: #ff453a;
 }
 
 .widget-calendar__daynum {
@@ -444,6 +444,7 @@
   letter-spacing: -0.04em;
   line-height: 1.05;
   margin: 2px 0 6px;
+  color: #fff;
 }
 
 .widget-calendar__empty {
@@ -465,27 +466,15 @@
 }
 
 .widget-calendar__event {
-  display: flex;
-  align-items: flex-start;
-  gap: 5px;
   font-size: 9px;
   line-height: 1.35;
   font-weight: 500;
 }
 
-.widget-calendar__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  margin-top: 3px;
-  flex-shrink: 0;
-}
-
-.widget-calendar__dot--green {
-  background: #30d158;
-}
-
 .widget--reminders {
+  --quick-action-ring: rgba(255, 255, 255, 0.45);
+  --quick-action-done: rgba(255, 255, 255, 0.45);
+  --quick-action-tick: rgba(255, 255, 255, 0.55);
   padding: 10px 10px 8px;
   background: rgba(38, 38, 40, 0.86);
   backdrop-filter: blur(28px) saturate(140%);
@@ -529,8 +518,28 @@
   height: 14px;
   margin-top: 1px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border: 1.5px solid var(--quick-action-ring);
   flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.widget-reminders__circle--done {
+  background: var(--quick-action-done);
+  border-color: var(--quick-action-done);
+  position: relative;
+}
+
+.widget-reminders__circle--done::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 8px;
+  border: solid var(--quick-action-tick);
+  border-width: 0 2px 2px 0;
+  box-sizing: border-box;
+  transform: translate(-50%, -58%) rotate(45deg);
 }
 
 .widget-reminders__text {
@@ -595,11 +604,23 @@
     0 0 0 0.5px rgba(0, 0, 0, 0.1);
 }
 
+.desktop[data-window-theme='light'] .widget-calendar__dayname {
+  color: #1d1d1f;
+  opacity: 0.75;
+}
+
+.desktop[data-window-theme='light'] .widget-calendar__daynum {
+  color: #d70015;
+}
+
 .desktop[data-window-theme='light'] .widget-calendar__next {
   border-left-color: rgba(0, 0, 0, 0.1);
 }
 
 .desktop[data-window-theme='light'] .widget--reminders {
+  --quick-action-ring: rgba(0, 0, 0, 0.32);
+  --quick-action-done: rgba(0, 0, 0, 0.32);
+  --quick-action-tick: rgba(255, 255, 255, 0.72);
   background: rgba(255, 255, 255, 0.84);
   color: #1d1d1f;
   box-shadow:
@@ -609,10 +630,6 @@
 
 .desktop[data-window-theme='light'] .widget-reminders__item:hover {
   background: rgba(0, 0, 0, 0.06);
-}
-
-.desktop[data-window-theme='light'] .widget-reminders__circle {
-  border-color: rgba(0, 0, 0, 0.32);
 }
 
 .desktop[data-window-theme='light'] .widget--music {

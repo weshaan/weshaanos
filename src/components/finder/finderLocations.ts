@@ -30,6 +30,7 @@ export type FinderLaunchId =
   | 'calendar'
   | 'calculator'
   | 'pdfviewer'
+  | 'games'
 
 const DESKTOP_FOLDER_IDS = ['projects', 'images', 'misc', 'localhost'] as const
 export type FinderDesktopFolderId = (typeof DESKTOP_FOLDER_IDS)[number]
@@ -121,6 +122,7 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
       { kind: 'launch', label: 'Weather', glyph: 'app', launch: 'weather' },
       { kind: 'launch', label: 'Calculator', glyph: 'app', launch: 'calculator' },
       { kind: 'launch', label: 'PDF Viewer', glyph: 'app', launch: 'pdfviewer' },
+      { kind: 'launch', label: 'Games', glyph: 'app', launch: 'games' },
       { kind: 'launch', label: 'Mail', glyph: 'generic', launch: 'mail' },
       { kind: 'launch', label: 'Terminal', glyph: 'generic', launch: 'terminal' },
       { kind: 'launch', label: 'System Settings', glyph: 'app', launch: 'settings' },
