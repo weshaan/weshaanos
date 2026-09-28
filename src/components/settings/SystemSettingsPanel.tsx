@@ -1,7 +1,11 @@
 import { useWindowTheme } from '../../context/WindowThemeContext'
 import './SystemSettingsPanel.css'
 
-export function SystemSettingsPanel() {
+type Props = {
+  onOpenClockSettings?: () => void
+}
+
+export function SystemSettingsPanel({ onOpenClockSettings }: Props) {
   const { theme, setTheme } = useWindowTheme()
   const isDark = theme === 'dark'
 
@@ -28,6 +32,23 @@ export function SystemSettingsPanel() {
           <span className="system-settings__toggle-knob" />
         </button>
       </div>
+
+      <section className="system-settings__section" aria-label="Clock">
+        <div className="system-settings__row">
+          <div className="system-settings__row-text">
+            <span className="system-settings__label">Customize clock</span>
+            <span className="system-settings__hint">Desktop widget face, time format, and seconds</span>
+          </div>
+          <button
+            type="button"
+            className="system-settings__action-btn"
+            onClick={onOpenClockSettings}
+            disabled={!onOpenClockSettings}
+          >
+            Open Clock…
+          </button>
+        </div>
+      </section>
 
       <ul className="system-settings__list">
         <li>Wallpaper: Mikasa</li>

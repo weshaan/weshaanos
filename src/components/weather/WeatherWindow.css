@@ -80,6 +80,11 @@
   }
 }
 
+.weather-scene--default,
+.weather-window__backdrop.weather-scene--default {
+  background: linear-gradient(165deg, #4a8fd4 0%, #2a5f9e 55%, #183d6e 100%);
+}
+
 .weather-scene--clear {
   background: linear-gradient(165deg, #5ba3e8 0%, #2d6fb8 50%, #1a4a82 100%);
 }

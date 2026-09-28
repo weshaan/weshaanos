@@ -1,3 +1,5 @@
+import { formatMenuTime } from '../clock/clockFormat'
+import { useClockWidget } from '../context/ClockWidgetContext'
 import { useClock } from '../hooks/useClock'
 import { useWeather } from '../hooks/useWeather'
 import {
@@ -18,7 +20,9 @@ type MenuBarProps = {
 }
 
 export function MenuBar({ onAppleMenuClick, weatherEnabled = false }: MenuBarProps) {
-  const { menuTime } = useClock()
+  const { now } = useClock()
+  const { timeFormat } = useClockWidget()
+  const menuTime = formatMenuTime(now, timeFormat)
   const { tempLabel } = useWeather(weatherEnabled)
 
   return (
@@ -61,7 +65,7 @@ export function MenuBar({ onAppleMenuClick, weatherEnabled = false }: MenuBarPro
         <button type="button" className="menu-bar__status-btn menu-bar__status-btn--cc" aria-label="Control Center">
           <ControlCenterMenuIcon />
         </button>
-        <time className="menu-bar__clock" dateTime={menuTime}>{menuTime}</time>
+        <time className="menu-bar__clock" dateTime={now.toISOString()}>{menuTime}</time>
       </div>
     </header>
   )

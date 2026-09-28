@@ -19,9 +19,17 @@
 
 .widgets__row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--widget-gap);
   flex-shrink: 0;
+}
+
+.widgets__row > .widget {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+  height: auto;
+  box-sizing: border-box;
 }
 
 /* Rail scrolls — never squash widget height (was clipping bottom text). */
@@ -135,68 +143,59 @@
 }
 
 .widget--clock {
-  background: linear-gradient(180deg, #fafafa 0%, #f0f0f2 100%);
-  padding: 10px 8px;
-  aspect-ratio: 1;
+  padding: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
+  background: transparent;
 }
 
-.widget-clock__face {
-  position: relative;
+.widget--clock-button {
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.widget--clock-button:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+.widget--clock-button:disabled {
+  cursor: default;
+}
+
+.widget--clock .clock-widget-face {
+  flex: 1 1 auto;
   width: 100%;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: inherit;
 }
 
-.widget-clock__ticks {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  background: repeating-conic-gradient(
-    from -90deg,
-    rgba(0, 0, 0, 0.2) 0deg 1.2deg,
-    transparent 1.2deg 7.5deg
-  );
-  mask: radial-gradient(circle, transparent 56%, black 57%);
-  -webkit-mask: radial-gradient(circle, transparent 56%, black 57%);
-  opacity: 0.55;
-}
-
-.widget-clock__seconds {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  transform-origin: 50% 50%;
-  transition: transform 1s linear;
-}
-
-.widget-clock__seconds-dot {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  margin-left: -2.5px;
-  border-radius: 50%;
-  background: #ff3b30;
-  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
-}
-
-.widget-clock__time {
-  position: relative;
-  z-index: 3;
-  font-family: var(--mac-font);
+.widget--clock .clock-widget-face__time {
   font-size: 26px;
-  font-weight: 700;
   letter-spacing: -0.06em;
-  font-variant-numeric: tabular-nums;
-  color: #0a0a0a;
-  line-height: 1;
+  min-width: auto;
+}
+
+.widget--clock .clock-widget-face--format-24 .clock-widget-face__time {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  min-width: 5.25ch;
+}
+
+.widget--clock .clock-widget-face--minimal .clock-widget-face__time {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.widget--clock .clock-widget-face--minimal.clock-widget-face--format-24 .clock-widget-face__time {
+  font-size: 22px;
 }
 
 .widget--music {
@@ -205,8 +204,6 @@
   justify-content: space-between;
   gap: 5px;
   padding: 9px 9px 8px;
-  aspect-ratio: 1;
-  min-width: 0;
   min-height: 0;
   background: rgba(38, 38, 40, 0.82);
   backdrop-filter: blur(28px) saturate(140%);
@@ -674,13 +671,17 @@
     transform-origin: top right;
   }
 
-  .widget-clock__time {
-    font-size: 22px;
+  .widget--clock .clock-widget-face__time {
+    font-size: 24px;
+  }
+
+  .widget--clock .clock-widget-face--format-24 .clock-widget-face__time {
+    font-size: 20px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .widget-clock__seconds {
+  .clock-widget-face__seconds {
     transition: none;
   }
 }

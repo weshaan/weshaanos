@@ -22,7 +22,7 @@ import { WeatherIcon } from '../WeatherIcon'
 import { searchWeatherLocations } from '../../weather/geocoding'
 import type { WeatherDetail, WeatherLocation } from '../../weather/types'
 import { formatTimeInTimeZone } from '../../weather/openMeteoUtils'
-import { weatherSceneClass } from '../../weather/weatherScene'
+import { WEATHER_SCENE_LOADING, weatherSceneClass } from '../../weather/weatherScene'
 import { WeatherScroll } from './WeatherScroll'
 import { WeatherSceneEffects } from './WeatherSceneEffects'
 import './WeatherWindow.css'
@@ -117,7 +117,7 @@ export function WeatherWindow({
 
   const scene = activeDetail
     ? weatherSceneClass(activeDetail.weatherCode, activeDetail.isDay)
-    : 'weather-scene--partly'
+    : WEATHER_SCENE_LOADING
 
   return (
     <div

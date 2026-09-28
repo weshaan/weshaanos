@@ -1,0 +1,597 @@
+.clock-widget-face {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fafafa 0%, #f0f0f2 100%);
+  overflow: hidden;
+}
+
+.clock-widget-face--preview {
+  width: 200px;
+  height: 200px;
+  max-width: none;
+  aspect-ratio: auto;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+/* —— Original four —— */
+
+.clock-widget-face--minimal {
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
+}
+
+.clock-widget-face--midnight {
+  background: linear-gradient(165deg, #1c1c1e 0%, #2c2c2e 55%, #1a1a1c 100%);
+}
+
+.clock-widget-face--sunrise {
+  background: linear-gradient(160deg, #ffd6a8 0%, #ff9f6b 42%, #ff6b8a 100%);
+}
+
+.clock-widget-face--ocean {
+  background: linear-gradient(155deg, #0a3d4a 0%, #0d5c6e 38%, #062a35 100%);
+}
+
+.clock-widget-face--forest {
+  background: linear-gradient(170deg, #1a3324 0%, #2d4a35 45%, #14261c 100%);
+}
+
+.clock-widget-face--neon {
+  background: radial-gradient(ellipse 90% 80% at 50% 100%, #1a0a2e 0%, #050508 70%);
+  box-shadow: inset 0 0 0 1px rgba(255, 0, 128, 0.25);
+}
+
+.clock-widget-face--terminal {
+  background: #0a0c0a;
+  border-radius: 8px;
+  box-shadow: inset 0 0 24px rgba(0, 255, 80, 0.06);
+}
+
+.clock-widget-face--pastel {
+  background: linear-gradient(135deg, #ffe8f4 0%, #e8e0ff 42%, #d4f4ff 100%);
+}
+
+.clock-widget-face--lcd {
+  background: linear-gradient(180deg, #c8c4b8 0%, #a8a498 100%);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.clock-widget-face--lcd::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1a2418 0%, #0d120c 100%);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.clock-widget-face--aurora {
+  background: linear-gradient(125deg, #0f2027 0%, #203a43 35%, #2c5364 55%, #1a3a2e 75%, #0d1b2a 100%);
+}
+
+.clock-widget-face--checker {
+  background-color: #f7f4ef;
+  background-image:
+    linear-gradient(45deg, #e8e0d4 25%, transparent 25%),
+    linear-gradient(-45deg, #e8e0d4 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e8e0d4 75%),
+    linear-gradient(-45deg, transparent 75%, #e8e0d4 75%);
+  background-size: 14px 14px;
+  background-position:
+    0 0,
+    0 7px,
+    7px -7px,
+    -7px 0;
+}
+
+.clock-widget-face--orbit {
+  background: radial-gradient(circle at 50% 120%, #2a3a6e 0%, #0d1228 55%, #060810 100%);
+}
+
+.clock-widget-face--dusk {
+  background: linear-gradient(165deg, #2d1b4e 0%, #5c3d7a 40%, #c45c4a 85%, #1a1028 100%);
+}
+
+.clock-widget-face--frost {
+  background: linear-gradient(160deg, #e8f4fc 0%, #b8d4e8 40%, #d8e8f4 100%);
+}
+
+.clock-widget-face--copper {
+  background: linear-gradient(145deg, #c9a06a 0%, #8b5a2b 35%, #d4b896 70%, #6b4423 100%);
+}
+
+.clock-widget-face--candy {
+  background: repeating-linear-gradient(
+    -12deg,
+    #ff8ec8 0px,
+    #ff8ec8 8px,
+    #fff4a8 8px,
+    #fff4a8 16px,
+    #8ec8ff 16px,
+    #8ec8ff 24px
+  );
+}
+
+.clock-widget-face--ink {
+  background: linear-gradient(180deg, #f4f0e6 0%, #e8e2d4 100%);
+  box-shadow: inset 0 0 0 1px rgba(40, 30, 20, 0.12);
+}
+
+/* —— Overlays —— */
+
+.clock-widget-face__overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.clock-widget-face__overlay--scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.35) 2px,
+    rgba(0, 0, 0, 0.35) 3px
+  );
+  opacity: 0.55;
+}
+
+.clock-widget-face__overlay--grid {
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 10px 10px;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 85%);
+}
+
+.clock-widget-face__overlay--rings {
+  background:
+    radial-gradient(circle, transparent 42%, rgba(255, 255, 255, 0.45) 43%, transparent 44%),
+    radial-gradient(circle, transparent 58%, rgba(255, 255, 255, 0.25) 59%, transparent 60%),
+    radial-gradient(circle, transparent 72%, rgba(255, 255, 255, 0.15) 73%, transparent 74%);
+  opacity: 0.7;
+}
+
+.clock-widget-face--ink .clock-widget-face__overlay--rings {
+  background:
+    radial-gradient(circle, transparent 48%, rgba(30, 25, 20, 0.08) 49%, transparent 50%),
+    radial-gradient(circle, transparent 62%, rgba(30, 25, 20, 0.06) 63%, transparent 64%);
+  opacity: 1;
+}
+
+.clock-widget-face__overlay--hex {
+  opacity: 0.35;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='none' stroke='%2368a0c8' stroke-width='0.6'%3E%3Cpath d='M14 0l12 7v14l-12 7L2 21V7z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 14px 24px;
+}
+
+.clock-widget-face__overlay--dotfield {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.5;
+}
+
+.clock-widget-face--forest .clock-widget-face__overlay--dotfield {
+  background-image: radial-gradient(circle, rgba(180, 255, 140, 0.45) 1.2px, transparent 1.2px);
+  background-size: 12px 12px;
+  opacity: 0.65;
+}
+
+.clock-widget-face--candy .clock-widget-face__overlay--dotfield {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.5px, transparent 1.5px);
+  background-size: 10px 10px;
+  opacity: 0.7;
+}
+
+.clock-widget-face__overlay--stripes {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(120, 255, 200, 0.15) 18%,
+    transparent 32%,
+    rgba(200, 120, 255, 0.12) 48%,
+    transparent 62%,
+    rgba(100, 200, 255, 0.14) 78%,
+    transparent 100%
+  );
+  animation: clock-face-aurora-shift 12s ease-in-out infinite alternate;
+}
+
+@keyframes clock-face-aurora-shift {
+  0% {
+    transform: translateX(-8%) skewX(-3deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateX(8%) skewX(3deg);
+    opacity: 1;
+  }
+}
+
+.clock-widget-face__overlay--orbit-dots {
+  background:
+    radial-gradient(circle at 22% 28%, rgba(255, 200, 120, 0.9) 0, rgba(255, 200, 120, 0.9) 2px, transparent 3px),
+    radial-gradient(circle at 78% 35%, rgba(140, 180, 255, 0.85) 0, rgba(140, 180, 255, 0.85) 1.5px, transparent 2.5px),
+    radial-gradient(circle at 65% 72%, rgba(255, 140, 160, 0.8) 0, rgba(255, 140, 160, 0.8) 2px, transparent 3px),
+    radial-gradient(circle at 30% 68%, rgba(200, 220, 255, 0.5) 0, rgba(200, 220, 255, 0.5) 1px, transparent 2px);
+}
+
+.clock-widget-face--orbit::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.clock-widget-face--orbit::before {
+  content: '';
+  position: absolute;
+  inset: 18%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* —— Ticks —— */
+
+.clock-widget-face__ticks {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  opacity: 0.55;
+  mask: radial-gradient(circle, transparent 56%, black 57%);
+  -webkit-mask: radial-gradient(circle, transparent 56%, black 57%);
+  z-index: 1;
+}
+
+.clock-widget-face--classic .clock-widget-face__ticks {
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(0, 0, 0, 0.2) 0deg 1.2deg,
+    transparent 1.2deg 7.5deg
+  );
+}
+
+.clock-widget-face--midnight .clock-widget-face__ticks {
+  opacity: 0.45;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(255, 255, 255, 0.35) 0deg 1deg,
+    transparent 1deg 7.5deg
+  );
+}
+
+.clock-widget-face--sunrise .clock-widget-face__ticks {
+  opacity: 0.35;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(80, 24, 24, 0.35) 0deg 1.2deg,
+    transparent 1.2deg 7.5deg
+  );
+}
+
+.clock-widget-face--ocean .clock-widget-face__ticks {
+  opacity: 0.5;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(180, 240, 255, 0.5) 0deg 1deg,
+    transparent 1deg 7.5deg
+  );
+}
+
+.clock-widget-face--forest .clock-widget-face__ticks {
+  opacity: 0.4;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(160, 220, 160, 0.45) 0deg 1deg,
+    transparent 1deg 7.5deg
+  );
+}
+
+.clock-widget-face--lcd .clock-widget-face__ticks {
+  inset: 6px;
+  border-radius: 4px;
+  opacity: 0.35;
+  mask: radial-gradient(circle, transparent 54%, black 55%);
+  -webkit-mask: radial-gradient(circle, transparent 54%, black 55%);
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(100, 200, 80, 0.35) 0deg 1.5deg,
+    transparent 1.5deg 7.5deg
+  );
+}
+
+.clock-widget-face--dusk .clock-widget-face__ticks {
+  opacity: 0.4;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(255, 220, 255, 0.45) 0deg 1deg,
+    transparent 1deg 7.5deg
+  );
+}
+
+.clock-widget-face--frost .clock-widget-face__ticks {
+  opacity: 0.45;
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(80, 140, 200, 0.35) 0deg 1.2deg,
+    transparent 1.2deg 7.5deg
+  );
+}
+
+.clock-widget-face--copper .clock-widget-face__ticks {
+  opacity: 0.55;
+  mask: radial-gradient(circle, transparent 52%, black 53%);
+  -webkit-mask: radial-gradient(circle, transparent 52%, black 53%);
+  background: repeating-conic-gradient(
+    from -90deg,
+    rgba(40, 20, 10, 0.55) 0deg 2deg,
+    transparent 2deg 15deg,
+    rgba(40, 20, 10, 0.35) 15deg 16deg,
+    transparent 16deg 30deg
+  );
+}
+
+/* —— Second hand —— */
+
+.clock-widget-face__seconds {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  transition: transform 1s linear;
+}
+
+.clock-widget-face__seconds-dot {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: #ff3b30;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+.clock-widget-face--midnight .clock-widget-face__seconds-dot {
+  background: #ff9f0a;
+  box-shadow: 0 0 6px rgba(255, 159, 10, 0.55);
+}
+
+.clock-widget-face--sunrise .clock-widget-face__seconds-dot {
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.15);
+}
+
+.clock-widget-face--ocean .clock-widget-face__seconds-dot {
+  background: #5eead4;
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.6);
+}
+
+.clock-widget-face--forest .clock-widget-face__seconds-dot {
+  background: #a3e635;
+  box-shadow: 0 0 6px rgba(163, 230, 53, 0.5);
+}
+
+.clock-widget-face--neon .clock-widget-face__seconds-dot {
+  background: #ff00aa;
+  box-shadow: 0 0 10px rgba(255, 0, 170, 0.9);
+}
+
+.clock-widget-face--terminal .clock-widget-face__seconds-dot {
+  background: #39ff14;
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+}
+
+.clock-widget-face--pastel .clock-widget-face__seconds-dot {
+  background: #ff6eb4;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.clock-widget-face--lcd .clock-widget-face__seconds-dot {
+  background: #6fcf4a;
+  top: 8%;
+  box-shadow: 0 0 4px rgba(111, 207, 74, 0.6);
+}
+
+.clock-widget-face--aurora .clock-widget-face__seconds-dot {
+  background: #a8ffe8;
+  box-shadow: 0 0 10px rgba(168, 255, 232, 0.8);
+}
+
+.clock-widget-face--checker .clock-widget-face__seconds-dot {
+  background: #e85d4c;
+}
+
+.clock-widget-face--orbit .clock-widget-face__seconds-dot {
+  background: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+}
+
+.clock-widget-face--dusk .clock-widget-face__seconds-dot {
+  background: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.65);
+}
+
+.clock-widget-face--frost .clock-widget-face__seconds-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.55);
+}
+
+.clock-widget-face--copper .clock-widget-face__seconds-dot {
+  background: #2c1810;
+  box-shadow: 0 0 0 1px rgba(255, 220, 180, 0.4);
+}
+
+.clock-widget-face--candy .clock-widget-face__seconds-dot {
+  background: #fff;
+  box-shadow: 0 0 0 2px #ff4d9a;
+}
+
+.clock-widget-face--ink .clock-widget-face__seconds-dot {
+  background: #1a1510;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50% 40% 50% 40%;
+}
+
+/* —— Time typography —— */
+
+.clock-widget-face__time {
+  position: relative;
+  z-index: 3;
+  font-family: var(--mac-font);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: #0a0a0a;
+  line-height: 1;
+  min-width: 5.25ch;
+  text-align: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.clock-widget-face--preview .clock-widget-face__time {
+  font-size: 28px;
+  min-width: 5.5ch;
+}
+
+.clock-widget-face--minimal .clock-widget-face__seconds-dot {
+  background: #8e8e93;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.clock-widget-face--minimal .clock-widget-face__time {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.clock-widget-face--preview.clock-widget-face--minimal .clock-widget-face__time {
+  font-size: 28px;
+}
+
+.clock-widget-face--midnight .clock-widget-face__time {
+  color: #f5f5f7;
+}
+
+.clock-widget-face--sunrise .clock-widget-face__time {
+  color: #3b1414;
+}
+
+.clock-widget-face--ocean .clock-widget-face__time {
+  color: #e8fafc;
+  text-shadow: 0 1px 12px rgba(94, 234, 212, 0.25);
+}
+
+.clock-widget-face--forest .clock-widget-face__time {
+  color: #ecfccb;
+  font-weight: 600;
+}
+
+.clock-widget-face--neon .clock-widget-face__time {
+  color: #ff3dce;
+  text-shadow:
+    0 0 8px rgba(255, 60, 206, 0.9),
+    0 0 20px rgba(255, 60, 206, 0.45);
+  font-weight: 800;
+}
+
+.clock-widget-face--terminal .clock-widget-face__time {
+  font-family: ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+  font-size: 20px;
+  font-weight: 600;
+  color: #39ff14;
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.55);
+}
+
+.clock-widget-face--preview.clock-widget-face--terminal .clock-widget-face__time {
+  font-size: 24px;
+}
+
+.clock-widget-face--pastel .clock-widget-face__time {
+  color: #5c4a6e;
+  font-weight: 700;
+}
+
+.clock-widget-face--lcd .clock-widget-face__time {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #7dce5a;
+  text-shadow: 0 0 6px rgba(125, 206, 90, 0.35);
+  letter-spacing: 0.02em;
+}
+
+.clock-widget-face--preview.clock-widget-face--lcd .clock-widget-face__time {
+  font-size: 24px;
+}
+
+.clock-widget-face--aurora .clock-widget-face__time {
+  color: #f0fff8;
+  text-shadow: 0 1px 16px rgba(168, 255, 232, 0.35);
+}
+
+.clock-widget-face--checker .clock-widget-face__time {
+  color: #1c1c1e;
+  font-weight: 800;
+}
+
+.clock-widget-face--orbit .clock-widget-face__time {
+  color: #e8eeff;
+  letter-spacing: -0.02em;
+}
+
+.clock-widget-face--dusk .clock-widget-face__time {
+  color: #fff5f8;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+.clock-widget-face--frost .clock-widget-face__time {
+  color: #1e3a5f;
+  font-weight: 700;
+}
+
+.clock-widget-face--copper .clock-widget-face__time {
+  color: #2a1810;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 230, 200, 0.4);
+}
+
+.clock-widget-face--candy .clock-widget-face__time {
+  color: #fff;
+  font-weight: 800;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.15),
+    0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.clock-widget-face--ink .clock-widget-face__time {
+  color: #1a1510;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}

@@ -21,6 +21,7 @@ const defaultPositions: Record<string, () => WindowPoint> = {
   calculator: () => centerWindow(228, 430),
   calendar: () => centerWindow(400, 320),
   games: () => centerWindow(720, 520),
+  clock: () => centerWindow(620, 420),
   profile: () => {
     const p = centerWindow(440, 320)
     return { x: p.x, y: p.y + 25 }

@@ -78,6 +78,7 @@ for (name, path) in [
   ("app-settings", "/System/Applications/System Settings.app"),
   ("app-pdf-viewer", "/System/Applications/Preview.app"),
   ("app-games", "/System/Applications/Games.app"),
+  ("app-clock", "/System/Applications/Clock.app"),
 ] {
   export(name, URL(fileURLWithPath: path))
 }

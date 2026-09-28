@@ -1,0 +1,333 @@
+@keyframes clock-app-window-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.clock-app-window {
+  position: fixed;
+  width: min(620px, 94vw);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: var(--mac-font);
+  color: #1c1c1e;
+  background: #f5f5f7;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.12),
+    0 28px 80px rgba(0, 0, 0, 0.22);
+  animation: clock-app-window-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.clock-app-window__titlebar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, #ebebed 0%, #e3e3e6 100%);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
+.clock-app-window__titlebar:active {
+  cursor: grabbing;
+}
+
+.clock-app-window__traffic {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: -4px -6px;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.clock-app-window__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+}
+
+.clock-app-window__dot--close {
+  background: #ff5f57;
+}
+
+.clock-app-window__dot--min {
+  background: #febc2e;
+}
+
+.clock-app-window__dot--max {
+  background: #28c840;
+  opacity: 0.35;
+}
+
+.clock-app-window__title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-right: 52px;
+}
+
+.clock-app-window__body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.clock-app-window__sidebar {
+  flex: 0 0 220px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clock-app-window__faces {
+  flex: 1;
+  min-width: 0;
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  padding-right: 2px;
+  border-left: 0.5px solid rgba(0, 0, 0, 0.1);
+  scrollbar-width: thin;
+}
+
+.clock-app-window__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.clock-app-window .clock-widget-face--preview {
+  width: 192px;
+  height: 192px;
+}
+
+.clock-app-window__preview-caption {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.clock-app-window__section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.clock-app-window__format-toggle {
+  display: flex;
+  margin-top: 10px;
+  padding: 2px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  gap: 2px;
+}
+
+.clock-app-window__format-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.clock-app-window__format-btn:hover {
+  color: #1c1c1e;
+}
+
+.clock-app-window__format-btn--active {
+  background: #fff;
+  color: #1c1c1e;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__format-toggle {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__format-btn {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__format-btn:hover {
+  color: #f5f5f7;
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__format-btn--active {
+  background: #636366;
+  color: #fff;
+}
+
+.clock-app-window__section-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.clock-app-window__option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.clock-app-window__option-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.clock-app-window__toggle {
+  flex-shrink: 0;
+  position: relative;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.32);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clock-app-window__toggle--on {
+  background: #34c759;
+}
+
+.clock-app-window__toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.clock-app-window__toggle--on .clock-app-window__toggle-knob {
+  transform: translateX(18px);
+}
+
+.clock-app-window__face-grid {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+  align-content: start;
+}
+
+.clock-app-window__face-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  min-height: 108px;
+}
+
+.clock-app-window__face-btn:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.clock-app-window__face-btn--selected {
+  border-color: #007aff;
+  box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.25);
+}
+
+.clock-app-window__face-thumb {
+  display: block;
+  width: 100%;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.clock-app-window__face-thumb .clock-widget-face {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 8px;
+}
+
+.clock-app-window__face-thumb .clock-widget-face__time {
+  font-size: 18px;
+  min-width: 5.25ch;
+}
+
+.clock-app-window__face-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window {
+  background: #2c2c2e;
+  color: #f5f5f7;
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__titlebar {
+  background: linear-gradient(180deg, #3a3a3c 0%, #323234 100%);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__faces {
+  border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__face-btn {
+  background: #3a3a3c;
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__face-label {
+  color: #f5f5f7;
+}
+
+.desktop[data-window-theme='dark'] .clock-app-window__section-hint,
+.desktop[data-window-theme='dark'] .clock-app-window__preview-caption,
+.desktop[data-window-theme='dark'] .clock-app-window__option-hint {
+  color: rgba(255, 255, 255, 0.55);
+}

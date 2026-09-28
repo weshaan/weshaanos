@@ -10,6 +10,7 @@ import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
 import { CalculatorWindow } from './components/calculator/CalculatorWindow'
 import { CalendarWindow } from './components/calendar/CalendarWindow'
+import { ClockWindow } from './components/clock/ClockWindow'
 import { GamesWindow } from './components/games/GamesWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
@@ -35,8 +36,12 @@ type WindowId =
   | 'calculator'
   | 'calendar'
   | 'games'
+  | 'clock'
 
-type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games'>
+type MacWindowId = Exclude<
+  WindowId,
+  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock'
+>
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
   projects: {
@@ -344,6 +349,20 @@ function App() {
       )
     }
 
+    if (id === 'clock') {
+      return (
+        <ClockWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
     if (id === 'resume') {
       return (
         <Suspense key={id} fallback={null}>
@@ -373,7 +392,7 @@ function App() {
         onFocus={() => focusWindow(id)}
         onClose={() => closeWindow(id)}
       >
-        {id === 'settings' ? <SystemSettingsPanel /> : copy.body}
+        {id === 'settings' ? <SystemSettingsPanel onOpenClockSettings={() => open('clock')} /> : copy.body}
       </MacWindow>
     )
   })
@@ -396,6 +415,7 @@ function App() {
             weatherEnabled={unlocked}
             onOpenWeather={() => open('weather')}
             onOpenCalendar={() => open('calendar')}
+            onOpenClock={() => open('clock')}
             onReminder={(action) => {
               if (action === 'resume') open('resume')
               else if (action === 'profile') open('profile')

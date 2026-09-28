@@ -6,8 +6,8 @@ import {
 } from '../calendar/calendarEvents'
 import { useQuickActions } from '../context/QuickActionsContext'
 import { useClock } from '../hooks/useClock'
-import { useSecondHandRotation } from '../hooks/useSecondHandRotation'
 import type { QuickActionId } from '../quickActions/types'
+import { ClockWidgetFace } from './clock/ClockWidgetFace'
 import { MusicPlayerWidget } from './MusicPlayerWidget'
 import { WeatherWidget } from './WeatherWidget'
 import './Widgets.css'
@@ -19,6 +19,7 @@ type Props = {
   weatherEnabled?: boolean
   onOpenWeather?: () => void
   onOpenCalendar?: () => void
+  onOpenClock?: () => void
 }
 
 const reminders: { id: ReminderAction; label: string; list: string }[] = [
@@ -28,10 +29,9 @@ const reminders: { id: ReminderAction; label: string; list: string }[] = [
   { id: 'mail', label: 'Send an email', list: 'Inbox' },
 ]
 
-export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOpenCalendar }: Props) {
+export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOpenCalendar, onOpenClock }: Props) {
   const { isDone } = useQuickActions()
-  const { widgetTime, now, seconds } = useClock()
-  const secondHandRotation = useSecondHandRotation(seconds)
+  const { now } = useClock()
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
   const dayNum = now.getDate()
   const todayIso = isoDateLocal(now)
@@ -43,19 +43,15 @@ export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOp
       <WeatherWidget enabled={weatherEnabled} onOpen={onOpenWeather} />
 
       <div className="widgets__row">
-        <div className="widget widget--clock">
-          <div className="widget-clock__face">
-            <div className="widget-clock__ticks" aria-hidden />
-            <div
-              className="widget-clock__seconds"
-              style={{ transform: `rotate(${secondHandRotation}deg)` }}
-              aria-hidden
-            >
-              <span className="widget-clock__seconds-dot" />
-            </div>
-            <time className="widget-clock__time">{widgetTime}</time>
-          </div>
-        </div>
+        <button
+          type="button"
+          className="widget widget--clock widget--clock-button"
+          onClick={onOpenClock}
+          disabled={!onOpenClock}
+          aria-label="Open Clock"
+        >
+          <ClockWidgetFace />
+        </button>
 
         <MusicPlayerWidget />
       </div>

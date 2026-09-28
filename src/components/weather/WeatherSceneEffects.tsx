@@ -30,23 +30,21 @@ export function WeatherSceneEffects({ scene }: Props) {
 
     setVideoReady(false)
 
-    const markReady = () => setVideoReady(true)
-
     const tryPlay = () => {
-      void el.play().then(markReady).catch(markReady)
+      void el.play().catch(() => {})
     }
 
-    const onLoaded = () => {
-      markReady()
+    const onCanPlay = () => {
+      setVideoReady(true)
       tryPlay()
     }
 
-    el.addEventListener('loadeddata', onLoaded)
+    el.addEventListener('canplay', onCanPlay)
     el.load()
-    if (el.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) onLoaded()
+    if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) onCanPlay()
 
     return () => {
-      el.removeEventListener('loadeddata', onLoaded)
+      el.removeEventListener('canplay', onCanPlay)
     }
   }, [videoBase, scene])
 

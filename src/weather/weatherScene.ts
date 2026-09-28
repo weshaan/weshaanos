@@ -1,3 +1,6 @@
+/** Blue gradient only — no condition video while forecast is loading */
+export const WEATHER_SCENE_LOADING = 'weather-scene--default'
+
 /** CSS modifier for dynamic sky backgrounds in the Weather app. */
 export function weatherSceneClass(code: number, isDay: boolean): string {
   if (!isDay) return 'weather-scene--night'
