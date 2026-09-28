@@ -59,7 +59,8 @@ export async function fetchWeather(coords?: Coordinates): Promise<WeatherSnapsho
     current: 'temperature_2m,weather_code,is_day',
     hourly: 'temperature_2m,weather_code,is_day',
     daily: 'temperature_2m_max,temperature_2m_min',
-    forecast_days: '1',
+    // Need hours past local midnight — with 1 day, late evening only leaves ~1–2 future slots.
+    forecast_days: '2',
     timezone: 'auto',
   })
 
@@ -74,7 +75,8 @@ export async function fetchWeather(coords?: Coordinates): Promise<WeatherSnapsho
   const times = data.hourly.time
   const start = currentHourlyIndex(times, nowMs)
 
-  for (let i = 0; i < 5 && start + i < times.length; i++) {
+  const widgetHourlyCount = 5
+  for (let i = 0; i < widgetHourlyCount && start + i < times.length; i++) {
     const idx = start + i
     const code = data.hourly.weather_code[idx]
     const hourIsDay = data.hourly.is_day[idx] === 1

@@ -8,6 +8,7 @@ import { FinderWindow } from './components/FinderWindow'
 import { type FinderLocationId, isFinderDesktopFolderId } from './components/finder/finderLocations'
 import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
+import { CalculatorWindow } from './components/calculator/CalculatorWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
@@ -19,9 +20,9 @@ const ResumePdfWindow = lazy(() =>
   import('./components/ResumePdfWindow').then((m) => ({ default: m.ResumePdfWindow })),
 )
 
-type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather'
+type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather' | 'calculator'
 
-type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather'>
+type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather' | 'calculator'>
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
   projects: {
@@ -206,8 +207,10 @@ function App() {
       case 'weather':
         open('weather')
         break
+      case 'calculator':
+        open('calculator')
+        break
       case 'brave':
-      case 'slack':
         open('profile')
         break
       default:
@@ -241,6 +244,20 @@ function App() {
     if (id === 'weather') {
       return (
         <WeatherWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
+    if (id === 'calculator') {
+      return (
+        <CalculatorWindow
           key={id}
           windowId={id}
           zIndex={zIndex}
