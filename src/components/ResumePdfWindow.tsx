@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as pdfjs from 'pdfjs-dist'
+import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 import { DesktopWindow } from './desktop/DesktopWindow'
 import type { WindowPoint } from '../hooks/useDraggableWindow'
 import './ResumePdfWindow.css'
@@ -18,6 +19,107 @@ const MAX_ZOOM = 2
 const ZOOM_STEP = 0.15
 /** CSS layout scale at 100% zoom — bitmap is rendered at higher DPR. */
 const DISPLAY_SCALE = 1.5
+
+function pdfRectToViewport(viewport: pdfjs.PageViewport, rect: number[]): [number, number, number, number] {
+  const [vx1, vy1] = viewport.convertToViewportPoint(rect[0], rect[1])
+  const [vx2, vy2] = viewport.convertToViewportPoint(rect[2], rect[3])
+  return [vx1, vy1, vx2, vy2]
+}
+
+function resolveAnnotationUrl(rawUrl: string): string | null {
+  const direct = pdfjs.createValidAbsoluteUrl(rawUrl)
+  if (direct) return direct.href
+
+  if (typeof window === 'undefined') return null
+  const docBase = new URL(RESUME_PDF_URL, window.location.origin).href
+  return pdfjs.createValidAbsoluteUrl(rawUrl, docBase)?.href ?? null
+}
+
+async function appendAnnotationLinks(
+  page: PDFPageProxy,
+  doc: PDFDocumentProxy,
+  viewport: pdfjs.PageViewport,
+  layer: HTMLDivElement,
+  pagesHost: HTMLDivElement,
+) {
+  const annotations = await page.getAnnotations({ intent: 'display' })
+  layer.replaceChildren()
+
+  for (const annotation of annotations) {
+    if (annotation.subtype !== 'Link') continue
+
+    const rect = pdfRectToViewport(viewport, annotation.rect as number[])
+    const [x1, y1, x2, y2] = rect
+    const left = Math.min(x1, x2)
+    const top = Math.min(y1, y2)
+    const width = Math.abs(x2 - x1)
+    const height = Math.abs(y2 - y1)
+    if (width < 1 || height < 1) continue
+
+    const link = document.createElement('a')
+    link.className = 'resume-pdf__link'
+    link.style.left = `${left}px`
+    link.style.top = `${top}px`
+    link.style.width = `${width}px`
+    link.style.height = `${height}px`
+
+    const rawUrl = annotation.url ?? annotation.unsafeUrl
+    if (rawUrl) {
+      const href = resolveAnnotationUrl(rawUrl)
+      if (!href) continue
+      link.href = href
+      const parsed = pdfjs.createValidAbsoluteUrl(href)
+      const external =
+        parsed?.protocol === 'http:' ||
+        parsed?.protocol === 'https:' ||
+        annotation.newWindow
+      if (external) {
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+      }
+      link.addEventListener('pointerdown', (event) => event.stopPropagation())
+      layer.appendChild(link)
+      continue
+    }
+
+    if (!annotation.dest) continue
+
+    link.href = '#'
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      void scrollToPdfDestination(doc, annotation.dest, pagesHost)
+    })
+    layer.appendChild(link)
+  }
+}
+
+async function scrollToPdfDestination(
+  doc: PDFDocumentProxy,
+  dest: string | unknown[] | null,
+  pagesHost: HTMLDivElement,
+) {
+  if (!dest) return
+
+  let explicitDest: unknown[] | null = null
+  if (typeof dest === 'string') {
+    explicitDest = (await doc.getDestination(dest)) as unknown[] | null
+  } else if (Array.isArray(dest)) {
+    explicitDest = dest
+  }
+  if (!explicitDest?.length) return
+
+  const pageRef = explicitDest[0]
+  let pageNumber = 1
+  if (pageRef && typeof pageRef === 'object' && 'num' in pageRef) {
+    pageNumber = (await doc.getPageIndex(pageRef as { num: number; gen: number })) + 1
+  } else if (typeof pageRef === 'number') {
+    pageNumber = pageRef + 1
+  }
+
+  pagesHost
+    .querySelector(`[data-pdf-page="${pageNumber}"]`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 type Props = {
   windowId: string
@@ -55,13 +157,28 @@ export function ResumePdfWindow({
       const page = await doc.getPage(i)
       const viewport = page.getViewport({ scale: layoutScale })
       const renderViewport = page.getViewport({ scale: layoutScale * pixelRatio })
+
+      const pageWrap = document.createElement('div')
+      pageWrap.className = 'resume-pdf__page-wrap'
+      pageWrap.dataset.pdfPage = String(i)
+      pageWrap.style.width = `${Math.floor(viewport.width)}px`
+      pageWrap.style.height = `${Math.floor(viewport.height)}px`
+
       const canvas = document.createElement('canvas')
       canvas.className = 'resume-pdf__page'
       canvas.style.width = `${Math.floor(viewport.width)}px`
       canvas.style.height = `${Math.floor(viewport.height)}px`
       canvas.width = Math.floor(renderViewport.width)
       canvas.height = Math.floor(renderViewport.height)
-      host.appendChild(canvas)
+
+      const annotationLayer = document.createElement('div')
+      annotationLayer.className = 'resume-pdf__annotations'
+      annotationLayer.style.width = `${Math.floor(viewport.width)}px`
+      annotationLayer.style.height = `${Math.floor(viewport.height)}px`
+
+      pageWrap.append(canvas, annotationLayer)
+      host.appendChild(pageWrap)
+
       const ctx = canvas.getContext('2d')
       if (!ctx) continue
 
@@ -70,6 +187,8 @@ export function ResumePdfWindow({
         viewport: renderViewport,
         canvas,
       }).promise
+
+      await appendAnnotationLinks(page, doc, viewport, annotationLayer, host)
     }
   }, [])
 
@@ -143,7 +262,12 @@ export function ResumePdfWindow({
       <div className="resume-pdf__viewport">
         {loading && <p className="resume-pdf__status">Loading…</p>}
         {error && <p className="resume-pdf__status resume-pdf__status--error">{error}</p>}
-        <div ref={pagesRef} className="resume-pdf__pages" hidden={loading || Boolean(error)} />
+        <div
+          ref={pagesRef}
+          className="resume-pdf__pages"
+          aria-hidden={loading || Boolean(error)}
+          style={loading || error ? { display: 'none' } : undefined}
+        />
       </div>
     </DesktopWindow>
   )

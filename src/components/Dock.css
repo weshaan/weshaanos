@@ -2,16 +2,16 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 10px;
+  bottom: 0;
   z-index: 50;
   display: flex;
   justify-content: center;
-  pointer-events: none;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  align-items: flex-end;
+  pointer-events: auto;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
 }
 
 .dock {
-  pointer-events: auto;
   position: relative;
   padding: var(--dock-pad-y) var(--dock-pad-x) 5px;
   border-radius: var(--dock-radius);
@@ -23,14 +23,10 @@
     0 0 0 0.5px rgba(0, 0, 0, 0.06) inset,
     0 8px 22px rgba(0, 0, 0, 0.16),
     0 2px 4px rgba(0, 0, 0, 0.06);
-  transition:
-    padding 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: box-shadow 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .dock--hovered {
-  padding-left: 18px;
-  padding-right: 18px;
   box-shadow:
     0 0 0 0.5px rgba(255, 255, 255, 0.5),
     0 0 0 0.5px rgba(0, 0, 0, 0.06) inset,
@@ -57,10 +53,6 @@
   transition: gap 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.dock--hovered .dock__list {
-  gap: 8px;
-}
-
 .dock__item {
   display: flex;
   align-items: flex-end;
@@ -75,11 +67,6 @@
     padding-left 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.dock--hovered .dock__item--sep {
-  margin-left: 6px;
-  padding-left: 10px;
-}
-
 .dock__divider {
   position: absolute;
   left: 0;
@@ -92,11 +79,28 @@
 
 .dock__btn {
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   flex-shrink: 0;
+  overflow: visible;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  transition: width 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: var(--squircle);
+}
+
+.dock__btn-core {
+  position: relative;
+  display: block;
+  width: var(--dock-icon-size);
+  height: var(--dock-icon-size);
   transform-origin: bottom center;
   transition: transform 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
-  border-radius: var(--squircle);
 }
 
 .dock-icon__img {

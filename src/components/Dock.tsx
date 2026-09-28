@@ -4,7 +4,7 @@ import { DockIcon } from './DockIcon'
 import './Dock.css'
 
 const ICON = 46
-const MAX_SCALE = 1.54
+const MAX_SCALE = 1.6
 const RANGE = 142
 
 type Props = {
@@ -25,10 +25,10 @@ export function Dock({ onAppClick }: Props) {
       return
     }
 
-    const items = rail.querySelectorAll<HTMLElement>('.dock__item')
+    const buttons = rail.querySelectorAll<HTMLElement>('.dock__btn')
     setScales(
-      Array.from(items).map((cell) => {
-        const rect = cell.getBoundingClientRect()
+      Array.from(buttons).map((btn) => {
+        const rect = btn.getBoundingClientRect()
         const center = rect.left + rect.width / 2
         const d = Math.abs(clientX - center)
         if (d >= RANGE) return 1
@@ -54,21 +54,21 @@ export function Dock({ onAppClick }: Props) {
   }
 
   return (
-    <div className="dock-scene">
-      <div
-        ref={railRef}
-        className={hovered ? 'dock dock--hovered' : 'dock'}
-        onMouseEnter={() => setHovered(true)}
-        onMouseMove={(e) => {
-          mouseXRef.current = e.clientX
-          updateScales(e.clientX)
-        }}
-        onMouseLeave={handleLeave}
-      >
+    <div
+      className="dock-scene"
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={(e) => {
+        mouseXRef.current = e.clientX
+        updateScales(e.clientX)
+      }}
+      onMouseLeave={handleLeave}
+    >
+      <div ref={railRef} className={hovered ? 'dock dock--hovered' : 'dock'}>
         <ul className="dock__list">
           {dockApps.map((app, i) => {
             const scale = scales[i] ?? 1
-            const lift = (scale - 1) * 20
+            const slotWidth = ICON * scale
+            const lift = (scale - 1) * 22
 
             return (
               <li key={app.id} className={app.separatorBefore ? 'dock__item dock__item--sep' : 'dock__item'}>
@@ -76,21 +76,24 @@ export function Dock({ onAppClick }: Props) {
                 <button
                   type="button"
                   className="dock__btn"
-                  style={{
-                    width: ICON,
-                    height: ICON,
-                    transform: `translate3d(0, ${-lift}px, 0) scale(${scale})`,
-                  }}
+                  style={{ width: slotWidth, height: ICON }}
                   onMouseEnter={() => setTooltip(app.id)}
                   onMouseLeave={() => setTooltip(null)}
                   onFocus={() => setTooltip(app.id)}
                   onBlur={() => setTooltip(null)}
                   onClick={() => onAppClick(app.id)}
                 >
-                  {tooltip === app.id && <span className="dock__label">{app.label}</span>}
-                  <DockIcon src={app.icon} label={app.label} />
-                  {app.badge != null && <span className="dock__badge">{app.badge}</span>}
-                  {app.running && <span className="dock__indicator" aria-hidden />}
+                  <span
+                    className="dock__btn-core"
+                    style={{
+                      transform: `translate3d(0, ${-lift}px, 0) scale(${scale})`,
+                    }}
+                  >
+                    {tooltip === app.id && <span className="dock__label">{app.label}</span>}
+                    <DockIcon src={app.icon} label={app.label} />
+                    {app.badge != null && <span className="dock__badge">{app.badge}</span>}
+                    {app.running && <span className="dock__indicator" aria-hidden />}
+                  </span>
                 </button>
               </li>
             )

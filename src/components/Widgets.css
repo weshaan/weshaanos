@@ -351,7 +351,7 @@
   border: none;
   border-radius: 50%;
   background: #fff;
-  color: #1c1c1e;
+  color: #ff3b30;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -605,7 +605,7 @@
 }
 
 .desktop[data-window-theme='light'] .widget-music__play {
-  background: #1d1d1f;
+  background: #ff3b30;
   color: #fff;
 }
 

@@ -13,7 +13,9 @@ export function SystemSettingsPanel() {
       <div className="system-settings__row">
         <div className="system-settings__row-text">
           <span className="system-settings__label">Window appearance</span>
-          <span className="system-settings__hint">{isDark ? 'Dark' : 'Light'}</span>
+          <span className="system-settings__hint">
+            {isDark ? 'Dark' : 'Light'} — windows, Finder, widgets
+          </span>
         </div>
         <button
           type="button"

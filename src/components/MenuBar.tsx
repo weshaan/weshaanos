@@ -11,13 +11,22 @@ import './MenuBar.css'
 
 const menuItems = ['File', 'Edit', 'View', 'Go', 'Window', 'Help']
 
-export function MenuBar() {
+type MenuBarProps = {
+  onAppleMenuClick?: () => void
+}
+
+export function MenuBar({ onAppleMenuClick }: MenuBarProps) {
   const { menuTime } = useClock()
 
   return (
     <header className="menu-bar">
       <div className="menu-bar__left">
-        <button type="button" className="menu-bar__apple-btn" aria-label="weshaanOS menu">
+        <button
+          type="button"
+          className="menu-bar__apple-btn"
+          aria-label="About weshaanOS"
+          onClick={onAppleMenuClick}
+        >
           <AppleMenuIcon className="menu-bar__apple" />
         </button>
         <nav className="menu-bar__menus" aria-label="Application menu">

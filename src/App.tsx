@@ -277,7 +277,7 @@ function App() {
       {!introDone && <HelloIntro onComplete={() => setIntroDone(true)} />}
       <div className="desktop__session">
         <div className="desktop__wallpaper" role="presentation" />
-        <MenuBar />
+        <MenuBar onAppleMenuClick={unlocked ? () => open('profile') : undefined} />
         <div className="desktop__chrome">
           <DesktopIcons onOpen={openDesktopItem} />
           <Widgets
