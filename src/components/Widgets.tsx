@@ -1,21 +1,15 @@
 import { useClock } from '../hooks/useClock'
 import { useSecondHandRotation } from '../hooks/useSecondHandRotation'
-import { CloudIcon, MoonIcon, PartlyCloudyIcon } from './icons/WeatherSymbols'
 import { MusicPlayerWidget } from './MusicPlayerWidget'
+import { WeatherWidget } from './WeatherWidget'
 import './Widgets.css'
-
-const forecast = [
-  { time: 'Now', Icon: PartlyCloudyIcon, temp: 24 },
-  { time: '1AM', Icon: CloudIcon, temp: 23 },
-  { time: '2AM', Icon: CloudIcon, temp: 22 },
-  { time: '3AM', Icon: MoonIcon, temp: 21 },
-  { time: '4AM', Icon: MoonIcon, temp: 20 },
-] as const
 
 export type ReminderAction = 'resume' | 'profile' | 'projects' | 'mail'
 
 type Props = {
   onReminder: (action: ReminderAction) => void
+  weatherEnabled?: boolean
+  onOpenWeather?: () => void
 }
 
 const reminders: { id: ReminderAction; label: string; list: string }[] = [
@@ -25,7 +19,7 @@ const reminders: { id: ReminderAction; label: string; list: string }[] = [
   { id: 'mail', label: 'Send an email', list: 'Inbox' },
 ]
 
-export function Widgets({ onReminder }: Props) {
+export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather }: Props) {
   const { widgetTime, now, seconds } = useClock()
   const secondHandRotation = useSecondHandRotation(seconds)
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
@@ -33,25 +27,7 @@ export function Widgets({ onReminder }: Props) {
 
   return (
     <aside className="widgets" aria-label="Desktop widgets">
-      <div className="widget widget--weather">
-        <div className="widget-weather__top">
-          <span className="widget-weather__city">hello world</span>
-          <PartlyCloudyIcon size={18} />
-        </div>
-        <div className="widget-weather__hero">
-          <span className="widget-weather__temp">24°</span>
-          <span className="widget-weather__condition">Mostly Clear</span>
-        </div>
-        <div className="widget-weather__forecast">
-          {forecast.map((slot) => (
-            <div key={slot.time} className="widget-weather__slot">
-              <span className="widget-weather__slot-time">{slot.time}</span>
-              <slot.Icon size={12} />
-              <span className="widget-weather__slot-temp">{slot.temp}°</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <WeatherWidget enabled={weatherEnabled} onOpen={onOpenWeather} />
 
       <div className="widgets__row">
         <div className="widget widget--clock">

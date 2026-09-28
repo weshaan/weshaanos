@@ -1,4 +1,5 @@
 import { useClock } from '../hooks/useClock'
+import { useWeather } from '../hooks/useWeather'
 import {
   AppleMenuIcon,
   BatteryMenuIcon,
@@ -13,10 +14,12 @@ const menuItems = ['File', 'Edit', 'View', 'Go', 'Window', 'Help']
 
 type MenuBarProps = {
   onAppleMenuClick?: () => void
+  weatherEnabled?: boolean
 }
 
-export function MenuBar({ onAppleMenuClick }: MenuBarProps) {
+export function MenuBar({ onAppleMenuClick, weatherEnabled = false }: MenuBarProps) {
   const { menuTime } = useClock()
+  const { tempLabel } = useWeather(weatherEnabled)
 
   return (
     <header className="menu-bar">
@@ -41,9 +44,9 @@ export function MenuBar({ onAppleMenuClick }: MenuBarProps) {
         </nav>
       </div>
       <div className="menu-bar__right">
-        <span className="menu-bar__weather" aria-label="Weather 24 degrees Celsius">
+        <span className="menu-bar__weather" aria-label={`Weather ${tempLabel}`}>
           <WeatherMenuIcon />
-          <span className="menu-bar__weather-temp">24°C</span>
+          <span className="menu-bar__weather-temp">{tempLabel}</span>
         </span>
         <button type="button" className="menu-bar__status-btn" aria-label="Bluetooth">
           <BluetoothMenuIcon />

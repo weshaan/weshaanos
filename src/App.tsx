@@ -8,6 +8,7 @@ import { FinderWindow } from './components/FinderWindow'
 import { type FinderLocationId, isFinderDesktopFolderId } from './components/finder/finderLocations'
 import { MacWindow } from './components/MacWindow'
 import { MenuBar } from './components/MenuBar'
+import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
 import { useWindowTheme } from './context/WindowThemeContext'
@@ -18,9 +19,9 @@ const ResumePdfWindow = lazy(() =>
   import('./components/ResumePdfWindow').then((m) => ({ default: m.ResumePdfWindow })),
 )
 
-type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder'
+type WindowId = DesktopItemId | 'mail' | 'terminal' | 'profile' | 'settings' | 'finder' | 'weather'
 
-type MacWindowId = Exclude<WindowId, 'resume' | 'finder'>
+type MacWindowId = Exclude<WindowId, 'resume' | 'finder' | 'weather'>
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
   projects: {
@@ -202,9 +203,11 @@ function App() {
       case 'calendar':
         openFinderAt('projects')
         break
+      case 'weather':
+        open('weather')
+        break
       case 'brave':
       case 'slack':
-      case 'whatsapp':
         open('profile')
         break
       default:
@@ -231,6 +234,20 @@ function App() {
           onOpenItem={(itemId) => openWindow(itemId)}
           pendingLocation={finderPendingLocation}
           onPendingLocationHandled={() => setFinderPendingLocation(null)}
+        />
+      )
+    }
+
+    if (id === 'weather') {
+      return (
+        <WeatherWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
         />
       )
     }
@@ -277,10 +294,15 @@ function App() {
       {!introDone && <HelloIntro onComplete={() => setIntroDone(true)} />}
       <div className="desktop__session">
         <div className="desktop__wallpaper" role="presentation" />
-        <MenuBar onAppleMenuClick={unlocked ? () => open('profile') : undefined} />
+        <MenuBar
+          onAppleMenuClick={unlocked ? () => open('profile') : undefined}
+          weatherEnabled={unlocked}
+        />
         <div className="desktop__chrome">
           <DesktopIcons onOpen={openDesktopItem} />
           <Widgets
+            weatherEnabled={unlocked}
+            onOpenWeather={() => open('weather')}
             onReminder={(action) => {
               if (action === 'resume') open('resume')
               else if (action === 'profile') open('profile')

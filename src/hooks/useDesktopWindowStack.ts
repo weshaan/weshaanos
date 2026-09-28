@@ -17,6 +17,7 @@ function centerWindow(width: number, height: number): WindowPoint {
 const defaultPositions: Record<string, () => WindowPoint> = {
   resume: () => centerWindow(720, 640),
   finder: () => centerWindow(860, 515),
+  weather: () => centerWindow(960, 620),
   profile: () => {
     const p = centerWindow(440, 320)
     return { x: p.x, y: p.y + 25 }

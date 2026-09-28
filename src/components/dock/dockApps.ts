@@ -11,9 +11,9 @@ export type DockApp = {
 export const dockApps: DockApp[] = [
   { id: 'finder', label: 'Finder', icon: '/dock/finder.png', running: true },
   { id: 'calendar', label: 'Calendar', icon: '/dock/calendar.png' },
+  { id: 'weather', label: 'Weather', icon: '/dock/weather.png' },
   { id: 'brave', label: 'Brave', icon: '/dock/brave.png', running: true },
   { id: 'vscode', label: 'Visual Studio Code', icon: '/dock/vscode.png', running: true },
-  { id: 'whatsapp', label: 'WhatsApp', icon: '/dock/whatsapp.png', badge: 113 },
   { id: 'slack', label: 'Slack', icon: '/dock/slack.png' },
   { id: 'mail', label: 'Mail', icon: '/dock/mail.png' },
   { id: 'notes', label: 'Notes', icon: '/dock/notes.png' },

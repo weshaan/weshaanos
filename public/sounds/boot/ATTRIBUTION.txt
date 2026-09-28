@@ -1,0 +1,5 @@
+Boot UI sounds from Mixkit (https://mixkit.co) under the Mixkit License.
+Regenerate with: ./scripts/fetch-boot-sounds.sh
+
+- boot-complete.mp3 — Software interface start, trimmed (Mixkit #2574)
+- hello-reveal.mp3 — Melodical flute music notification, trimmed (Mixkit #2310)

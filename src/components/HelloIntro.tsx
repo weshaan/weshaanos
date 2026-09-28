@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
+import {
+  ensureBootAudioContext,
+  playBootCompleteSound,
+  playHelloRevealSound,
+} from '../audio/bootSounds'
 import './HelloIntro.css'
 
 const HELLO_SVG = '/hello/hello-en.svg'
@@ -102,9 +107,11 @@ export function HelloIntro({ onComplete }: Props) {
 
       await new Promise<void>((resolve) => window.setTimeout(resolve, BOOT_NEAR_COMPLETE_PAUSE_MS))
       await gsap.to(fill, { scaleX: 1, duration: 0.48, ease: 'power2.inOut' })
+      playBootCompleteSound()
       await new Promise<void>((resolve) => window.setTimeout(resolve, BOOT_HOLD_AT_COMPLETE_MS))
 
       setPhase('playing')
+      playHelloRevealSound()
       await playHelloMarkup(markup)
     } catch {
       finishIntro()
@@ -120,6 +127,7 @@ export function HelloIntro({ onComplete }: Props) {
       return
     }
 
+    ensureBootAudioContext()
     setPhase('booting')
   }
 

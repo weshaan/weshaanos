@@ -1,0 +1,6 @@
+Moon disc texture: Solar System Scope 2K lunar map (https://www.solarsystemscope.com/textures/), CC BY 4.0.
+Regenerate with: ./scripts/fetch-moon-face.sh → public/weather/moon-face.jpg
+
+Background loop videos sourced from Mixkit (https://mixkit.co/) under the Mixkit License.
+Clips (Mixkit video IDs): clear 26108, partly 4366 (also used for cloudy), rain 20260, storm 27704, night 39770 (night sky filled with stars, 1080p source).
+Processed locally to 960×540 WebM/MP4 loops for the Weather app UI.

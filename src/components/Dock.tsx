@@ -5,7 +5,8 @@ import './Dock.css'
 
 const ICON = 46
 const MAX_SCALE = 1.6
-const RANGE = 142
+/** Wider Gaussian falloff — ~5 icons (center + 2 each side) form a smooth hill. */
+const MAG_SIGMA = 58
 
 type Props = {
   onAppClick: (id: string) => void
@@ -31,9 +32,7 @@ export function Dock({ onAppClick }: Props) {
         const rect = btn.getBoundingClientRect()
         const center = rect.left + rect.width / 2
         const d = Math.abs(clientX - center)
-        if (d >= RANGE) return 1
-        const t = 1 - d / RANGE
-        const eased = Math.pow(t, 2.1)
+        const eased = Math.exp(-0.5 * (d / MAG_SIGMA) ** 2)
         return 1 + (MAX_SCALE - 1) * eased
       }),
     )

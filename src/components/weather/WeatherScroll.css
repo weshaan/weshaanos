@@ -1,0 +1,102 @@
+.weather-scroll {
+  position: relative;
+  min-height: 0;
+}
+
+.weather-scroll__viewport {
+  height: 100%;
+  overflow: auto;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.weather-scroll__viewport::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.weather-scroll__track {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  bottom: 6px;
+  width: 12px;
+  padding: 0 2px;
+  box-sizing: border-box;
+  border-radius: 99px;
+  background: transparent;
+  z-index: 2;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.weather-scroll__track::before {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  border-radius: 99px;
+  background: var(--weather-scrollbar-track);
+  pointer-events: none;
+}
+
+.weather-scroll__thumb {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-radius: 99px;
+  background: var(--weather-scrollbar-thumb);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--weather-scrollbar-thumb) 50%, transparent);
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+
+.weather-scroll__thumb:active {
+  cursor: grabbing;
+}
+
+.weather-window.weather-scene--night .weather-scroll__thumb {
+  box-shadow: none;
+}
+
+/* Sidebar city list: fill column */
+.weather-sidebar__list-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+.weather-sidebar__search-scroll {
+  max-height: 180px;
+}
+
+.weather-sidebar__search-scroll .weather-scroll__viewport {
+  max-height: 180px;
+}
+
+@media (max-width: 860px) {
+  .weather-sidebar__list-scroll .weather-scroll__track {
+    display: none;
+  }
+
+  .weather-sidebar__list-scroll .weather-scroll__viewport {
+    scrollbar-width: thin;
+    scrollbar-color: var(--weather-scrollbar-thumb) var(--weather-scrollbar-track);
+  }
+
+  .weather-sidebar__list-scroll .weather-scroll__viewport::-webkit-scrollbar {
+    display: block;
+    height: 8px;
+    width: 8px;
+  }
+
+  .weather-sidebar__list-scroll .weather-scroll__viewport::-webkit-scrollbar-track {
+    background: var(--weather-scrollbar-track);
+  }
+
+  .weather-sidebar__list-scroll .weather-scroll__viewport::-webkit-scrollbar-thumb {
+    background: var(--weather-scrollbar-thumb);
+    border-radius: 99px;
+  }
+}
