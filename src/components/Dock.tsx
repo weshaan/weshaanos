@@ -4,7 +4,7 @@ import { DockIcon } from './DockIcon'
 import './Dock.css'
 
 const ICON = 46
-const MAX_SCALE = 1.6
+const MAX_SCALE = 1.72
 /** Wider Gaussian falloff — ~5 icons (center + 2 each side) form a smooth hill. */
 const MAG_SIGMA = 58
 

@@ -11,6 +11,7 @@ const WINDOW_SIZES: Record<string, WindowSize> = {
   games: { width: 720, height: 520 },
   clock: { width: 620, height: 420 },
   musicapp: { width: 311, height: 548 },
+  brave: { width: 1060, height: 660 },
   profile: { width: 440, height: 360 },
   mail: { width: 440, height: 220 },
   settings: { width: 440, height: 420 },
@@ -41,6 +42,14 @@ export function estimateWindowSize(windowId: string): WindowSize {
     return {
       width: Math.min(720, vw * 0.94),
       height: Math.min(820, vh * 0.78),
+    }
+  }
+
+  if (windowId === 'brave') {
+    const base = WINDOW_SIZES.brave
+    return {
+      width: Math.min(base.width, vw * 0.96),
+      height: Math.min(base.height, vh * 0.9),
     }
   }
 

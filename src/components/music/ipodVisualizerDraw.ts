@@ -2,6 +2,7 @@ import type { VisualizerKind, VisualizerPalette } from './ipodVisualizerCore'
 import {
   levelFromFrequency,
   simulatedBandLevels,
+  vuBarBandPermutation,
 } from './ipodVisualizerCore'
 
 type DrawInput = {
@@ -53,9 +54,11 @@ function drawVuBars(input: DrawInput) {
   const gap = 2
   const barW = (w - gap * (bars + 1)) / bars
   const sim = simulatedBandLevels(seed, bars, t, playing)
+  const bandOrder = vuBarBandPermutation(seed, bars)
 
   for (let i = 0; i < bars; i++) {
-    const level = levelFromFrequency(frequency, i, bars, sim[i])
+    const band = bandOrder[i]
+    const level = levelFromFrequency(frequency, band, bars, sim[band])
     const bh = Math.max(2, level * (h - 8))
     const x = gap + i * (barW + gap)
     const y = h - 4 - bh

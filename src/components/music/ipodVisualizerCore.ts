@@ -76,6 +76,21 @@ export function simulatedBandLevels(
   return levels
 }
 
+/** Display order only: same FFT bands as linear VU, shuffled so heights aren’t a slant. */
+export function vuBarBandPermutation(seed: number, barCount: number): number[] {
+  const perm = Array.from({ length: barCount }, (_, i) => i)
+  let s = seed >>> 0
+  for (let i = barCount - 1; i > 0; i--) {
+    s = Math.imul(s ^ (s >>> 16), 2246822519) >>> 0
+    s = Math.imul(s ^ (s >>> 13), 3266489917) >>> 0
+    const j = s % (i + 1)
+    const tmp = perm[i]
+    perm[i] = perm[j]
+    perm[j] = tmp
+  }
+  return perm
+}
+
 export function levelFromFrequency(
   frequency: Uint8Array | undefined,
   index: number,

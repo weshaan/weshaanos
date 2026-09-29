@@ -13,9 +13,11 @@ import { CalendarWindow } from './components/calendar/CalendarWindow'
 import { ClockWindow } from './components/clock/ClockWindow'
 import { GamesWindow } from './components/games/GamesWindow'
 import { MusicWindow } from './components/music/MusicWindow'
+import { BraveBrowserWindow } from './components/brave/BraveBrowserWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { MusicPlayerProvider } from './context/MusicPlayerContext'
+import { DesktopCursor } from './components/desktop/DesktopCursor'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
 import { useQuickActions } from './context/QuickActionsContext'
 import { useWindowTheme } from './context/WindowThemeContext'
@@ -40,10 +42,11 @@ type WindowId =
   | 'games'
   | 'clock'
   | 'musicapp'
+  | 'brave'
 
 type MacWindowId = Exclude<
   WindowId,
-  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp'
+  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp' | 'brave'
 >
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
@@ -262,7 +265,7 @@ function App() {
         open('games')
         break
       case 'brave':
-        open('profile')
+        open('brave')
         break
       default:
         break
@@ -380,6 +383,20 @@ function App() {
       )
     }
 
+    if (id === 'brave') {
+      return (
+        <BraveBrowserWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
     if (id === 'resume') {
       return (
         <Suspense key={id} fallback={null}>
@@ -416,6 +433,7 @@ function App() {
 
   return (
     <div className={`desktop ${desktopState}`} data-window-theme={theme}>
+      <DesktopCursor enabled={unlocked} />
       {!unlocked && (
         <LockScreen onUnlock={handleUnlock} exiting={lockExiting} unlockEnabled={introDone} />
       )}

@@ -1,0 +1,116 @@
+@media (pointer: fine) {
+  html.desktop-cursor--active .desktop__session,
+  html.desktop-cursor--active .desktop__session * {
+    cursor: none !important;
+  }
+}
+
+.desktop-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 80;
+  overflow: visible;
+  pointer-events: none;
+  --ring-opacity: 1;
+  --ring-move-ms: 240;
+}
+
+.desktop-cursor,
+.desktop-cursor * {
+  pointer-events: none !important;
+}
+
+.desktop-cursor__dot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.35),
+    0 2px 10px rgba(0, 0, 0, 0.28);
+  will-change: transform;
+  transition: opacity 0.12s ease;
+}
+
+.desktop-cursor__ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 72, 72, 0.75);
+  background: rgba(255, 60, 60, 0.1);
+  box-shadow: 0 0 18px rgba(255, 50, 50, 0.22);
+  opacity: var(--ring-opacity);
+  will-change: transform, opacity;
+  transition:
+    transform calc(var(--ring-move-ms) * 1ms) cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.32s ease,
+    width 0.2s ease,
+    height 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.desktop-cursor__ring--no-transition {
+  transition: none !important;
+}
+
+.desktop-cursor--dock-fade .desktop-cursor__ring {
+  transition:
+    transform calc(var(--ring-move-ms) * 1ms) cubic-bezier(0.28, 0.84, 0.42, 1),
+    opacity 0.34s ease,
+    width 0.2s ease,
+    height 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.desktop-cursor--exiting .desktop-cursor__ring {
+  transition:
+    transform calc(var(--ring-move-ms) * 1ms) cubic-bezier(0.22, 0.84, 0.36, 1),
+    opacity 0.42s ease,
+    width 0.2s ease,
+    height 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.desktop-cursor--pointer:not(.desktop-cursor--down) .desktop-cursor__ring {
+  width: 32px;
+  height: 32px;
+  border-color: rgba(255, 100, 100, 0.85);
+  background: rgba(255, 55, 55, 0.14);
+}
+
+.desktop-cursor--down .desktop-cursor__ring {
+  width: 19px;
+  height: 19px;
+  border-color: rgba(255, 90, 90, 0.9);
+  background: rgba(255, 50, 50, 0.16);
+}
+
+.desktop-cursor--down.desktop-cursor--pointer .desktop-cursor__ring {
+  width: 24px;
+  height: 24px;
+}
+
+.desktop-cursor--hidden .desktop-cursor__dot,
+.desktop-cursor--hidden .desktop-cursor__ring {
+  opacity: 0;
+}
+
+.desktop-cursor--dot-out .desktop-cursor__dot {
+  opacity: 0;
+}
+
+.desktop-cursor--dock-near {
+  --ring-opacity: 0;
+}
