@@ -1,0 +1,363 @@
+/* Layout matched to Wikimedia 6G_iPod.svg (443.2 × 728.93 device artboard) */
+
+@keyframes ipod-window-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.music-window.ipod-window {
+  --ipod-device-w: 311px;
+  --ipod-aspect: 728.93097 / 443.19766;
+
+  position: fixed;
+  width: var(--ipod-device-w);
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--mac-font);
+  animation: ipod-window-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ipod-window__titlebar {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 8px 2px;
+  user-select: none;
+}
+
+.ipod-window__titlebar:active {
+  cursor: grabbing;
+}
+
+.ipod-window__traffic {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: -4px -6px;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ipod-window__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.14);
+}
+
+.ipod-window__dot--close {
+  background: #ff5f57;
+}
+
+.ipod-window__dot--min {
+  background: #febc2e;
+}
+
+.ipod-window__dot--max {
+  background: #28c840;
+  opacity: 0.35;
+}
+
+.ipod-device {
+  position: relative;
+  width: var(--ipod-device-w);
+  aspect-ratio: 443.19766 / 728.93097;
+  margin: 0 auto;
+  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.38));
+}
+
+.ipod-device__shell {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Screen cutout: rect3617 in source SVG */
+.ipod-device__screen {
+  position: absolute;
+  left: 7.58%;
+  top: 4.42%;
+  width: 84.74%;
+  height: 39.2%;
+  padding: 8px 10px 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: #313131;
+  border: 4px solid #434343;
+  overflow: hidden;
+  color: #ececec;
+}
+
+.ipod-now {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.ipod-now__status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(236, 236, 236, 0.55);
+}
+
+.ipod-now__battery {
+  width: 20px;
+  height: 9px;
+  border-radius: 2px;
+  border: 1px solid rgba(236, 236, 236, 0.35);
+  position: relative;
+}
+
+.ipod-now__battery::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 62%;
+  border-radius: 1px;
+  background: #ececec;
+}
+
+.ipod-now__art {
+  margin: 8px 0 6px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+}
+
+.ipod-now__viz {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: 4px;
+}
+
+.ipod-now__title {
+  margin: 0;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipod-now__artist {
+  margin: 2px 0 0;
+  width: 100%;
+  font-size: 11px;
+  color: rgba(236, 236, 236, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipod-now__progress {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.ipod-now__bar {
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.ipod-now__bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6eb5ff, #3d8fd9);
+}
+
+.ipod-now__seek {
+  width: 100%;
+  height: 14px;
+  margin: -9px 0 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ipod-now__times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(236, 236, 236, 0.45);
+}
+
+.ipod-songs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ipod-songs__heading {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ipod-songs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.ipod-songs__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.ipod-songs__row:hover:not(.ipod-songs__row--active) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ipod-songs__row--active {
+  background: linear-gradient(180deg, #5a9fd4 0%, #3d7eb8 100%);
+  color: #fff;
+}
+
+.ipod-songs__row--active .ipod-songs__artist {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ipod-songs__name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ipod-songs__artist {
+  font-size: 10px;
+  color: rgba(236, 236, 236, 0.5);
+}
+
+.ipod-songs__empty {
+  padding: 10px 8px;
+  font-size: 11px;
+  color: rgba(236, 236, 236, 0.45);
+}
+
+/* Click wheel hit targets — aligned to path4397 / path4399 in source SVG */
+.ipod-device__wheel {
+  position: absolute;
+  left: 48.5%;
+  top: 72.8%;
+  width: 60.4%;
+  height: 0;
+  padding-bottom: 60.4%;
+  transform: translate(-50%, -50%);
+}
+
+.ipod-wheel-hit {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ipod-wheel-hit:disabled {
+  cursor: default;
+}
+
+.ipod-wheel-hit--center {
+  left: 50%;
+  top: 50%;
+  width: 36%;
+  height: 36%;
+  margin: -18% 0 0 -18%;
+  border-radius: 50%;
+}
+
+.ipod-wheel-hit--menu {
+  left: 50%;
+  top: 4%;
+  width: 28%;
+  height: 22%;
+  margin-left: -14%;
+}
+
+.ipod-wheel-hit--play {
+  left: 50%;
+  bottom: 4%;
+  width: 28%;
+  height: 22%;
+  margin-left: -14%;
+}
+
+.ipod-wheel-hit--prev {
+  left: 4%;
+  top: 50%;
+  width: 22%;
+  height: 28%;
+  margin-top: -14%;
+}
+
+.ipod-wheel-hit--next {
+  right: 4%;
+  top: 50%;
+  width: 22%;
+  height: 28%;
+  margin-top: -14%;
+}
+
+.ipod-wheel-hit:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+}
+
+.ipod-wheel-hit--center:not(:disabled):hover {
+  border-radius: 50%;
+}
+
+.music-window .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

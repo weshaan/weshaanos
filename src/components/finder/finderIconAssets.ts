@@ -41,6 +41,8 @@ export function getFinderItemIcon(entry: FinderGridEntry): string {
         return '/finder/app-games.png'
       case 'clock':
         return '/finder/app-clock.svg'
+      case 'musicapp':
+        return '/finder/app-music.svg'
       default:
         break
     }

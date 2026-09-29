@@ -12,8 +12,10 @@ import { CalculatorWindow } from './components/calculator/CalculatorWindow'
 import { CalendarWindow } from './components/calendar/CalendarWindow'
 import { ClockWindow } from './components/clock/ClockWindow'
 import { GamesWindow } from './components/games/GamesWindow'
+import { MusicWindow } from './components/music/MusicWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
+import { MusicPlayerProvider } from './context/MusicPlayerContext'
 import { SystemSettingsPanel } from './components/settings/SystemSettingsPanel'
 import { useQuickActions } from './context/QuickActionsContext'
 import { useWindowTheme } from './context/WindowThemeContext'
@@ -37,10 +39,11 @@ type WindowId =
   | 'calendar'
   | 'games'
   | 'clock'
+  | 'musicapp'
 
 type MacWindowId = Exclude<
   WindowId,
-  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock'
+  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp'
 >
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
@@ -363,6 +366,20 @@ function App() {
       )
     }
 
+    if (id === 'musicapp') {
+      return (
+        <MusicWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
     if (id === 'resume') {
       return (
         <Suspense key={id} fallback={null}>
@@ -403,30 +420,33 @@ function App() {
         <LockScreen onUnlock={handleUnlock} exiting={lockExiting} unlockEnabled={introDone} />
       )}
       {!introDone && <HelloIntro onComplete={() => setIntroDone(true)} />}
-      <div className="desktop__session">
-        <div className="desktop__wallpaper" role="presentation" />
-        <MenuBar
-          onAppleMenuClick={unlocked ? () => open('profile') : undefined}
-          weatherEnabled={unlocked}
-        />
-        <div className="desktop__chrome">
-          <DesktopIcons onOpen={openDesktopItem} />
-          <Widgets
+      <MusicPlayerProvider>
+        <div className="desktop__session">
+          <div className="desktop__wallpaper" role="presentation" />
+          <MenuBar
+            onAppleMenuClick={unlocked ? () => open('profile') : undefined}
             weatherEnabled={unlocked}
-            onOpenWeather={() => open('weather')}
-            onOpenCalendar={() => open('calendar')}
-            onOpenClock={() => open('clock')}
-            onReminder={(action) => {
-              if (action === 'resume') open('resume')
-              else if (action === 'profile') open('profile')
-              else if (action === 'projects') openFinderAt('projects')
-              else open('mail')
-            }}
           />
+          <div className="desktop__chrome">
+            <DesktopIcons onOpen={openDesktopItem} />
+            <Widgets
+              weatherEnabled={unlocked}
+              onOpenWeather={() => open('weather')}
+              onOpenCalendar={() => open('calendar')}
+              onOpenClock={() => open('clock')}
+              onOpenMusic={() => open('musicapp')}
+              onReminder={(action) => {
+                if (action === 'resume') open('resume')
+                else if (action === 'profile') open('profile')
+                else if (action === 'projects') openFinderAt('projects')
+                else open('mail')
+              }}
+            />
+          </div>
+          <Dock onAppClick={handleDock} />
+          {windowLayer.length > 0 && <div className="desktop-windows">{windowLayer}</div>}
         </div>
-        <Dock onAppClick={handleDock} />
-        {windowLayer.length > 0 && <div className="desktop-windows">{windowLayer}</div>}
-      </div>
+      </MusicPlayerProvider>
     </div>
   )
 }

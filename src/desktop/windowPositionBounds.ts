@@ -10,6 +10,7 @@ const WINDOW_SIZES: Record<string, WindowSize> = {
   calendar: { width: 400, height: 520 },
   games: { width: 720, height: 520 },
   clock: { width: 620, height: 420 },
+  musicapp: { width: 311, height: 548 },
   profile: { width: 440, height: 360 },
   mail: { width: 440, height: 220 },
   settings: { width: 440, height: 420 },

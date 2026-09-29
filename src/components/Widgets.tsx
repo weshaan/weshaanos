@@ -20,6 +20,7 @@ type Props = {
   onOpenWeather?: () => void
   onOpenCalendar?: () => void
   onOpenClock?: () => void
+  onOpenMusic?: () => void
 }
 
 const reminders: { id: ReminderAction; label: string; list: string }[] = [
@@ -29,7 +30,14 @@ const reminders: { id: ReminderAction; label: string; list: string }[] = [
   { id: 'mail', label: 'Send an email', list: 'Inbox' },
 ]
 
-export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOpenCalendar, onOpenClock }: Props) {
+export function Widgets({
+  onReminder,
+  weatherEnabled = true,
+  onOpenWeather,
+  onOpenCalendar,
+  onOpenClock,
+  onOpenMusic,
+}: Props) {
   const { isDone } = useQuickActions()
   const { now } = useClock()
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
@@ -53,7 +61,7 @@ export function Widgets({ onReminder, weatherEnabled = true, onOpenWeather, onOp
           <ClockWidgetFace />
         </button>
 
-        <MusicPlayerWidget />
+        <MusicPlayerWidget onOpenMusic={onOpenMusic} />
       </div>
 
       <button

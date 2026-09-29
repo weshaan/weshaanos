@@ -1,8 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { useMusicPlayer } from '../hooks/useMusicPlayer'
-import { useMusicPlaylist } from '../hooks/useMusicPlaylist'
-import { setMusicAutoplayHandler } from '../music/autoplay'
-import { setMusicPlaybackBridge } from '../music/playbackBridge'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useMusicPlayerContext } from '../context/MusicPlayerContext'
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
@@ -11,48 +8,55 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-export function MusicPlayerWidget() {
-  const { tracks, loadError } = useMusicPlaylist()
-  const player = useMusicPlayer(tracks)
+type Props = {
+  onOpenMusic?: () => void
+}
 
-  useEffect(() => {
-    if (!player.hasTracks) {
-      setMusicAutoplayHandler(null)
-      setMusicPlaybackBridge(null)
-      return
-    }
-    setMusicAutoplayHandler(() => {
-      player.play()
-    })
-    setMusicPlaybackBridge({
-      playTrack: (trackId) => player.playTrackById(trackId),
-    })
-    return () => {
-      setMusicAutoplayHandler(null)
-      setMusicPlaybackBridge(null)
-    }
-  }, [player.hasTracks, player.play, player.playTrackById, tracks])
+export function MusicPlayerWidget({ onOpenMusic }: Props) {
+  const {
+    track,
+    hasTracks,
+    loadError,
+    playing,
+    currentTime,
+    duration,
+    togglePlay,
+    previous,
+    next,
+    seek,
+  } = useMusicPlayerContext()
 
-  const progress = player.duration > 0 ? Math.min(100, (player.currentTime / player.duration) * 100) : 0
-
+  const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0
   const emptyLabel = loadError ? 'No playlist' : 'No songs yet'
 
-  return (
-    <div className="widget widget--music" aria-label="Music player">
-      <audio
-        ref={player.audioRef}
-        preload="none"
-        onTimeUpdate={player.onTimeUpdate}
-        onLoadedMetadata={player.onLoadedMetadata}
-        onEnded={player.onEnded}
-        onPlay={player.onAudioPlay}
-        onPause={player.onAudioPause}
-      />
+  const handleShellClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (!onOpenMusic) return
+    if ((e.target as HTMLElement).closest('button, input')) return
+    onOpenMusic()
+  }
 
+  return (
+    <div
+      className="widget widget--music"
+      aria-label="Music player"
+      onClick={handleShellClick}
+      role={onOpenMusic ? 'button' : undefined}
+      tabIndex={onOpenMusic ? 0 : undefined}
+      onKeyDown={
+        onOpenMusic
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onOpenMusic()
+              }
+            }
+          : undefined
+      }
+    >
       <MusicInfoMarquee
-        title={player.track?.title ?? emptyLabel}
-        artist={player.track?.artist}
-        scroll={player.playing}
+        title={track?.title ?? emptyLabel}
+        artist={track?.artist}
+        scroll={playing}
       />
 
       <div className="widget-music__scrub">
@@ -63,12 +67,12 @@ export function MusicPlayerWidget() {
           type="range"
           className="widget-music__seek"
           min={0}
-          max={player.duration || 100}
+          max={duration || 100}
           step={0.25}
-          value={player.currentTime}
-          disabled={!player.track || player.duration <= 0}
-          onChange={(e) => player.seek(Number(e.target.value))}
-          aria-label={`Playback position, ${formatTime(player.currentTime)} of ${formatTime(player.duration)}`}
+          value={currentTime}
+          disabled={!track || duration <= 0}
+          onChange={(e) => seek(Number(e.target.value))}
+          aria-label={`Playback position, ${formatTime(currentTime)} of ${formatTime(duration)}`}
         />
       </div>
 
@@ -76,8 +80,8 @@ export function MusicPlayerWidget() {
         <button
           type="button"
           className="widget-music__skip"
-          onClick={player.previous}
-          disabled={!player.hasTracks}
+          onClick={previous}
+          disabled={!hasTracks}
           aria-label="Previous track"
         >
           <SkipBackIcon />
@@ -85,23 +89,23 @@ export function MusicPlayerWidget() {
 
         <button
           type="button"
-          className={`widget-music__play${player.playing ? ' widget-music__play--pause' : ''}`}
+          className={`widget-music__play${playing ? ' widget-music__play--pause' : ''}`}
           onClick={(e) => {
             e.stopPropagation()
-            player.togglePlay()
+            togglePlay()
           }}
-          disabled={!player.track}
-          aria-label={player.playing ? 'Pause' : 'Play'}
-          aria-pressed={player.playing}
+          disabled={!track}
+          aria-label={playing ? 'Pause' : 'Play'}
+          aria-pressed={playing}
         >
-          {player.playing ? <PauseIcon /> : <PlayIcon />}
+          {playing ? <PauseIcon /> : <PlayIcon />}
         </button>
 
         <button
           type="button"
           className="widget-music__skip"
-          onClick={player.next}
-          disabled={!player.hasTracks}
+          onClick={next}
+          disabled={!hasTracks}
           aria-label="Next track"
         >
           <SkipForwardIcon />
