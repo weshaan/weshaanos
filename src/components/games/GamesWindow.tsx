@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { calendarChapters, defaultChapterIndex } from '../../games/chapterData'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './GamesWindow.css'
 
@@ -14,6 +15,7 @@ type Props = {
 
 const SCROLL_MS_NAV = 520
 const SCROLL_MS_OPEN = 1150
+const STRIP_EDGE_GUTTER = 16
 
 type EaseFn = (t: number) => number
 
@@ -26,13 +28,24 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3
 }
 
-function chapterScrollGoal(strip: HTMLElement, el: HTMLElement): number {
-  const stripRect = strip.getBoundingClientRect()
-  const elRect = el.getBoundingClientRect()
-  const elCenterInContent = elRect.left - stripRect.left + strip.scrollLeft + elRect.width / 2
-  const ideal = elCenterInContent - strip.clientWidth / 2
+function chapterScrollGoal(
+  strip: HTMLElement,
+  el: HTMLElement,
+  index: number,
+  lastIndex: number,
+): number {
+  const center = el.offsetLeft + el.offsetWidth / 2
+  const ideal = center - strip.clientWidth / 2
   const max = Math.max(0, strip.scrollWidth - strip.clientWidth)
-  return Math.min(Math.max(0, ideal), max)
+  let goal = Math.min(Math.max(0, ideal), max)
+
+  if (index === lastIndex) {
+    const rightWithGutter = el.offsetLeft + el.offsetWidth + STRIP_EDGE_GUTTER
+    const maxForGutter = Math.max(0, rightWithGutter - strip.clientWidth)
+    goal = Math.min(goal, maxForGutter)
+  }
+
+  return goal
 }
 
 export function GamesWindow({
@@ -43,7 +56,7 @@ export function GamesWindow({
   onFocus,
   onClose,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const stripRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const chapterRefs = useRef<(HTMLElement | null)[]>([])
@@ -52,6 +65,7 @@ export function GamesWindow({
   const programmaticScrollTimerRef = useRef(0)
   const scrollAnimFrameRef = useRef(0)
   const [chapterIndex, setChapterIndex] = useState(defaultChapterIndex)
+  const [introSweep, setIntroSweep] = useState(true)
 
   const activeChapter = calendarChapters[chapterIndex]
   const activeDetail = activeChapter.detail
@@ -106,7 +120,10 @@ export function GamesWindow({
           scrollAnimFrameRef.current = 0
           strip.scrollLeft = left
           endProgrammaticScroll()
-          onComplete?.()
+          window.requestAnimationFrame(() => {
+            strip.scrollLeft = left
+            onComplete?.()
+          })
         }
       }
       scrollAnimFrameRef.current = window.requestAnimationFrame(tick)
@@ -129,7 +146,11 @@ export function GamesWindow({
       const strip = stripRef.current
       const el = chapterRefs.current[clamped]
       if (strip && el) {
-        scrollStripTo(chapterScrollGoal(strip, el), durationMs, ease)
+        scrollStripTo(
+          chapterScrollGoal(strip, el, clamped, calendarChapters.length - 1),
+          durationMs,
+          ease,
+        )
       } else {
         endProgrammaticScroll()
       }
@@ -173,8 +194,6 @@ export function GamesWindow({
   useEffect(() => {
     const firstIndex = 0
     const lastIndex = calendarChapters.length - 1
-    chapterIndexRef.current = lastIndex
-    setChapterIndex(lastIndex)
 
     let cancelled = false
     let teardownIntro: (() => void) | undefined
@@ -186,13 +205,15 @@ export function GamesWindow({
       const lastEl = chapterRefs.current[lastIndex]
       if (!strip || !firstEl || !lastEl) return false
 
-      const goalFirst = chapterScrollGoal(strip, firstEl)
-      const goalLast = chapterScrollGoal(strip, lastEl)
+      const goalFirst = chapterScrollGoal(strip, firstEl, firstIndex, lastIndex)
+      const goalLast = chapterScrollGoal(strip, lastEl, lastIndex, lastIndex)
 
       const finishIntro = () => {
         strip.classList.remove('calendar-window__strip--open-intro')
+        strip.scrollLeft = chapterScrollGoal(strip, firstEl, firstIndex, lastIndex)
         chapterIndexRef.current = firstIndex
         setChapterIndex(firstIndex)
+        setIntroSweep(false)
       }
 
       if (goalLast - goalFirst < 1) {
@@ -200,6 +221,10 @@ export function GamesWindow({
         finishIntro()
         return true
       }
+
+      chapterIndexRef.current = firstIndex
+      setChapterIndex(firstIndex)
+      setIntroSweep(true)
 
       strip.scrollLeft = goalLast
       strip.classList.add('calendar-window__strip--open-intro', 'calendar-window__strip--animating')
@@ -222,6 +247,8 @@ export function GamesWindow({
       attempts += 1
       if (attempts < 24) {
         window.requestAnimationFrame(tryStart)
+      } else {
+        setIntroSweep(false)
       }
     }
 
@@ -250,7 +277,7 @@ export function GamesWindow({
 
   return (
     <div
-      className="calendar-window"
+      className={`calendar-window${introSweep ? ' calendar-window--intro-sweep' : ''}`}
       style={{ left: position.x, top: position.y, zIndex }}
       role="dialog"
       aria-label="Games"
@@ -275,6 +302,7 @@ export function GamesWindow({
       <div className="calendar-window__strip-wrap">
         <div className="calendar-window__strip" ref={stripRef}>
           <div className="calendar-window__strip-track" ref={trackRef}>
+            <span className="calendar-window__strip-gutter" aria-hidden />
             {calendarChapters.map((chapter, i) => (
               <article
                 key={chapter.id}
@@ -296,6 +324,7 @@ export function GamesWindow({
                 </div>
               </article>
             ))}
+            <span className="calendar-window__strip-gutter" aria-hidden />
           </div>
         </div>
 
@@ -352,6 +381,7 @@ export function GamesWindow({
           </button>
         </div>
       </section>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

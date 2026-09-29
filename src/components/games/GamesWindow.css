@@ -104,11 +104,10 @@
 .calendar-window__strip {
   flex: 1;
   min-height: 0;
-  padding: 0 16px 12px;
+  padding: 0 0 12px;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: 16px;
+  scroll-snap-type: none;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }
@@ -118,6 +117,12 @@
   align-items: stretch;
   gap: 14px;
   min-height: 100%;
+}
+
+.calendar-window__strip-gutter {
+  flex: 0 0 16px;
+  align-self: stretch;
+  pointer-events: none;
 }
 
 .calendar-window__strip--animating {
@@ -148,7 +153,6 @@
 .calendar-chapter {
   flex: 0 0 min(88%, 560px);
   align-self: stretch;
-  scroll-snap-align: center;
   display: flex;
   flex-direction: column;
   border-radius: 14px;
@@ -171,6 +175,7 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 6px;
+  color: #fff;
 }
 
 .calendar-chapter__cover::after {
@@ -222,6 +227,17 @@
   flex-direction: row;
   align-items: center;
   gap: 16px;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calendar-window--intro-sweep .calendar-window__detail {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
 }
 
 .calendar-window__detail-copy {
@@ -368,4 +384,109 @@
   width: 18px;
   border-radius: 99px;
   background: rgba(255, 255, 255, 0.85);
+}
+
+/* —— Light window theme —— */
+.desktop[data-window-theme='light'] .calendar-window {
+  color: #1c1c1e;
+  background: #f5f5f7;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.12),
+    0 28px 80px rgba(0, 0, 0, 0.22);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__titlebar {
+  background: #ebebef;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__title {
+  opacity: 1;
+  color: #1c1c1e;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__hint {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__strip {
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__strip::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.desktop[data-window-theme='light'] .calendar-chapter {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.desktop[data-window-theme='light'] .calendar-chapter--active {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.desktop[data-window-theme='light'] .calendar-chapter__cover,
+.desktop[data-window-theme='light'] .calendar-chapter__period,
+.desktop[data-window-theme='light'] .calendar-chapter__name,
+.desktop[data-window-theme='light'] .calendar-chapter__subtitle {
+  color: #fff;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__detail {
+  border-top-color: rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.desktop[data-window-theme='light'] .calendar-window--intro-sweep .calendar-window__detail {
+  opacity: 0;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__detail-date {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__detail-title {
+  color: #1c1c1e;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__detail-body {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__tag {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__play-btn {
+  color: #fff;
+  background: #007aff;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 122, 255, 0.35);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__play-btn:hover {
+  background: #0066d6;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__play-btn:active {
+  background: #0055b3;
+}
+
+.desktop[data-window-theme='light'] .calendar-window__nav-btn {
+  color: #1c1c1e;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__nav-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__nav-dot {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.desktop[data-window-theme='light'] .calendar-window__nav-dot--active {
+  background: #1c1c1e;
 }

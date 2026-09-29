@@ -11,6 +11,7 @@ type Props = {
   searchOpen: boolean
   onSearchOpenChange: (open: boolean) => void
   onAirDrop: () => void
+  onFocusWindow?: () => void
 }
 
 export function FinderToolbar({
@@ -23,6 +24,7 @@ export function FinderToolbar({
   searchOpen,
   onSearchOpenChange,
   onAirDrop,
+  onFocusWindow,
 }: Props) {
   const [viewMenuOpen, setViewMenuOpen] = useState(false)
   const viewRef = useRef<HTMLDivElement>(null)
@@ -44,11 +46,9 @@ export function FinderToolbar({
 
   return (
     <div className="finder-toolbar">
-      <div className="finder-toolbar__airdrop-group browser-window__tb-group">
-        <button type="button" className="browser-window__tb-btn" aria-label="AirDrop" onClick={onAirDrop}>
-          <AirDropIcon />
-        </button>
-      </div>
+      <button type="button" className="browser-window__tb-btn finder-toolbar__airdrop-btn" aria-label="AirDrop" onClick={onAirDrop}>
+        <AirDropIcon />
+      </button>
 
       <div className="finder-toolbar__menu-wrap" ref={viewRef}>
         <button
@@ -56,7 +56,10 @@ export function FinderToolbar({
           className={`browser-window__tb-btn browser-window__tb-btn--menu${viewMenuOpen ? ' browser-window__tb-btn--active' : ''}`}
           aria-label="View"
           aria-expanded={viewMenuOpen}
-          onClick={() => setViewMenuOpen((o) => !o)}
+          onClick={() => {
+            onFocusWindow?.()
+            setViewMenuOpen((o) => !o)
+          }}
         >
           <GridViewIcon />
           <ChevronDownTiny />
@@ -140,28 +143,28 @@ function ChevronDownTiny() {
 
 function AirDropIcon() {
   return (
-    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden>
-      <circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.1" />
-      <circle cx="9" cy="9" r="3.25" fill="none" stroke="currentColor" strokeWidth="1.1" />
-      <circle cx="9" cy="4.5" r="0.85" fill="currentColor" />
+    <svg viewBox="0 0 18 18" width="21" height="21" aria-hidden>
+      <circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.25" />
+      <circle cx="9" cy="9" r="3.25" fill="none" stroke="currentColor" strokeWidth="1.25" />
+      <circle cx="9" cy="4.5" r="0.95" fill="currentColor" />
     </svg>
   )
 }
 
 function GridViewIcon() {
   return (
-    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden>
-      <rect x="3.5" y="3.5" width="4.5" height="4.5" rx="0.8" fill="currentColor" />
-      <rect x="10" y="3.5" width="4.5" height="4.5" rx="0.8" fill="currentColor" />
-      <rect x="3.5" y="10" width="4.5" height="4.5" rx="0.8" fill="currentColor" />
-      <rect x="10" y="10" width="4.5" height="4.5" rx="0.8" fill="currentColor" />
+    <svg viewBox="0 0 18 18" width="21" height="21" aria-hidden>
+      <rect x="2.25" y="2.25" width="6" height="6" rx="1" fill="currentColor" />
+      <rect x="9.75" y="2.25" width="6" height="6" rx="1" fill="currentColor" />
+      <rect x="2.25" y="9.75" width="6" height="6" rx="1" fill="currentColor" />
+      <rect x="9.75" y="9.75" width="6" height="6" rx="1" fill="currentColor" />
     </svg>
   )
 }
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden>
+    <svg viewBox="0 0 18 18" width="21" height="21" aria-hidden>
       <circle cx="8" cy="8" r="4.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
       <path d="M11.2 11.2 14 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>

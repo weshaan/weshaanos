@@ -56,6 +56,7 @@ export function FinderWindow({
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const lastOpenRef = useRef<{ key: string; time: number } | null>(null)
   const { tracks: musicTracks } = useMusicPlaylist()
   const {
     locationId,
@@ -151,6 +152,27 @@ export function FinderWindow({
     [jumpTo, openDesktopFolder, commitSearchNavigation],
   )
 
+  const runOpenOnce = useCallback((key: string, open: () => void) => {
+    const now = Date.now()
+    const last = lastOpenRef.current
+    if (last && last.key === key && now - last.time < 400) return
+    lastOpenRef.current = { key, time: now }
+    open()
+  }, [])
+
+  const handleItemClick = useCallback(
+    (key: string, open: () => void) => (e: MouseEvent<HTMLButtonElement>) => {
+      if (e.detail > 1) {
+        if (selectedKey !== key) setSelectedKey(key)
+        runOpenOnce(key, open)
+        return
+      }
+      if (selectedKey === key) runOpenOnce(key, open)
+      else setSelectedKey(key)
+    },
+    [selectedKey, runOpenOnce],
+  )
+
   const itemCount = searchActive ? searchResults.length : locationItems.length
   const statusMeta = searchActive
     ? `${itemCount === 1 ? '1 result' : `${itemCount} results`}, 358.81 GB available`
@@ -238,6 +260,7 @@ export function FinderWindow({
             else setSearchOpen(open)
           }}
           onAirDrop={() => onOpenItem?.('mail')}
+          onFocusWindow={onFocus}
         />
       }
     >
@@ -258,8 +281,9 @@ export function FinderWindow({
                     <button
                       type="button"
                       className={`finder-list__row${selected ? ' finder-list__row--selected' : ''}`}
-                      onClick={() => setSelectedKey(result.entryKey)}
-                      onDoubleClick={() => openSearchResult(result.locationId, result.entry)}
+                      onClick={handleItemClick(result.entryKey, () =>
+                        openSearchResult(result.locationId, result.entry),
+                      )}
                     >
                       <FinderGridIcon
                         src={getFinderItemIcon(result.entry)}
@@ -287,8 +311,7 @@ export function FinderWindow({
                   <button
                     type="button"
                     className={`finder-list__row${selected ? ' finder-list__row--selected' : ''}`}
-                    onClick={() => setSelectedKey(key)}
-                    onDoubleClick={() => openEntry(entry)}
+                    onClick={handleItemClick(key, () => openEntry(entry))}
                   >
                     <FinderGridIcon src={getFinderItemIcon(entry)} size={28} label={entry.label} />
                     <span className="finder-list__name">{entry.label}</span>
@@ -313,8 +336,7 @@ export function FinderWindow({
                     <button
                       type="button"
                       className={`finder-grid__item${selected ? ' finder-grid__item--selected' : ''}`}
-                      onClick={() => setSelectedKey(key)}
-                      onDoubleClick={() => openEntry(entry)}
+                      onClick={handleItemClick(key, () => openEntry(entry))}
                     >
                       <FinderGridIcon src={getFinderItemIcon(entry)} size={iconScale} label={entry.label} />
                       <span className="finder-grid__label">{entry.label}</span>

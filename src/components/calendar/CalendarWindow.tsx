@@ -1,13 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { eventsOnDate } from '../../calendar/calendarEvents'
-import {
-  addMonths,
-  addYears,
-  buildMonthGrid,
-  isSameDay,
-  weekdayLabels,
-} from '../../calendar/monthGrid'
+import { addMonths, buildMonthGrid, isSameDay, weekdayLabels } from '../../calendar/monthGrid'
 import { useClock } from '../../hooks/useClock'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './CalendarWindow.css'
 
@@ -43,11 +38,10 @@ export function CalendarWindow({
   onFocus,
   onClose,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const { now } = useClock()
-  const yearWheelRef = useRef<HTMLDivElement>(null)
+  const yearGridRef = useRef<HTMLDivElement>(null)
   const viewYearRef = useRef(now.getFullYear())
-  const yearScrollRafRef = useRef(0)
 
   const [view, setView] = useState(() => ({
     year: now.getFullYear(),
@@ -74,29 +68,10 @@ export function CalendarWindow({
   viewYearRef.current = view.year
 
   const scrollYearIntoView = useCallback((year: number, behavior: ScrollBehavior = 'smooth') => {
-    const el = yearWheelRef.current
+    const el = yearGridRef.current
     if (!el) return
     const btn = el.querySelector<HTMLElement>(`[data-year="${year}"]`)
-    if (!btn) return
-    const top = btn.offsetTop - (el.clientHeight - btn.offsetHeight) / 2
-    el.scrollTo({ top: Math.max(0, top), behavior })
-  }, [])
-
-  const yearAtWheelCenter = useCallback((el: HTMLElement): number => {
-    const center = el.scrollTop + el.clientHeight / 2
-    let bestYear = viewYearRef.current
-    let bestDist = Infinity
-    el.querySelectorAll<HTMLElement>('[data-year]').forEach((node) => {
-      const y = Number(node.dataset.year)
-      if (!Number.isFinite(y)) return
-      const mid = node.offsetTop + node.offsetHeight / 2
-      const dist = Math.abs(center - mid)
-      if (dist < bestDist) {
-        bestDist = dist
-        bestYear = y
-      }
-    })
-    return bestYear
+    btn?.scrollIntoView({ block: 'center', behavior })
   }, [])
 
   useLayoutEffect(() => {
@@ -106,14 +81,6 @@ export function CalendarWindow({
 
   const goMonth = (delta: number) => {
     setView((v) => addMonths(v.year, v.month, delta))
-  }
-
-  const stepYear = (delta: number) => {
-    setView((v) => {
-      const next = addYears(v.year, v.month, delta)
-      window.requestAnimationFrame(() => scrollYearIntoView(next.year, 'smooth'))
-      return next
-    })
   }
 
   const selectMonth = (monthIndex: number) => {
@@ -129,28 +96,6 @@ export function CalendarWindow({
   const togglePicker = (mode: 'month' | 'year') => {
     setPicker((p) => (p === mode ? null : mode))
   }
-
-  useEffect(() => {
-    if (picker !== 'year') return
-    const el = yearWheelRef.current
-    if (!el) return
-
-    const onScroll = () => {
-      window.cancelAnimationFrame(yearScrollRafRef.current)
-      yearScrollRafRef.current = window.requestAnimationFrame(() => {
-        const bestYear = yearAtWheelCenter(el)
-        if (bestYear !== viewYearRef.current) {
-          setView((v) => ({ ...v, year: bestYear }))
-        }
-      })
-    }
-
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      el.removeEventListener('scroll', onScroll)
-      window.cancelAnimationFrame(yearScrollRafRef.current)
-    }
-  }, [picker, yearAtWheelCenter])
 
   return (
     <div
@@ -185,7 +130,16 @@ export function CalendarWindow({
           >
             ‹
           </button>
-          <h2 className="calendar-app-window__month">{monthLabel}</h2>
+          <button
+            type="button"
+            className={`calendar-app-window__month${picker !== null ? ' calendar-app-window__month--picker-open' : ''}`}
+            onClick={() => {
+              if (picker !== null) setPicker(null)
+            }}
+            aria-label={picker !== null ? 'Back to calendar' : monthLabel}
+          >
+            {monthLabel}
+          </button>
           <button
             type="button"
             className="calendar-app-window__nav-btn"
@@ -237,40 +191,25 @@ export function CalendarWindow({
           )}
 
           {picker === 'year' && (
-            <div className="calendar-app-window__year-picker">
-              <button
-                type="button"
-                className="calendar-app-window__year-step"
-                onClick={() => stepYear(-1)}
-                aria-label="Previous year"
-              >
-                ▲
-              </button>
-              <div className="calendar-app-window__year-wheel-wrap">
-                <div className="calendar-app-window__year-wheel-fade calendar-app-window__year-wheel-fade--top" aria-hidden />
-                <div className="calendar-app-window__year-wheel" ref={yearWheelRef}>
-                  {WHEEL_YEARS.map((y) => (
-                    <button
-                      key={y}
-                      type="button"
-                      data-year={y}
-                      className={`calendar-app-window__year-item${view.year === y ? ' calendar-app-window__year-item--selected' : ''}`}
-                      onClick={() => selectYear(y)}
-                    >
-                      {y}
-                    </button>
-                  ))}
-                </div>
-                <div className="calendar-app-window__year-wheel-fade calendar-app-window__year-wheel-fade--bottom" aria-hidden />
-              </div>
-              <button
-                type="button"
-                className="calendar-app-window__year-step"
-                onClick={() => stepYear(1)}
-                aria-label="Next year"
-              >
-                ▼
-              </button>
+            <div
+              className="calendar-app-window__year-grid"
+              ref={yearGridRef}
+              role="listbox"
+              aria-label="Choose year"
+            >
+              {WHEEL_YEARS.map((y) => (
+                <button
+                  key={y}
+                  type="button"
+                  role="option"
+                  data-year={y}
+                  aria-selected={view.year === y}
+                  className={`calendar-app-window__year-cell${view.year === y ? ' calendar-app-window__year-cell--selected' : ''}`}
+                  onClick={() => selectYear(y)}
+                >
+                  {y}
+                </button>
+              ))}
             </div>
           )}
 
@@ -331,6 +270,7 @@ export function CalendarWindow({
             ))}
         </div>
       </div>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

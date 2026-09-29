@@ -1,0 +1,10 @@
+.window-bottom-drag {
+  flex-shrink: 0;
+  width: 100%;
+  height: 14px;
+  min-height: 14px;
+}
+
+.window-bottom-drag:active {
+  cursor: grabbing;
+}

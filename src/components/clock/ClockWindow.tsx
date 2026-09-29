@@ -1,5 +1,6 @@
 import { CLOCK_FACES } from '../../clock/clockFaces'
 import { useClockWidget } from '../../context/ClockWidgetContext'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import { ClockWidgetFace } from './ClockWidgetFace'
 import './ClockWindow.css'
@@ -21,7 +22,7 @@ export function ClockWindow({
   onFocus,
   onClose,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const { faceId, setFaceId, timeFormat, setTimeFormat, showSeconds, setShowSeconds } = useClockWidget()
   const active = CLOCK_FACES.find((f) => f.id === faceId) ?? CLOCK_FACES[0]
 
@@ -121,6 +122,7 @@ export function ClockWindow({
           </ul>
         </section>
       </div>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

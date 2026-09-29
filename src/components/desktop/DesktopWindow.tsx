@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
+import { WindowBottomDragHandle } from './WindowBottomDragHandle'
 import './DesktopWindow.css'
 
 export type DesktopWindowVariant = 'panel' | 'preview'
@@ -33,7 +34,7 @@ export function DesktopWindow({
   children,
   className = '',
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
 
   const shellClass = [
     'desktop-window',
@@ -80,6 +81,7 @@ export function DesktopWindow({
         ) : null}
       </header>
       <div className="desktop-window__body">{children}</div>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

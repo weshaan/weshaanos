@@ -23,6 +23,7 @@ import { searchWeatherLocations } from '../../weather/geocoding'
 import type { WeatherDetail, WeatherLocation } from '../../weather/types'
 import { formatTimeInTimeZone } from '../../weather/openMeteoUtils'
 import { WEATHER_SCENE_LOADING, weatherSceneClass } from '../../weather/weatherScene'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { WeatherScroll } from './WeatherScroll'
 import { WeatherSceneEffects } from './WeatherSceneEffects'
 import './WeatherWindow.css'
@@ -45,7 +46,7 @@ export function WeatherWindow({
   onFocus,
   onClose,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const [locations, setLocations] = useState<WeatherLocation[]>(() => initialWeatherLocations())
   const [selectedId, setSelectedId] = useState(() => getPrimaryLocation().id)
   const [summaries, setSummaries] = useState<Record<string, WeatherDetail>>(() =>
@@ -385,6 +386,7 @@ export function WeatherWindow({
           )}
         </WeatherScroll>
       </div>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

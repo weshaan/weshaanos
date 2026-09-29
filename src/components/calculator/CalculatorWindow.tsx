@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import {
   calcBackspace,
@@ -73,7 +74,7 @@ export function CalculatorWindow({
   onFocus,
   onClose,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const [state, setState] = useState<CalcState>(initialCalcState)
   const expressionPreview = calcExpressionPreview(state)
   const mainDisplay = calcMainDisplay(state)
@@ -207,6 +208,7 @@ export function CalculatorWindow({
           )
         })}
       </div>
+      <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
 }

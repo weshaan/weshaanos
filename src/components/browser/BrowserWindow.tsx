@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './BrowserWindow.css'
 
@@ -60,7 +61,7 @@ export function BrowserWindow({
   onBack,
   onForward,
 }: Props) {
-  const { titleBarProps } = useDraggableWindow(position, onPositionChange)
+  const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
   const itemLabel = itemCount === 1 ? '1 item' : `${itemCount} items`
   const statusLine = statusMeta ?? `${itemLabel}, ${storageAvailable}`
   const showIconSlider = iconScale !== undefined && onIconScaleChange !== undefined
@@ -153,6 +154,7 @@ export function BrowserWindow({
               ) : null}
             </div>
           </footer>
+          <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
         </div>
       </div>
     </div>

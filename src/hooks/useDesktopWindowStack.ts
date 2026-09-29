@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { clampWindowPoint, estimateWindowSize } from '../desktop/windowPositionBounds'
 import type { WindowPoint } from './useDraggableWindow'
 
 export type DesktopWindowId = string
@@ -19,7 +20,7 @@ const defaultPositions: Record<string, () => WindowPoint> = {
   finder: () => centerWindow(860, 515),
   weather: () => centerWindow(960, 620),
   calculator: () => centerWindow(228, 430),
-  calendar: () => centerWindow(400, 320),
+  calendar: () => centerWindow(400, 520),
   games: () => centerWindow(720, 520),
   clock: () => centerWindow(620, 420),
   profile: () => {
@@ -57,7 +58,8 @@ export function useDesktopWindowStack() {
   }, [])
 
   const setWindowPosition = useCallback((id: DesktopWindowId, point: WindowPoint) => {
-    setPositions((prev) => ({ ...prev, [id]: point }))
+    const clamped = clampWindowPoint(point, estimateWindowSize(id))
+    setPositions((prev) => ({ ...prev, [id]: clamped }))
   }, [])
 
   const isOpen = useCallback((id: DesktopWindowId) => openIds.includes(id), [openIds])
