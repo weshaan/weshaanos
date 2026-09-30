@@ -35,6 +35,7 @@ export function searchFinderAll(query: string, musicTracks: MusicTrack[] = []): 
     FinderLocationId,
     (typeof FINDER_LOCATIONS)[FinderLocationId],
   ][]) {
+    if (scanLocationId === 'bin') continue
     const items = finderItemsForLocation(scanLocationId, musicTracks)
     for (const entry of items) {
       if (!entryMatchesQuery(entry, q)) continue

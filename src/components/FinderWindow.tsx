@@ -441,6 +441,13 @@ function SidebarIcon({ kind }: { kind: FinderSidebarEntry['icon'] }) {
       {kind === 'home' && (
         <path d="M3.5 7.5 8 4l4.5 3.5V13H10v-3H6v3H3.5V7.5z" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
       )}
+      {kind === 'trash' && (
+        <>
+          <path d="M5.5 5.5h5l-.5 7.5H6L5.5 5.5z" fill="none" stroke="currentColor" strokeWidth="1.05" strokeLinejoin="round" />
+          <path d="M4 5.5h8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+          <path d="M6.5 5.5V4.5h3v1" fill="none" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" />
+        </>
+      )}
     </svg>
   )
 }

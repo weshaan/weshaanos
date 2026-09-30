@@ -1,14 +1,28 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CloseIcon,
+  LockIcon,
+  PlusIcon,
+  ReloadIcon,
+  SearchIcon,
+  TabFaviconIcon,
+} from './braveIcons'
+import { createNewTabPageContent, type NewTabPageContent } from './braveNewTabContent'
+import { BraveNewTabPage } from './BraveNewTabPage'
+import {
+  BRAVE_HOME_URL,
   createTabId,
   defaultBraveTabs,
   faviconForUrl,
   resolveBravePage,
-  titleForUrl,
+  tabFaviconFor,
+  tabTitleFor,
+  tabUrlsMatch,
   type BraveTab,
-  type TabFavicon,
 } from './braveBrowserModel'
 import './BraveBrowserWindow.css'
 
@@ -26,10 +40,44 @@ type TabState = {
   history: string[]
   historyIndex: number
   frameKey: number
+  /** Greeting + tip for this tab’s start page; one set per tab. */
+  newTabPage?: NewTabPageContent
 }
 
 function createTabState(tab: BraveTab): TabState {
-  return { tab, history: [tab.url], historyIndex: 0, frameKey: 0 }
+  const session: TabState = { tab, history: [tab.url], historyIndex: 0, frameKey: 0 }
+  if (tab.url === BRAVE_HOME_URL) {
+    session.newTabPage = createNewTabPageContent()
+  }
+  return session
+}
+
+function resetHomeSession(session: TabState): TabState {
+  if (!session.tab.isHome) return session
+  return refreshStartPageSession(session)
+}
+
+/** New greeting/tip + single-entry history — Home tab or any tab on the start page. */
+function refreshStartPageSession(session: TabState): TabState {
+  const isHome = session.tab.isHome
+  return {
+    ...session,
+    history: [BRAVE_HOME_URL],
+    historyIndex: 0,
+    frameKey: session.frameKey + 1,
+    newTabPage: createNewTabPageContent(),
+    tab: {
+      ...session.tab,
+      url: BRAVE_HOME_URL,
+      title: isHome ? 'Home' : 'New Tab',
+      favicon: isHome ? 'home' : 'brave',
+    },
+  }
+}
+
+function withNewTabPage(session: TabState, url: string): TabState {
+  if (url !== BRAVE_HOME_URL) return session
+  return { ...session, newTabPage: createNewTabPageContent() }
 }
 
 export function BraveBrowserWindow({
@@ -63,28 +111,93 @@ export function BraveBrowserWindow({
     setSessions((prev) =>
       prev.map((s) => {
         if (s.tab.id !== activeId) return s
-        const title = titleForUrl(url)
-        const favicon = faviconForUrl(url)
+        if (s.tab.isHome) return s
+        const title = tabTitleFor(url, s.tab.isHome)
+        const favicon = tabFaviconFor(url, s.tab.isHome)
         const nextTab = { ...s.tab, url, title, favicon }
         if (!push) {
-          return { ...s, tab: nextTab, frameKey: s.frameKey + 1 }
+          return withNewTabPage({ ...s, tab: nextTab, frameKey: s.frameKey + 1 }, url)
         }
         const trimmed = s.history.slice(0, s.historyIndex + 1)
         trimmed.push(url)
-        return {
-          tab: nextTab,
-          history: trimmed,
-          historyIndex: trimmed.length - 1,
-          frameKey: s.frameKey + 1,
-        }
+        return withNewTabPage(
+          {
+            ...s,
+            tab: nextTab,
+            history: trimmed,
+            historyIndex: trimmed.length - 1,
+            frameKey: s.frameKey + 1,
+          },
+          url,
+        )
       }),
     )
     setAddressDraft(url)
   }, [activeId])
 
+  const openInNewTab = useCallback((url: string) => {
+    const tab: BraveTab = {
+      id: createTabId(),
+      title: tabTitleFor(url, false),
+      url,
+      favicon: tabFaviconFor(url, false),
+    }
+    const session = createTabState(tab)
+    setSessions((prev) => [...prev, session])
+    setActiveId(tab.id)
+    setAddressDraft(url)
+  }, [])
+
+  const focusTabById = useCallback(
+    (id: string) => {
+      const session = sessions.find((s) => s.tab.id === id)
+      if (!session) return
+      setActiveId(id)
+      setAddressDraft(session.history[session.historyIndex])
+    },
+    [sessions],
+  )
+
+  const openUrl = useCallback(
+    (url: string) => {
+      const target = url.trim()
+      if (!target || target === BRAVE_HOME_URL || target === 'about:blank') {
+        const active = sessions.find((s) => s.tab.id === activeId)
+        if (active?.tab.isHome) return
+        navigateActive(BRAVE_HOME_URL)
+        return
+      }
+
+      const existing = sessions.find(
+        (s) => !s.tab.isHome && tabUrlsMatch(s.history[s.historyIndex], target),
+      )
+      if (existing) {
+        focusTabById(existing.tab.id)
+        return
+      }
+
+      const active = sessions.find((s) => s.tab.id === activeId) ?? sessions[0]
+      if (!active) return
+
+      if (active.tab.isHome) {
+        openInNewTab(target)
+        return
+      }
+
+      navigateActive(target)
+    },
+    [activeId, focusTabById, navigateActive, openInNewTab, sessions],
+  )
+
   const selectTab = (id: string) => {
-    setActiveId(id)
     const session = sessions.find((s) => s.tab.id === id)
+    if (session?.tab.isHome) {
+      setSessions((prev) => prev.map((s) => (s.tab.isHome ? resetHomeSession(s) : s)))
+      setActiveId(id)
+      setAddressDraft(BRAVE_HOME_URL)
+      return
+    }
+    setActiveId(id)
     if (session) setAddressDraft(session.history[session.historyIndex])
   }
 
@@ -102,7 +215,8 @@ export function BraveBrowserWindow({
   }
 
   const closeTab = (id: string) => {
-    if (sessions.length <= 1) return
+    const closing = sessions.find((s) => s.tab.id === id)
+    if (!closing || closing.tab.isHome) return
     const closingIndex = sessions.findIndex((s) => s.tab.id === id)
     setSessions((prev) => prev.filter((s) => s.tab.id !== id))
     if (activeId === id) {
@@ -124,7 +238,12 @@ export function BraveBrowserWindow({
         return {
           ...s,
           historyIndex,
-          tab: { ...s.tab, url, title: titleForUrl(url), favicon: faviconForUrl(url) },
+          tab: {
+            ...s.tab,
+            url,
+            title: tabTitleFor(url, s.tab.isHome),
+            favicon: tabFaviconFor(url, s.tab.isHome),
+          },
           frameKey: s.frameKey + 1,
         }
       }),
@@ -140,7 +259,12 @@ export function BraveBrowserWindow({
         return {
           ...s,
           historyIndex,
-          tab: { ...s.tab, url, title: titleForUrl(url), favicon: faviconForUrl(url) },
+          tab: {
+            ...s.tab,
+            url,
+            title: tabTitleFor(url, s.tab.isHome),
+            favicon: tabFaviconFor(url, s.tab.isHome),
+          },
           frameKey: s.frameKey + 1,
         }
       }),
@@ -148,9 +272,19 @@ export function BraveBrowserWindow({
   }
 
   const reload = () => {
+    let refreshedStartPage = false
     setSessions((prev) =>
-      prev.map((s) => (s.tab.id === activeId ? { ...s, frameKey: s.frameKey + 1 } : s)),
+      prev.map((s) => {
+        if (s.tab.id !== activeId) return s
+        const onStartPage = s.history[s.historyIndex] === BRAVE_HOME_URL
+        if (onStartPage) {
+          refreshedStartPage = true
+          return refreshStartPageSession(s)
+        }
+        return { ...s, frameKey: s.frameKey + 1 }
+      }),
     )
+    if (refreshedStartPage) setAddressDraft(BRAVE_HOME_URL)
   }
 
   const commitAddress = () => {
@@ -159,28 +293,19 @@ export function BraveBrowserWindow({
     else if (!/^https?:\/\//i.test(url) && !url.includes('://')) {
       url = `https://${url}`
     }
-    navigateActive(url)
+    openUrl(url)
     setAddressFocused(false)
   }
 
-  const shortcuts = useMemo(
-    () => [
-      { label: 'Projects', url: 'brave://projects', hint: 'Work & case studies', favicon: 'folder' as TabFavicon },
-      { label: 'About', url: 'brave://about', hint: 'This desktop portfolio', favicon: 'home' as TabFavicon },
-      { label: 'GitHub', url: 'https://github.com', hint: 'github.com', favicon: 'github' as TabFavicon },
-      { label: 'Email', url: 'mailto:weshaan108@gmail.com', hint: 'Get in touch', favicon: 'mail' as TabFavicon },
-    ],
-    [],
-  )
-
   const httpsActive = /^https:\/\//i.test(activeUrl)
+  const isNewTab = page.kind === 'newtab'
 
   return (
     <div
-      className="brave-window"
+      className={`brave-window${isNewTab ? ' brave-window--newtab' : ''}`}
       style={{ left: position.x, top: position.y, zIndex }}
       role="dialog"
-      aria-label="Brave"
+      aria-label="Browser"
       data-window-id={windowId}
       onPointerDown={onFocus}
     >
@@ -194,10 +319,6 @@ export function BraveBrowserWindow({
           <span className="brave-window__dot brave-window__dot--min" aria-hidden />
           <span className="brave-window__dot brave-window__dot--max" aria-hidden />
         </button>
-        <div className="brave-window__titlebar-brand" aria-hidden>
-          <BraveLogoMark small />
-          <span>Brave</span>
-        </div>
       </header>
 
       <div className="brave-window__frame">
@@ -206,7 +327,11 @@ export function BraveBrowserWindow({
             {sessions.map(({ tab }) => {
               const active = tab.id === activeId
               return (
-                <div key={tab.id} className={`brave-tab${active ? ' brave-tab--active' : ''}`} role="presentation">
+                <div
+                  key={tab.id}
+                  className={`brave-tab${active ? ' brave-tab--active' : ''}${tab.isHome ? ' brave-tab--home' : ''}`}
+                  role="presentation"
+                >
                   <button
                     type="button"
                     role="tab"
@@ -215,9 +340,9 @@ export function BraveBrowserWindow({
                     onClick={() => selectTab(tab.id)}
                   >
                     <TabFaviconIcon kind={tab.favicon} />
-                    <span className="brave-tab__title">{tab.title}</span>
+                    <span className="brave-tab__title" title={tab.title}>{tab.title}</span>
                   </button>
-                  {sessions.length > 1 ? (
+                  {!tab.isHome ? (
                     <button
                       type="button"
                       className="brave-tab__close"
@@ -241,7 +366,7 @@ export function BraveBrowserWindow({
         </aside>
 
         <div className="brave-window__main">
-          <div className="brave-window__toolbar">
+          <div className={`brave-window__toolbar${isNewTab ? ' brave-window__toolbar--quiet' : ''}`}>
             <div className="brave-window__nav">
               <ToolbarBtn label="Back" disabled={!canBack} onClick={goBack}>
                 <ChevronLeftIcon />
@@ -254,7 +379,11 @@ export function BraveBrowserWindow({
               </ToolbarBtn>
             </div>
             <div className="brave-window__omnibox">
-              {httpsActive ? <LockIcon /> : <ShieldIcon />}
+              {httpsActive ? (
+                <LockIcon size={15} className="brave-window__omnibox-icon brave-window__omnibox-icon--secure" />
+              ) : (
+                <SearchIcon size={15} className="brave-window__omnibox-icon" />
+              )}
               <input
                 type="text"
                 className="brave-window__url"
@@ -275,56 +404,16 @@ export function BraveBrowserWindow({
                 }}
               />
             </div>
-            <button type="button" className="brave-window__shields" title="Shields up">
-              <ShieldBadge />
-              <span className="brave-window__shields-label">Shields</span>
-            </button>
           </div>
 
           <div className="brave-window__content" role="tabpanel">
-            {page.kind === 'newtab' ? (
-              <div className="brave-start">
-                <div className="brave-start__hero">
-                  <div className="brave-start__logo-wrap">
-                    <BraveLogoMark />
-                  </div>
-                  <h2 className="brave-start__title">Where to next?</h2>
-                  <p className="brave-start__subtitle">Pick a shortcut or enter a URL above.</p>
-                </div>
-                <div className="brave-start__grid">
-                  {shortcuts.map((item) => (
-                    <button
-                      key={item.url}
-                      type="button"
-                      className="brave-start__card"
-                      onClick={() => navigateActive(item.url)}
-                    >
-                      <TabFaviconIcon kind={item.favicon} />
-                      <span className="brave-start__card-text">
-                        <span className="brave-start__card-label">{item.label}</span>
-                        <span className="brave-start__card-hint">{item.hint}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            {page.kind === 'projects' ? (
-              <article className="brave-page brave-page--doc">
-                <header className="brave-page__header">
-                  <TabFaviconIcon kind="folder" />
-                  <h1>Projects</h1>
-                </header>
-                <p>
-                  Featured work lives in the desktop <strong>Projects</strong> folder — marketplace builds, portfolio
-                  pieces, and experiments. Open Finder from the dock to explore each folder.
-                </p>
-                <ul>
-                  <li>Marketplace — product &amp; platform work</li>
-                  <li>Portfolio — selected case studies</li>
-                  <li>Experiments — prototypes and play</li>
-                </ul>
-              </article>
+            {page.kind === 'newtab' && activeSession?.newTabPage ? (
+              <BraveNewTabPage
+                key={activeSession.tab.id}
+                greeting={activeSession.newTabPage.greeting}
+                desktopTip={activeSession.newTabPage.tip}
+                onNavigate={openUrl}
+              />
             ) : null}
             {page.kind === 'about' ? (
               <article className="brave-page brave-page--doc">
@@ -334,7 +423,7 @@ export function BraveBrowserWindow({
                 </header>
                 <p>
                   You are browsing a macOS-style portfolio desktop built as a single-page app. Dock apps, Finder, widgets,
-                  and windows are interactive — including this Brave-style browser with vertical tabs.
+                  and windows are interactive — including this Zen-inspired browser with a calm sidebar and vertical tabs.
                 </p>
                 <p>
                   Close any window with the traffic lights. Use the music widget on the right to control playback.
@@ -429,149 +518,3 @@ function ToolbarBtn({
   )
 }
 
-function TabFaviconIcon({ kind }: { kind: TabFavicon }) {
-  return (
-    <span className={`brave-favicon brave-favicon--${kind}`} aria-hidden>
-      {kind === 'brave' ? <BraveLogoMark small /> : null}
-      {kind === 'github' ? <GithubIcon /> : null}
-      {kind === 'folder' ? <FolderIcon /> : null}
-      {kind === 'mail' ? <MailIcon /> : null}
-      {kind === 'home' ? <HomeIcon /> : null}
-      {kind === 'globe' ? <GlobeIcon /> : null}
-    </span>
-  )
-}
-
-function BraveLogoMark({ small }: { small?: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" width={small ? 14 : 28} height={small ? 14 : 28} aria-hidden>
-      <path
-        fill="currentColor"
-        d="M12 2c1.2 0 2.3.2 3.3.6-.3 1.1-.9 2-1.6 2.8.9-.1 1.8 0 2.6.3-1 .9-2.1 1.8-3.3 2.3.5 1 .8 2.1.8 3.2 0 3.9-3.1 7-7 7s-7-3.1-7-7 3.1-7 7-7c.4 0 .8 0 1.2.1-.5-.9-1.2-1.6-2-2.1C9.4 2.2 10.7 2 12 2z"
-      />
-    </svg>
-  )
-}
-
-function ShieldIcon() {
-  return (
-    <svg className="brave-window__shield-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M8 1 3 3v4.5c0 3.1 2.1 5.9 5 6.5 2.9-.6 5-3.4 5-6.5V3L8 1zm0 1.6 2.8 1.2V7.5c0 2.2-1.5 4.2-3.6 4.7-2.1-.5-3.6-2.5-3.6-4.7V3.8L8 2.6z"
-      />
-    </svg>
-  )
-}
-
-function ShieldBadge() {
-  return (
-    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden>
-      <path fill="#fb542b" d="M10 2 4 4.5v5.2c0 3.5 2.6 6.7 6 7.3 3.4-.6 6-3.8 6-7.3V4.5L10 2z" />
-      <path fill="#fff" d="M10 5.5 7.2 6.7V9.8c0 1.8 1.2 3.4 2.8 3.8 1.6-.4 2.8-2 2.8-3.8V6.7L10 5.5z" />
-    </svg>
-  )
-}
-
-function ChevronLeftIcon() {
-  return (
-    <svg viewBox="0 0 12 12" width="14" height="14" aria-hidden>
-      <path d="M7.5 2.5 4 6l3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg viewBox="0 0 12 12" width="14" height="14" aria-hidden>
-      <path d="M4.5 2.5 8 6l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function ReloadIcon() {
-  return (
-    <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden>
-      <path
-        d="M7 2.5a4.5 4.5 0 1 1-3.2 7.6H2.5V8.2h2.1A3 3 0 1 0 7 4v-1.5H9v3H7V2.5z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden>
-      <path d="M7 2.5v9M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden>
-      <path d="M3 3l6 6M9 3 3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function LockIcon() {
-  return (
-    <svg className="brave-window__omnibox-icon" viewBox="0 0 12 14" width="12" height="13" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M3 5V3.5a3 3 0 1 1 6 0V5h.5A1.5 1.5 0 0 1 11 6.5v5A1.5 1.5 0 0 1 9.5 13h-7A1.5 1.5 0 0 1 1 11.5v-5A1.5 1.5 0 0 1 2.5 5H3zm1.5 0h3V3.5a1.5 1.5 0 1 0-3 0V5z"
-      />
-    </svg>
-  )
-}
-
-function FolderIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path fill="currentColor" d="M2 4.5A1.5 1.5 0 0 1 3.5 3H6l1.2 1.2H12.5A1.5 1.5 0 0 1 14 5.7v6.8A1.5 1.5 0 0 1 12.5 14h-9A1.5 1.5 0 0 1 2 12.5v-8z" />
-    </svg>
-  )
-}
-
-function GithubIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M8 1.2a6.8 6.8 0 0 0-2.15 13.25c.34.06.47-.15.47-.33v-1.2c-1.92.42-2.32-.82-2.32-.82-.31-.8-.76-1.01-.76-1.01-.62-.43.05-.42.05-.42.69.05 1.05.71 1.05.71.61 1.05 1.6.75 1.99.57.06-.45.24-.75.43-.92-1.53-.17-3.14-.77-3.14-3.43 0-.76.27-1.38.71-1.87-.07-.17-.31-.87.07-1.81 0 0 .58-.19 1.9.71a6.5 6.5 0 0 1 3.5 0c1.32-.9 1.9-.71 1.9-.71.38.94.14 1.64.07 1.81.44.49.71 1.1.71 1.87 0 2.67-1.62 3.26-3.16 3.42.25.22.47.64.47 1.29v1.92c0 .18.13.39.48.33A6.8 6.8 0 0 0 8 1.2z"
-      />
-    </svg>
-  )
-}
-
-function MailIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M2 4.5A1.5 1.5 0 0 1 3.5 3h9A1.5 1.5 0 0 1 14 4.5v7A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5v-7zm1.1-.5 4.4 3.3 4.4-3.3H3.1z"
-      />
-    </svg>
-  )
-}
-
-function HomeIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path fill="currentColor" d="M8 2.2 2.5 7v6.5A1.5 1.5 0 0 1 4 15h8a1.5 1.5 0 0 1 1.5-1.5V7L8 2.2z" />
-    </svg>
-  )
-}
-
-function GlobeIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm5.2 4h-2.4a11.5 11.5 0 0 0-.9-2.8A5.5 5.5 0 0 1 13.2 5.5zM8 11c-.9-1.1-1.5-2.4-1.8-3.8h3.6c-.3 1.4-.9 2.7-1.8 3.8zM4.6 7.2c0-.7.1-1.4.3-2h2.2c-.1.6-.1 1.3-.1 2s0 1.4.1 2H4.9c-.2-.6-.3-1.3-.3-2zm.1 1.8h2.2c.3 1.4.9 2.7 1.8 3.8-1.5-.5-2.8-1.5-3.6-2.9a8 8 0 0 1-.4-1zm3.5 4.4c.6-.9 1.1-1.9 1.4-3h2.4a5.5 5.5 0 0 1-3.8 3zm4.2-4.4h2.4a5.5 5.5 0 0 1-2.1 3.6 11.4 11.4 0 0 0-.9-2.8h-2.4c.1-.7.1-1.3.1-2s0-1.3-.1-2h2.4c.2-.9.5-1.8.9-2.8A5.5 5.5 0 0 1 12.4 11.4zM9.1 3.4c-.6.9-1.1 1.9-1.4 3H5.3a5.5 5.5 0 0 1 3.8-3zM6.1 2.7c-.4 1-.7 1.9-.9 2.8H2.8a5.5 5.5 0 0 1 3.3-2.8z"
-      />
-    </svg>
-  )
-}

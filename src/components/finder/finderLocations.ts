@@ -20,6 +20,7 @@ export type FinderLocationId =
   | 'projects-marketplace'
   | 'projects-portfolio'
   | 'projects-experiments'
+  | 'bin'
 
 export type FinderLaunchId =
   | 'resume'
@@ -248,6 +249,13 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
     items: [],
     emptyMessage: 'No dev projects here yet',
   },
+  bin: {
+    title: 'Bin',
+    sidebarId: 'bin',
+    path: [{ label: 'Bin', icon: 'folder' }],
+    items: [],
+    emptyMessage: 'Bin is empty',
+  },
   home: {
     title: 'weshaan',
     sidebarId: 'home',
@@ -268,7 +276,7 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
 export type FinderSidebarEntry = {
   id: FinderLocationId
   label: string
-  icon: 'clock' | 'shared' | 'app' | 'monitor' | 'document' | 'download' | 'photo' | 'music' | 'film' | 'home'
+  icon: 'clock' | 'shared' | 'app' | 'monitor' | 'document' | 'download' | 'photo' | 'music' | 'film' | 'home' | 'trash'
   section?: 'favourites' | 'locations'
 }
 
@@ -283,4 +291,5 @@ export const FINDER_SIDEBAR: FinderSidebarEntry[] = [
   { id: 'music', label: 'Music', icon: 'music', section: 'favourites' },
   { id: 'movies-nav', label: 'Movies', icon: 'film', section: 'favourites' },
   { id: 'home', label: 'weshaan', icon: 'home', section: 'locations' },
+  { id: 'bin', label: 'Bin', icon: 'trash', section: 'locations' },
 ]

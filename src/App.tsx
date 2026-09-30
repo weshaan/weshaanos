@@ -267,6 +267,9 @@ function App() {
       case 'brave':
         open('brave')
         break
+      case 'trash':
+        openFinderAt('bin')
+        break
       default:
         break
     }
