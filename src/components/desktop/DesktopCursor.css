@@ -3,6 +3,17 @@
   html.desktop-cursor--active .desktop__session * {
     cursor: none !important;
   }
+
+  /* Native search clear hits a separate control; hide it so the custom cursor stays consistent. */
+  html.desktop-cursor--active .desktop__session input[type='search']::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  html.desktop-cursor--active .desktop__session input[type='search']::-moz-search-clear {
+    display: none;
+  }
 }
 
 .desktop-cursor {

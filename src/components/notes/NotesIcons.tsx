@@ -1,114 +1,146 @@
 type IconProps = { size?: number; className?: string }
 
-export function NotesComposeIcon({ size = 18, className }: IconProps) {
+/** Matches Finder toolbar: 18×18 art, rendered at 21px. */
+const SW = 1.2
+
+/** Finder “Bin” geometry, scaled to match other 18×18 toolbar icons. */
+export function NotesClearIcon({ size = 21, className }: IconProps) {
   return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <path
-        d="M5.5 14.5 14 6l1.5 1.5-8.5 8.5H5.5V14.5z"
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <g transform="translate(9 8.2) scale(1.32) translate(-8 -8)">
+        <path
+          d="M5.5 5.5h5l-.5 7.5H6L5.5 5.5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.05"
+          strokeLinejoin="round"
+        />
+        <path d="M4 5.5h8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+        <path
+          d="M6.5 5.5V4.5h3v1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.05"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    </svg>
+  )
+}
+
+export function NotesCopyIcon({ size = 21, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <rect
+        x="3.25"
+        y="5.75"
+        width="8.5"
+        height="9.5"
+        rx="1.25"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.35"
+        strokeWidth={SW}
+      />
+      <path
+        d="M6.25 2.75h8.5A1.25 1.25 0 0 1 16 4v8.5A1.25 1.25 0 0 1 14.75 13.75H12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M12 5.5 14.5 8" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
-      <rect x="4" y="3" width="12" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   )
 }
 
-export function NotesTextStyleIcon({ size = 18, className }: IconProps) {
+export function NotesDownloadIcon({ size = 21, className }: IconProps) {
   return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <text x="3" y="14" fontSize="11" fontWeight="600" fill="currentColor" fontFamily="inherit">Aa</text>
-    </svg>
-  )
-}
-
-export function NotesChecklistIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <circle cx="5" cy="6" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M9 6h8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="5" cy="11" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M9 11h8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="5" cy="16" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M9 16h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-export function NotesTableIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <rect x="4" y="4" width="12" height="12" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M4 9h12M4 14h12M10 4v12" stroke="currentColor" strokeWidth="1.1" />
-    </svg>
-  )
-}
-
-export function NotesAttachIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
       <path
-        d="M7.5 11.5 12.5 6.5a2.5 2.5 0 0 1 3.5 3.5L9 17a4 4 0 0 1-5.5-5.5l6-6a5.5 5.5 0 0 1 7.8 7.8l-6.2 6.2"
+        d="M9 3.35v6.9"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinecap="round"
+      />
+      <path
+        d="m6.15 7.55 2.85 2.85 2.85-2.85"
         fill="none"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.25 12.35h7.5a1.15 1.15 0 0 1 1.15 1.15v.6H4.1v-.6a1.15 1.15 0 0 1 1.15-1.15z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/** Same geometry as Finder toolbar search. */
+export function NotesSearchIcon({ size = 21, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <circle cx="8" cy="8" r="4.2" fill="none" stroke="currentColor" strokeWidth={SW} />
+      <path d="M11.2 11.2 14 14" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function NotesSidebarMoreIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <circle cx="4.5" cy="9" r="1.1" fill="currentColor" />
+      <circle cx="9" cy="9" r="1.1" fill="currentColor" />
+      <circle cx="13.5" cy="9" r="1.1" fill="currentColor" />
+    </svg>
+  )
+}
+
+export function NotesChevronUpIcon({ size = 21, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <path
+        d="m5.25 10.5 3.75-3.75 3.75 3.75"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function NotesChevronDownIcon({ size = 21, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} className={className} aria-hidden>
+      <path
+        d="m5.25 7.5 3.75 3.75 3.75-3.75"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={SW}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function NotesSearchClearIcon({ size = 10, className }: IconProps) {
+  return (
+    <svg viewBox="0 0 12 12" width={size} height={size} className={className} aria-hidden>
+      <path
+        d="M3.25 3.25 8.75 8.75M8.75 3.25 3.25 8.75"
         stroke="currentColor"
         strokeWidth="1.25"
         strokeLinecap="round"
       />
-    </svg>
-  )
-}
-
-export function NotesMarkupIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <path
-        d="M4 14c2-4 4-6 6-8 2 2 4 4 6 8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.35"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-export function NotesShareIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <path d="M10 4v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      <path d="m7 7 3-3 3 3" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      <rect x="5" y="11" width="10" height="6" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-    </svg>
-  )
-}
-
-export function NotesMoreIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <circle cx="5" cy="10" r="1.2" fill="currentColor" />
-      <circle cx="10" cy="10" r="1.2" fill="currentColor" />
-      <circle cx="15" cy="10" r="1.2" fill="currentColor" />
-    </svg>
-  )
-}
-
-export function NotesSearchIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <circle cx="9" cy="9" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M12.5 12.5 16 16" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-export function NotesSidebarMoreIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} className={className} aria-hidden>
-      <circle cx="5" cy="10" r="1.15" fill="currentColor" />
-      <circle cx="10" cy="10" r="1.15" fill="currentColor" />
-      <circle cx="15" cy="10" r="1.15" fill="currentColor" />
     </svg>
   )
 }
