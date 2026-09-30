@@ -13,12 +13,14 @@ import {
 } from './braveIcons'
 import { createNewTabPageContent, type NewTabPageContent } from './braveNewTabContent'
 import { BraveNewTabPage } from './BraveNewTabPage'
+import { BraveSearchPage } from './BraveSearchPage'
 import {
   BRAVE_HOME_URL,
   createTabId,
   defaultBraveTabs,
   faviconForUrl,
   resolveBravePage,
+  searchQueryToUrl,
   tabFaviconFor,
   tabTitleFor,
   tabUrlsMatch,
@@ -288,12 +290,7 @@ export function BraveBrowserWindow({
   }
 
   const commitAddress = () => {
-    let url = addressDraft.trim()
-    if (!url) url = 'brave://newtab'
-    else if (!/^https?:\/\//i.test(url) && !url.includes('://')) {
-      url = `https://${url}`
-    }
-    openUrl(url)
+    openUrl(searchQueryToUrl(addressDraft))
     setAddressFocused(false)
   }
 
@@ -430,6 +427,7 @@ export function BraveBrowserWindow({
                 </p>
               </article>
             ) : null}
+            {page.kind === 'search' ? <BraveSearchPage /> : null}
             {page.kind === 'mailto' ? (
               <MailtoPage href={page.href} />
             ) : null}

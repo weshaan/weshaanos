@@ -359,3 +359,113 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* —— Light theme (soft slate + periwinkle) —— */
+.desktop[data-window-theme='light'] .brave-window .brave-start {
+  background:
+    radial-gradient(ellipse 85% 55% at 50% 0%, rgba(180, 195, 235, 0.35), transparent 58%),
+    radial-gradient(ellipse 40% 32% at 92% 88%, rgba(200, 210, 230, 0.4), transparent 52%),
+    linear-gradient(180deg, #eef2f8 0%, #f6f8fc 55%, #f6f8fc 100%);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__orb--a {
+  background: rgba(139, 158, 245, 0.35);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__orb--b {
+  background: rgba(186, 200, 230, 0.4);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__orb--c {
+  background: rgba(210, 220, 240, 0.45);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__orb {
+  opacity: 0.42;
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__mesh {
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__quick-title {
+  color: rgba(46, 54, 68, 0.42);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__bento-card {
+  border-color: rgba(148, 163, 184, 0.32);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__bento-card:hover {
+  border-color: rgba(109, 127, 214, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 20px rgba(109, 127, 214, 0.08);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__greeting {
+  color: rgba(46, 54, 68, 0.9);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__tip-corner {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset,
+    0 8px 24px rgba(46, 54, 68, 0.06);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__tip-label {
+  color: rgba(109, 127, 214, 0.95);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__tip-text {
+  color: rgba(46, 54, 68, 0.54);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__time {
+  color: rgba(46, 54, 68, 0.82);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__date {
+  color: rgba(46, 54, 68, 0.42);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-icon {
+  color: rgba(46, 54, 68, 0.36);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-input {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-input::placeholder {
+  color: rgba(46, 54, 68, 0.34);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-input:hover {
+  background: #ffffff;
+  border-color: rgba(109, 127, 214, 0.22);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-input:focus {
+  border-color: rgba(109, 127, 214, 0.45);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(109, 127, 214, 0.12);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start__search-kbd {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(238, 242, 250, 0.9);
+  color: rgba(46, 54, 68, 0.36);
+}
+
+.desktop[data-window-theme='light'] .brave-window .brave-start:focus-within .brave-start__search-kbd,
+.desktop[data-window-theme='light'] .brave-window .brave-start__search:focus-within .brave-start__search-kbd {
+  color: rgba(109, 127, 214, 0.85);
+}

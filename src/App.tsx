@@ -14,6 +14,7 @@ import { ClockWindow } from './components/clock/ClockWindow'
 import { GamesWindow } from './components/games/GamesWindow'
 import { MusicWindow } from './components/music/MusicWindow'
 import { BraveBrowserWindow } from './components/brave/BraveBrowserWindow'
+import { NotesWindow } from './components/notes/NotesWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
 import { MusicPlayerProvider } from './context/MusicPlayerContext'
@@ -43,10 +44,11 @@ type WindowId =
   | 'clock'
   | 'musicapp'
   | 'brave'
+  | 'notes'
 
 type MacWindowId = Exclude<
   WindowId,
-  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp' | 'brave'
+  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp' | 'brave' | 'notes'
 >
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
@@ -247,7 +249,7 @@ function App() {
         open('finder')
         break
       case 'notes':
-        openFinderAt('projects')
+        open('notes')
         break
       case 'settings':
         open('settings')
@@ -389,6 +391,20 @@ function App() {
     if (id === 'brave') {
       return (
         <BraveBrowserWindow
+          key={id}
+          windowId={id}
+          zIndex={zIndex}
+          position={position}
+          onPositionChange={(p) => setWindowPosition(id, p)}
+          onFocus={() => focusWindow(id)}
+          onClose={() => closeWindow(id)}
+        />
+      )
+    }
+
+    if (id === 'notes') {
+      return (
+        <NotesWindow
           key={id}
           windowId={id}
           zIndex={zIndex}

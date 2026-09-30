@@ -58,9 +58,9 @@ const GREETINGS: GreetingLine[] = [
 
 function periodFromDate(date: Date): GreetingPeriod {
   const h = date.getHours()
-  if (h < 5) return 'night'
+  if (h >= 20 || h < 4) return 'night'
   if (h < 12) return 'morning'
-  if (h < 17) return 'afternoon'
+  if (h < 16) return 'afternoon'
   return 'evening'
 }
 

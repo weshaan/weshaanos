@@ -16,11 +16,43 @@ export type BraveTab = {
 export type BravePage =
   | { kind: 'newtab' }
   | { kind: 'about' }
+  | { kind: 'search'; query: string }
   | { kind: 'mailto'; href: string }
   | { kind: 'external'; href: string; title: string }
   | { kind: 'iframe'; src: string }
 
-const EMBED_HOST_BLOCKLIST = ['github.com', 'www.github.com', 'twitter.com', 'x.com', 'www.linkedin.com']
+const EMBED_HOST_BLOCKLIST = [
+  'github.com',
+  'www.github.com',
+  'twitter.com',
+  'x.com',
+  'www.linkedin.com',
+  'duckduckgo.com',
+  'www.duckduckgo.com',
+  'html.duckduckgo.com',
+  'lite.duckduckgo.com',
+  'google.com',
+  'www.google.com',
+  'bing.com',
+  'www.bing.com',
+  'search.brave.com',
+]
+
+export function buildBraveSearchUrl(query: string): string {
+  const t = query.trim()
+  if (!t) return BRAVE_HOME_URL
+  return `brave://search?q=${encodeURIComponent(t)}`
+}
+
+export function parseBraveSearchQuery(url: string): string | null {
+  if (!/^brave:\/\/search/i.test(url.trim())) return null
+  try {
+    const u = new URL(url.replace(/^brave:/i, 'https:'))
+    return u.searchParams.get('q') ?? ''
+  } catch {
+    return null
+  }
+}
 
 let tabCounter = 0
 
@@ -31,7 +63,7 @@ export function searchQueryToUrl(input: string): string {
   if (/^brave:\/\//i.test(t) || /^mailto:/i.test(t)) return t
   if (/^https?:\/\//i.test(t)) return t
   if (/^[\w-]+(\.[\w-]+)+(\/.*)?$/i.test(t) && !t.includes(' ')) return `https://${t}`
-  return `https://duckduckgo.com/?q=${encodeURIComponent(t)}`
+  return buildBraveSearchUrl(t)
 }
 
 export const BRAVE_NEW_TAB_LINKS: {
@@ -96,6 +128,8 @@ export function normalizeTabUrl(url: string): string {
   const t = url.trim()
   if (!t || t === BRAVE_HOME_URL || t === 'about:blank') return BRAVE_HOME_URL
   if (t === 'brave://about' || t === 'portfolio://about') return 'brave://about'
+  const searchQ = parseBraveSearchQuery(t)
+  if (searchQ !== null) return buildBraveSearchUrl(searchQ)
   if (/^mailto:/i.test(t)) return t.toLowerCase()
   if (/^brave:/i.test(t)) return t.toLowerCase()
 
@@ -123,6 +157,10 @@ export function resolveBravePage(url: string): BravePage {
   }
   if (trimmed === 'brave://about' || trimmed === 'portfolio://about') {
     return { kind: 'about' }
+  }
+  const searchQuery = parseBraveSearchQuery(trimmed)
+  if (searchQuery !== null) {
+    return { kind: 'search', query: searchQuery }
   }
   if (/^mailto:/i.test(trimmed)) {
     return { kind: 'mailto', href: trimmed }
@@ -162,6 +200,11 @@ export function defaultBraveTabs(): BraveTab[] {
 export function titleForUrl(url: string): string {
   if (url === 'brave://newtab') return 'New Tab'
   if (url === 'brave://about') return 'About'
+  const searchQ = parseBraveSearchQuery(url)
+  if (searchQ !== null) {
+    const short = searchQ.length > 22 ? `${searchQ.slice(0, 22)}…` : searchQ
+    return short ? `Search: ${short}` : 'Search'
+  }
   try {
     const u = new URL(url)
     return u.hostname.replace(/^www\./, '') || url

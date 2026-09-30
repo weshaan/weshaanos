@@ -12,6 +12,7 @@ const WINDOW_SIZES: Record<string, WindowSize> = {
   clock: { width: 620, height: 420 },
   musicapp: { width: 311, height: 548 },
   brave: { width: 1060, height: 660 },
+  notes: { width: 920, height: 580 },
   profile: { width: 440, height: 360 },
   mail: { width: 440, height: 220 },
   settings: { width: 440, height: 420 },
