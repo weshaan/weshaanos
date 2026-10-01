@@ -1,6 +1,8 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useMusicPlayerContext } from '../../context/MusicPlayerContext'
+import { ARMAAN_PLAYLIST_ID } from '../../music/musicSecretPlaylists'
+import { resolvePlaylistTracks } from '../../music/types'
 import { IpodTrackVisualizer } from './IpodTrackVisualizer'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './MusicWindow.css'
@@ -16,7 +18,7 @@ type Props = {
   onClose: () => void
 }
 
-type IpodView = 'now-playing' | 'songs'
+type IpodView = 'now-playing' | 'playlists' | 'songs'
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
@@ -37,6 +39,7 @@ export function MusicWindow({
   const {
     track,
     tracks,
+    playlists,
     hasTracks,
     loadError,
     playing,
@@ -47,21 +50,145 @@ export function MusicWindow({
     next,
     seek,
     playTrackById,
+    playPlaylist,
+    activePlaylistId,
     audioRef,
   } = useMusicPlayerContext()
 
   const [view, setView] = useState<IpodView>('now-playing')
+  const [browsePlaylistId, setBrowsePlaylistId] = useState<string | null>(null)
+  const [menuIndex, setMenuIndex] = useState(0)
+  /** Song already started once; second select on the same row opens Now Playing. */
+  const [armedSongId, setArmedSongId] = useState<string | null>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    if (browsePlaylistId && playlists.some((p) => p.id === browsePlaylistId)) return
+    setBrowsePlaylistId(playlists[0]?.id ?? null)
+  }, [playlists, browsePlaylistId])
+
+  const browsePlaylist = useMemo(
+    () => playlists.find((p) => p.id === browsePlaylistId),
+    [playlists, browsePlaylistId],
+  )
+
+  const browseTracks = useMemo(
+    () => resolvePlaylistTracks(browsePlaylist, tracks),
+    [browsePlaylist, tracks],
+  )
+
+  const menuListLength =
+    view === 'playlists' ? playlists.length : view === 'songs' ? browseTracks.length : 0
+
+  useEffect(() => {
+    if (view === 'playlists') {
+      const i = playlists.findIndex((p) => p.id === browsePlaylistId)
+      setMenuIndex(i >= 0 ? i : 0)
+    } else if (view === 'songs') {
+      const i = browseTracks.findIndex((t) => t.id === track?.id)
+      setMenuIndex(i >= 0 ? i : 0)
+    }
+  }, [view, playlists, browsePlaylistId, browseTracks, track?.id])
+
+  useEffect(() => {
+    if (menuListLength === 0) return
+    setMenuIndex((i) => Math.min(i, menuListLength - 1))
+  }, [menuListLength])
+
+  useEffect(() => {
+    if (view === 'now-playing' || menuListLength === 0) return
+    const row = listRef.current?.children[menuIndex] as HTMLElement | undefined
+    row?.scrollIntoView({ block: 'nearest' })
+  }, [menuIndex, view, menuListLength])
+
   const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0
   const emptyLabel = loadError ? 'No playlist' : 'No songs'
 
+  const handleMenu = useCallback(() => {
+    if (view === 'now-playing') setView('playlists')
+    else if (view === 'songs') setView('playlists')
+    else setView('now-playing')
+  }, [view])
+
+  const moveMenuSelection = useCallback(
+    (delta: number) => {
+      if (menuListLength === 0) return
+      setMenuIndex((i) => (i + delta + menuListLength) % menuListLength)
+    },
+    [menuListLength],
+  )
+
+  const handleWheelPrevious = useCallback(() => {
+    if (view === 'now-playing') previous()
+    else moveMenuSelection(-1)
+  }, [view, previous, moveMenuSelection])
+
+  const handleWheelNext = useCallback(() => {
+    if (view === 'now-playing') next()
+    else moveMenuSelection(1)
+  }, [view, next, moveMenuSelection])
+
+  const openPlaylist = useCallback(
+    (playlistId: string) => {
+      setBrowsePlaylistId(playlistId)
+      setView('songs')
+      const pl = playlists.find((p) => p.id === playlistId)
+      const playlistTracks = resolvePlaylistTracks(pl, tracks)
+      const playingFromHere =
+        activePlaylistId === playlistId &&
+        track?.id &&
+        playlistTracks.some((t) => t.id === track.id) &&
+        (playing || currentTime > 0)
+
+      if (playlistId === ARMAAN_PLAYLIST_ID) {
+        if (playingFromHere) {
+          setArmedSongId(track.id)
+        } else {
+          playPlaylist(playlistId)
+          setArmedSongId(playlistTracks[0]?.id ?? null)
+        }
+        return
+      }
+
+      setArmedSongId(playingFromHere ? track.id : null)
+    },
+    [playlists, tracks, activePlaylistId, track, playing, currentTime, playPlaylist],
+  )
+
+  const activateSongAt = useCallback(
+    (index: number) => {
+      const t = browseTracks[index]
+      if (!t) return
+      setMenuIndex(index)
+      if (armedSongId === t.id && track?.id === t.id) {
+        setView('now-playing')
+        setArmedSongId(null)
+        return
+      }
+      if (browsePlaylistId) playTrackById(t.id, browsePlaylistId)
+      else playTrackById(t.id)
+      setArmedSongId(t.id)
+    },
+    [browseTracks, browsePlaylistId, playTrackById, armedSongId, track?.id],
+  )
+
   const handleCenter = useCallback(() => {
-    if (view === 'songs' && track) {
-      playTrackById(track.id)
-      setView('now-playing')
+    if (view === 'playlists') {
+      const pl = playlists[menuIndex]
+      if (!pl) return
+      openPlaylist(pl.id)
+      return
+    }
+    if (view === 'songs') {
+      activateSongAt(menuIndex)
       return
     }
     if (hasTracks) togglePlay()
-  }, [view, track, hasTracks, togglePlay, playTrackById])
+  }, [view, menuIndex, playlists, hasTracks, togglePlay, openPlaylist, activateSongAt])
+
+  const wheelTransportDisabled =
+    view === 'now-playing' ? !hasTracks : menuListLength === 0
+  const centerDisabled = wheelTransportDisabled
 
   return (
     <div
@@ -116,24 +243,44 @@ export function MusicWindow({
                 </div>
               </div>
             </div>
-          ) : (
+          ) : view === 'playlists' ? (
             <div className="ipod-songs">
-              <p className="ipod-songs__heading">Songs</p>
-              <ul className="ipod-songs__list">
-                {tracks.length === 0 ? (
+              <p className="ipod-songs__heading">Playlists</p>
+              <ul className="ipod-songs__list" ref={listRef}>
+                {playlists.length === 0 ? (
                   <li className="ipod-songs__empty">{emptyLabel}</li>
                 ) : (
-                  tracks.map((t) => {
-                    const active = track?.id === t.id
+                  playlists.map((pl, index) => (
+                    <li key={pl.id}>
+                      <button
+                        type="button"
+                        className={`ipod-songs__row${index === menuIndex ? ' ipod-songs__row--selected' : ''}`}
+                        onClick={() => openPlaylist(pl.id)}
+                      >
+                        <span className="ipod-songs__name">{pl.name}</span>
+                        <span className="ipod-songs__artist">{pl.trackIds.length} songs</span>
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+          ) : (
+            <div className="ipod-songs">
+              <p className="ipod-songs__heading">{browsePlaylist?.name ?? 'Songs'}</p>
+              <ul className="ipod-songs__list" ref={listRef}>
+                {browseTracks.length === 0 ? (
+                  <li className="ipod-songs__empty">{emptyLabel}</li>
+                ) : (
+                  browseTracks.map((t, index) => {
+                    const selected = index === menuIndex
+                    const playingNow = track?.id === t.id && playing
                     return (
                       <li key={t.id}>
                         <button
                           type="button"
-                          className={`ipod-songs__row${active ? ' ipod-songs__row--active' : ''}`}
-                          onClick={() => {
-                            playTrackById(t.id)
-                            setView('now-playing')
-                          }}
+                          className={`ipod-songs__row${selected ? ' ipod-songs__row--selected' : ''}${playingNow && !selected ? ' ipod-songs__row--playing' : ''}`}
+                          onClick={() => activateSongAt(index)}
                         >
                           <span className="ipod-songs__name">{t.title}</span>
                           {t.artist ? <span className="ipod-songs__artist">{t.artist}</span> : null}
@@ -148,22 +295,22 @@ export function MusicWindow({
         </div>
 
         <div className="ipod-device__wheel" aria-label="Click wheel">
-          <button type="button" className="ipod-wheel-hit ipod-wheel-hit--menu" onClick={() => setView('songs')}>
+          <button type="button" className="ipod-wheel-hit ipod-wheel-hit--menu" onClick={handleMenu}>
             <span className="visually-hidden">Menu</span>
           </button>
           <button
             type="button"
             className="ipod-wheel-hit ipod-wheel-hit--prev"
-            onClick={previous}
-            disabled={!hasTracks}
-            aria-label="Previous track"
+            onClick={handleWheelPrevious}
+            disabled={wheelTransportDisabled}
+            aria-label={view === 'now-playing' ? 'Previous track' : 'Previous item'}
           />
           <button
             type="button"
             className="ipod-wheel-hit ipod-wheel-hit--next"
-            onClick={next}
-            disabled={!hasTracks}
-            aria-label="Next track"
+            onClick={handleWheelNext}
+            disabled={wheelTransportDisabled}
+            aria-label={view === 'now-playing' ? 'Next track' : 'Next item'}
           />
           <button
             type="button"
@@ -179,7 +326,7 @@ export function MusicWindow({
             type="button"
             className="ipod-wheel-hit ipod-wheel-hit--center"
             onClick={handleCenter}
-            disabled={!hasTracks}
+            disabled={centerDisabled}
             aria-label="Select"
           />
         </div>

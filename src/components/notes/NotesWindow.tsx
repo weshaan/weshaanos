@@ -9,6 +9,7 @@ import {
   notePlainText,
   noteTitleAndBody,
 } from './notesNoteActions'
+import { syncArmaanRevealFromNotesText } from '../../music/musicSecretPlaylists'
 import {
   formatEditedStamp,
   formatNoteMeta,
@@ -139,6 +140,10 @@ export function NotesWindow({
     setToday(next)
     saveTodayNote(next)
   }
+
+  useEffect(() => {
+    syncArmaanRevealFromNotesText(`${today.title}\n${today.body}`)
+  }, [today.title, today.body])
 
   const flash = (message: string) => setStatus(message)
 

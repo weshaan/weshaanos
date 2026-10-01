@@ -17,6 +17,43 @@
       "title": "harinezumi",
       "artist": "waera",
       "file": "waera-harinezumi.mp3"
+    },
+    {
+      "id": "kho-gaye-hum-kahan",
+      "title": "Kho Gaye Hum Kahan",
+      "artist": "Sagar Vaze, Kayan",
+      "file": "Kho Gaye Hum Kahan.mp3"
+    },
+    {
+      "id": "lover",
+      "title": "lover",
+      "artist": "Diljit Dosanjh",
+      "file": "Diljit Dosanjh LOVER.mp3"
+    }
+  ],
+  "playlists": [
+    {
+      "id": "weshaanos",
+      "name": "weshaanOS",
+      "trackIds": [
+        "youth-tell-me-why",
+        "johnny-joined",
+        "waera-harinezumi"
+      ]
+    },
+    {
+      "id": "armaan",
+      "name": "armaan",
+      "trackIds": [
+        "lover"
+      ]
+    },
+    {
+      "id": "favourites",
+      "name": "Favourites",
+      "trackIds": [
+        "kho-gaye-hum-kahan"
+      ]
     }
   ]
 }

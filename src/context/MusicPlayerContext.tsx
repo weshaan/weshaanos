@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
-import { useMusicPlayer } from '../hooks/useMusicPlayer'
+import { useMusicPlayerWithPlaylists } from '../hooks/useMusicPlayerWithPlaylists'
 import { useMusicPlaylist } from '../hooks/useMusicPlaylist'
 import { setMusicAutoplayHandler } from '../music/autoplay'
 import { setMusicPlaybackBridge } from '../music/playbackBridge'
 import type { MusicTrack } from '../music/types'
 
-type MusicPlayerContextValue = ReturnType<typeof useMusicPlayer> & {
+type MusicPlayerContextValue = ReturnType<typeof useMusicPlayerWithPlaylists> & {
   tracks: MusicTrack[]
   loadError: boolean
 }
@@ -13,8 +13,8 @@ type MusicPlayerContextValue = ReturnType<typeof useMusicPlayer> & {
 const MusicPlayerContext = createContext<MusicPlayerContextValue | null>(null)
 
 export function MusicPlayerProvider({ children }: { children: ReactNode }) {
-  const { tracks, loadError } = useMusicPlaylist()
-  const player = useMusicPlayer(tracks)
+  const { tracks, playlists, loadError } = useMusicPlaylist()
+  const player = useMusicPlayerWithPlaylists(tracks, playlists)
 
   useEffect(() => {
     if (!player.hasTracks) {

@@ -247,17 +247,23 @@
   color: inherit;
 }
 
-.ipod-songs__row:hover:not(.ipod-songs__row--active) {
+.ipod-songs__row:hover:not(.ipod-songs__row--selected) {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.ipod-songs__row--active {
+.ipod-songs__row--selected {
   background: linear-gradient(180deg, #5a9fd4 0%, #3d7eb8 100%);
   color: #fff;
 }
 
-.ipod-songs__row--active .ipod-songs__artist {
+.ipod-songs__row--selected .ipod-songs__artist {
   color: rgba(255, 255, 255, 0.75);
+}
+
+.ipod-songs__row--playing .ipod-songs__name::before {
+  content: '▶ ';
+  font-size: 9px;
+  opacity: 0.85;
 }
 
 .ipod-songs__name {
