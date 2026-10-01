@@ -183,9 +183,11 @@
   justify-content: center;
 }
 
-.lock-screen__avatar-emoji {
-  font-size: 28px;
-  line-height: 1;
+.lock-screen__avatar-img {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .lock-screen__name {

@@ -8,6 +8,7 @@ import {
 import './HelloIntro.css'
 
 const HELLO_SVG = '/hello/hello-en.svg'
+const PEACOCK_SVG = '/peacock.svg'
 const HELLO_TIME_SCALE = 8.1
 
 type Props = {
@@ -169,7 +170,7 @@ export function HelloIntro({ onComplete }: Props) {
 
       {phase === 'booting' && (
         <div className="hello-intro__boot" aria-busy="true" aria-label="Starting up">
-          <span className="hello-intro__boot-mark" aria-hidden>🦚</span>
+          <img className="hello-intro__boot-mark" src={PEACOCK_SVG} alt="" aria-hidden draggable={false} />
           <div className="hello-intro__boot-track" role="progressbar" aria-valuemin={0} aria-valuemax={100}>
             <div ref={bootFillRef} className="hello-intro__boot-fill" />
           </div>

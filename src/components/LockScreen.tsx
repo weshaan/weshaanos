@@ -3,6 +3,8 @@ import { useClock } from '../hooks/useClock'
 import { BatteryMenuIcon, WifiMenuIcon } from './menuBar/MenuBarIcons'
 import './LockScreen.css'
 
+const PEACOCK_SVG = '/peacock.svg'
+
 type Props = {
   onUnlock: () => void
   exiting?: boolean
@@ -62,7 +64,7 @@ export function LockScreen({ onUnlock, exiting, unlockEnabled = true }: Props) {
 
       <div className="lock-screen__user">
         <div className="lock-screen__avatar" aria-hidden>
-          <span className="lock-screen__avatar-emoji">🦚</span>
+          <img className="lock-screen__avatar-img" src={PEACOCK_SVG} alt="" draggable={false} />
         </div>
         <p className="lock-screen__name">Eshaan Walia</p>
         <p className="lock-screen__hint">Press anything to continue</p>

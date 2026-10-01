@@ -445,8 +445,16 @@
   overflow: auto;
 }
 
-.brave-window__content:has(.brave-window__frame-embed) {
+.brave-window__content:has(.brave-frame-host) {
   overflow: hidden;
+}
+
+.brave-frame-host {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
 }
 
 .brave-window__frame-embed {

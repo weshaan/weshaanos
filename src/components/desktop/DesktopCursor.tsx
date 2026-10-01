@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react'
+import {
+  DESKTOP_CURSOR_EMBED_EVENT,
+  isPointerOverBraveEmbed,
+  type DesktopCursorEmbedDetail,
+} from './desktopCursorEmbed'
 import './DesktopCursor.css'
 
 const HTML_CLASS = 'desktop-cursor--active'
+const HTML_EMBED_CLASS = 'desktop-cursor--embed-captive'
 const DOCK_GUARD_PX = 148
 const DOCK_RING_FADE_PX = 112
 const EXIT_TRAVEL = 34
@@ -50,6 +56,7 @@ export function DesktopCursor({ enabled }: Props) {
   const pointerishRef = useRef(false)
   const dockNearRef = useRef(false)
   const exitingRef = useRef(false)
+  const embedCaptiveRef = useRef(false)
   const exitTimerRef = useRef(0)
 
   const syncClasses = () => {
@@ -61,6 +68,8 @@ export function DesktopCursor({ enabled }: Props) {
     root.classList.toggle('desktop-cursor--dot-out', exitingRef.current)
     root.classList.toggle('desktop-cursor--dock-near', dockNearRef.current)
     root.classList.toggle('desktop-cursor--exiting', exitingRef.current)
+    root.classList.toggle('desktop-cursor--embed', embedCaptiveRef.current)
+    document.documentElement.classList.toggle(HTML_EMBED_CLASS, embedCaptiveRef.current)
   }
 
   const paintDot = (x: number, y: number) => {
@@ -111,8 +120,29 @@ export function DesktopCursor({ enabled }: Props) {
       syncClasses()
     }
 
+    const enterEmbedCapture = () => {
+      if (embedCaptiveRef.current) return
+      clearExitTimer()
+      exitingRef.current = false
+      embedCaptiveRef.current = true
+      ring.classList.add('desktop-cursor__ring--no-transition')
+      syncClasses()
+    }
+
     const onMove = (e: PointerEvent) => {
       const { clientX, clientY } = e
+      const overEmbed = isPointerOverBraveEmbed(clientX, clientY)
+
+      if (overEmbed) {
+        enterEmbedCapture()
+        return
+      }
+
+      if (embedCaptiveRef.current) {
+        embedCaptiveRef.current = false
+        document.documentElement.classList.remove(HTML_EMBED_CLASS)
+        syncClasses()
+      }
 
       if (exitingRef.current) {
         exitingRef.current = false
@@ -152,8 +182,33 @@ export function DesktopCursor({ enabled }: Props) {
       paintRing(clientX, clientY, clientY)
     }
 
+    const onEmbedCapture = (e: Event) => {
+      const { active, clientX, clientY } = (e as CustomEvent<DesktopCursorEmbedDetail>).detail
+      if (active) {
+        enterEmbedCapture()
+        return
+      }
+
+      if (!embedCaptiveRef.current) return
+
+      embedCaptiveRef.current = false
+      if (typeof clientX === 'number' && typeof clientY === 'number') {
+        posRef.current = { x: clientX, y: clientY }
+        prevPosRef.current = { x: clientX, y: clientY }
+        lastVelRef.current = { vx: 0, vy: 0 }
+        visibleRef.current = true
+        ring.classList.add('desktop-cursor__ring--no-transition')
+        paintDot(clientX, clientY)
+        paintRing(clientX, clientY, clientY)
+        requestAnimationFrame(() => {
+          ring.classList.remove('desktop-cursor__ring--no-transition')
+        })
+      }
+      syncClasses()
+    }
+
     const onLeave = (e: MouseEvent) => {
-      if (!visibleRef.current || exitingRef.current) return
+      if (embedCaptiveRef.current || !visibleRef.current || exitingRef.current) return
 
       const { x, y } = posRef.current
       let dx = lastVelRef.current.vx
@@ -201,6 +256,7 @@ export function DesktopCursor({ enabled }: Props) {
     window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerdown', onDown, { passive: true })
     window.addEventListener('pointerup', onUp, { passive: true })
+    window.addEventListener(DESKTOP_CURSOR_EMBED_EVENT, onEmbedCapture)
     document.documentElement.addEventListener('mouseleave', onLeave)
 
     return () => {
@@ -208,8 +264,10 @@ export function DesktopCursor({ enabled }: Props) {
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointerup', onUp)
+      window.removeEventListener(DESKTOP_CURSOR_EMBED_EVENT, onEmbedCapture)
       document.documentElement.removeEventListener('mouseleave', onLeave)
       document.documentElement.classList.remove(HTML_CLASS)
+      document.documentElement.classList.remove(HTML_EMBED_CLASS)
     }
   }, [enabled])
 

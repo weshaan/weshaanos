@@ -18,25 +18,21 @@ export type BravePage =
   | { kind: 'about' }
   | { kind: 'search'; query: string }
   | { kind: 'mailto'; href: string }
-  | { kind: 'external'; href: string; title: string }
   | { kind: 'iframe'; src: string }
+  | { kind: 'comingsoon' }
 
-const EMBED_HOST_BLOCKLIST = [
-  'github.com',
-  'www.github.com',
-  'twitter.com',
-  'x.com',
-  'www.linkedin.com',
-  'duckduckgo.com',
-  'www.duckduckgo.com',
-  'html.duckduckgo.com',
-  'lite.duckduckgo.com',
-  'google.com',
-  'www.google.com',
-  'bing.com',
-  'www.bing.com',
-  'search.brave.com',
-]
+export const AMITTAL_SITE_URL = 'https://amittal.dev'
+
+const ALLOWED_IFRAME_HOST = 'amittal.dev'
+
+export function isAllowedIframeUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+    return host === ALLOWED_IFRAME_HOST
+  } catch {
+    return false
+  }
+}
 
 export function buildBraveSearchUrl(query: string): string {
   const t = query.trim()
@@ -166,15 +162,10 @@ export function resolveBravePage(url: string): BravePage {
     return { kind: 'mailto', href: trimmed }
   }
   if (/^https?:\/\//i.test(trimmed)) {
-    try {
-      const host = new URL(trimmed).hostname.toLowerCase()
-      if (EMBED_HOST_BLOCKLIST.includes(host)) {
-        return { kind: 'external', href: trimmed, title: titleForUrl(trimmed) }
-      }
-    } catch {
-      return { kind: 'newtab' }
+    if (isAllowedIframeUrl(trimmed)) {
+      return { kind: 'iframe', src: trimmed }
     }
-    return { kind: 'iframe', src: trimmed }
+    return { kind: 'comingsoon' }
   }
   return { kind: 'newtab' }
 }

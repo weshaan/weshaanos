@@ -3,7 +3,6 @@ import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useMusicPlayerContext } from '../../context/MusicPlayerContext'
 import { ARMAAN_PLAYLIST_ID } from '../../music/musicSecretPlaylists'
 import { resolvePlaylistTracks } from '../../music/types'
-import { IpodTrackVisualizer } from './IpodTrackVisualizer'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import './MusicWindow.css'
 
@@ -52,7 +51,6 @@ export function MusicWindow({
     playTrackById,
     playPlaylist,
     activePlaylistId,
-    audioRef,
   } = useMusicPlayerContext()
 
   const [view, setView] = useState<IpodView>('now-playing')
@@ -218,7 +216,7 @@ export function MusicWindow({
                 <span className="ipod-now__battery" aria-hidden />
               </div>
               <div className="ipod-now__art" aria-hidden>
-                <IpodTrackVisualizer trackId={track?.id} playing={playing} audioRef={audioRef} />
+                <div className="ipod-now__art-placeholder" />
               </div>
               <p className="ipod-now__title">{track?.title ?? emptyLabel}</p>
               <p className="ipod-now__artist">{track?.artist ?? '—'}</p>

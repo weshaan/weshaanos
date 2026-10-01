@@ -14,6 +14,11 @@
   html.desktop-cursor--active .desktop__session input[type='search']::-moz-search-clear {
     display: none;
   }
+
+  html.desktop-cursor--active .brave-frame-host,
+  html.desktop-cursor--active .brave-frame-host .brave-window__frame-embed {
+    cursor: auto !important;
+  }
 }
 
 .desktop-cursor {
@@ -116,6 +121,27 @@
 .desktop-cursor--hidden .desktop-cursor__dot,
 .desktop-cursor--hidden .desktop-cursor__ring {
   opacity: 0;
+}
+
+.desktop-cursor--embed,
+html.desktop-cursor--embed-captive .desktop-cursor {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: none !important;
+}
+
+.desktop-cursor--embed .desktop-cursor__dot,
+.desktop-cursor--embed .desktop-cursor__ring,
+html.desktop-cursor--embed-captive .desktop-cursor__dot,
+html.desktop-cursor--embed-captive .desktop-cursor__ring {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
+.desktop-cursor:not(.desktop-cursor--hidden):not(.desktop-cursor--embed) {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
 }
 
 .desktop-cursor--dot-out .desktop-cursor__dot {

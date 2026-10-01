@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { dispatchDesktopCursorEmbed } from '../desktop/desktopCursorEmbed'
 import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
 import {
@@ -18,7 +19,6 @@ import {
   BRAVE_HOME_URL,
   createTabId,
   defaultBraveTabs,
-  faviconForUrl,
   resolveBravePage,
   searchQueryToUrl,
   tabFaviconFor,
@@ -427,32 +427,61 @@ export function BraveBrowserWindow({
                 </p>
               </article>
             ) : null}
-            {page.kind === 'search' ? <BraveSearchPage /> : null}
+            {page.kind === 'search' || page.kind === 'comingsoon' ? <BraveSearchPage /> : null}
             {page.kind === 'mailto' ? (
               <MailtoPage href={page.href} />
-            ) : null}
-            {page.kind === 'external' ? (
-              <div className="brave-external-card">
-                <TabFaviconIcon kind={faviconForUrl(page.href)} />
-                <h2>{page.title}</h2>
-                <p className="brave-external-card__url">{page.href}</p>
-                <p className="brave-external-card__hint">This site opens in your system browser.</p>
-                <a className="brave-btn brave-btn--primary" href={page.href} target="_blank" rel="noopener noreferrer">
-                  Continue to {page.title}
-                </a>
-              </div>
             ) : null}
             {page.kind === 'iframe' ? (
               <BraveExternalFrame
                 key={`${activeSession?.frameKey ?? 0}-${page.src}`}
                 src={page.src}
-                onOpenExternal={() => window.open(page.src, '_blank', 'noopener,noreferrer')}
               />
             ) : null}
           </div>
           <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
         </div>
       </div>
+    </div>
+  )
+}
+
+function BraveExternalFrame({ src }: { src: string }) {
+  const frameRef = useRef<HTMLIFrameElement>(null)
+
+  useEffect(() => {
+    const frame = frameRef.current
+    if (!frame) return
+    frame.setAttribute('credentialless', '')
+    frame.src = src
+  }, [src])
+
+  useEffect(() => {
+    return () => {
+      const frame = frameRef.current
+      if (frame) frame.src = 'about:blank'
+      dispatchDesktopCursorEmbed({ active: false })
+    }
+  }, [src])
+
+  const releaseEmbedCursor = useCallback((clientX: number, clientY: number) => {
+    dispatchDesktopCursorEmbed({ active: false, clientX, clientY })
+  }, [])
+
+  return (
+    <div
+      className="brave-frame-host"
+      onMouseEnter={() => dispatchDesktopCursorEmbed({ active: true })}
+      onMouseLeave={(e) => releaseEmbedCursor(e.clientX, e.clientY)}
+    >
+      <iframe
+        ref={frameRef}
+        className="brave-window__frame-embed"
+        title="Web content"
+        sandbox="allow-scripts allow-forms"
+        referrerPolicy="no-referrer"
+        onMouseEnter={() => dispatchDesktopCursorEmbed({ active: true })}
+        onMouseLeave={(e) => releaseEmbedCursor(e.clientX, e.clientY)}
+      />
     </div>
   )
 }
@@ -468,33 +497,6 @@ function MailtoPage({ href }: { href: string }) {
         Open in Mail
       </a>
     </div>
-  )
-}
-
-function BraveExternalFrame({ src, onOpenExternal }: { src: string; onOpenExternal: () => void }) {
-  const [blocked, setBlocked] = useState(false)
-
-  return (
-    <>
-      {blocked ? (
-        <div className="brave-external-card">
-          <TabFaviconIcon kind="globe" />
-          <h2>Can&apos;t preview this page</h2>
-          <p className="brave-external-card__hint">The site blocked embedding. Open it externally instead.</p>
-          <button type="button" className="brave-btn brave-btn--primary" onClick={onOpenExternal}>
-            Open in browser
-          </button>
-        </div>
-      ) : (
-        <iframe
-          className="brave-window__frame-embed"
-          src={src}
-          title="Web content"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          onError={() => setBlocked(true)}
-        />
-      )}
-    </>
   )
 }
 

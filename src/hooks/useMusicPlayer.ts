@@ -8,8 +8,12 @@ function ensureTrackLoaded(audio: HTMLAudioElement, t: MusicTrack) {
   audio.src = trackSrc(t)
 }
 
+const PROGRESS_UI_MS = 250
+
 export function useMusicPlayer(tracks: MusicTrack[]) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const currentTimeRef = useRef(0)
+  const lastProgressUiMs = useRef(0)
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -62,12 +66,14 @@ export function useMusicPlayer(tracks: MusicTrack[]) {
 
   const previous = useCallback(() => {
     const audio = audioRef.current
-    if (audio && currentTime > 3) {
+    if (audio && currentTimeRef.current > 3) {
       audio.currentTime = 0
+      currentTimeRef.current = 0
+      setCurrentTime(0)
       return
     }
     goTo(safeIndex - 1, true)
-  }, [goTo, safeIndex, currentTime])
+  }, [goTo, safeIndex])
 
   const onEnded = useCallback(() => {
     goTo(safeIndex + 1, true)
@@ -77,12 +83,20 @@ export function useMusicPlayer(tracks: MusicTrack[]) {
     const audio = audioRef.current
     if (!audio) return
     audio.currentTime = time
+    currentTimeRef.current = time
+    lastProgressUiMs.current = performance.now()
     setCurrentTime(time)
   }, [])
 
   const onTimeUpdate = useCallback(() => {
     const audio = audioRef.current
-    if (audio) setCurrentTime(audio.currentTime)
+    if (!audio) return
+    const t = audio.currentTime
+    currentTimeRef.current = t
+    const now = performance.now()
+    if (now - lastProgressUiMs.current < PROGRESS_UI_MS) return
+    lastProgressUiMs.current = now
+    setCurrentTime(t)
   }, [])
 
   const onLoadedMetadata = useCallback(() => {
@@ -91,7 +105,10 @@ export function useMusicPlayer(tracks: MusicTrack[]) {
   }, [])
 
   const onAudioPlay = useCallback(() => setPlaying(true), [])
-  const onAudioPause = useCallback(() => setPlaying(false), [])
+  const onAudioPause = useCallback(() => {
+    setPlaying(false)
+    setCurrentTime(currentTimeRef.current)
+  }, [])
 
   const playTrackById = useCallback(
     (trackId: string) => {

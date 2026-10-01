@@ -16,6 +16,7 @@
   --ipod-aspect: 728.93097 / 443.19766;
 
   position: fixed;
+  contain: layout paint;
   width: var(--ipod-device-w);
   display: flex;
   flex-direction: column;
@@ -73,7 +74,7 @@
   width: var(--ipod-device-w);
   aspect-ratio: 443.19766 / 728.93097;
   margin: 0 auto;
-  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.38));
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.38);
 }
 
 .ipod-device__shell {
@@ -144,11 +145,12 @@
   filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
 }
 
-.ipod-now__viz {
-  display: block;
+.ipod-now__art-placeholder {
   width: 72px;
   height: 72px;
   border-radius: 4px;
+  background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .ipod-now__title {
