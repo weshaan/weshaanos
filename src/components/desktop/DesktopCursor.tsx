@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import {
   DESKTOP_CURSOR_EMBED_EVENT,
-  isPointerOverBraveEmbed,
+  isPointerOverBrowserEmbed,
   type DesktopCursorEmbedDetail,
 } from './desktopCursorEmbed'
 import './DesktopCursor.css'
@@ -131,7 +131,7 @@ export function DesktopCursor({ enabled }: Props) {
 
     const onMove = (e: PointerEvent) => {
       const { clientX, clientY } = e
-      const overEmbed = isPointerOverBraveEmbed(clientX, clientY)
+      const overEmbed = isPointerOverBrowserEmbed(clientX, clientY)
 
       if (overEmbed) {
         enterEmbedCapture()

@@ -13,7 +13,8 @@ import { CalendarWindow } from './components/calendar/CalendarWindow'
 import { ClockWindow } from './components/clock/ClockWindow'
 import { GamesWindow } from './components/games/GamesWindow'
 import { MusicWindow } from './components/music/MusicWindow'
-import { BraveBrowserWindow } from './components/brave/BraveBrowserWindow'
+import { BrowserAppWindow } from './components/browser/BrowserAppWindow'
+import { GITHUB_PROFILE_URL } from './components/browser/githubProfile'
 import { NotesWindow } from './components/notes/NotesWindow'
 import { WeatherWindow } from './components/weather/WeatherWindow'
 import { Widgets } from './components/Widgets'
@@ -43,12 +44,12 @@ type WindowId =
   | 'games'
   | 'clock'
   | 'musicapp'
-  | 'brave'
+  | 'browser'
   | 'notes'
 
 type MacWindowId = Exclude<
   WindowId,
-  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp' | 'brave' | 'notes'
+  'resume' | 'finder' | 'weather' | 'calculator' | 'calendar' | 'games' | 'clock' | 'musicapp' | 'browser' | 'notes'
 >
 
 const windowCopy: Record<MacWindowId, { title: string; body: ReactNode | null }> = {
@@ -157,6 +158,7 @@ function App() {
   const [unlocked, setUnlocked] = useState(false)
   const [lockExiting, setLockExiting] = useState(false)
   const [finderPendingLocation, setFinderPendingLocation] = useState<FinderLocationId | null>(null)
+  const [browserPendingUrl, setBrowserPendingUrl] = useState<string | null>(null)
   const aboutWelcomeOpened = useRef(false)
 
   useEffect(() => {
@@ -195,6 +197,12 @@ function App() {
     },
     [openUserWindow],
   )
+
+  const openGitHubProfile = useCallback(() => {
+    markDone('profile')
+    setBrowserPendingUrl(GITHUB_PROFILE_URL)
+    openWindow('browser')
+  }, [markDone, openWindow])
 
   const openFinderAt = useCallback(
     (location: FinderLocationId) => {
@@ -266,8 +274,8 @@ function App() {
       case 'games':
         open('games')
         break
-      case 'brave':
-        open('brave')
+      case 'browser':
+        open('browser')
         break
       case 'trash':
         openFinderAt('bin')
@@ -388,9 +396,9 @@ function App() {
       )
     }
 
-    if (id === 'brave') {
+    if (id === 'browser') {
       return (
-        <BraveBrowserWindow
+        <BrowserAppWindow
           key={id}
           windowId={id}
           zIndex={zIndex}
@@ -398,6 +406,9 @@ function App() {
           onPositionChange={(p) => setWindowPosition(id, p)}
           onFocus={() => focusWindow(id)}
           onClose={() => closeWindow(id)}
+          onOpenMail={() => open('mail')}
+          pendingNavigateUrl={browserPendingUrl}
+          onPendingNavigateHandled={() => setBrowserPendingUrl(null)}
         />
       )
     }
@@ -474,7 +485,7 @@ function App() {
               onOpenMusic={() => open('musicapp')}
               onReminder={(action) => {
                 if (action === 'resume') open('resume')
-                else if (action === 'profile') open('profile')
+                else if (action === 'profile') openGitHubProfile()
                 else if (action === 'projects') openFinderAt('projects')
                 else open('mail')
               }}

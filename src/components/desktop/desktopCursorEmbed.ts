@@ -10,8 +10,8 @@ export function dispatchDesktopCursorEmbed(detail: DesktopCursorEmbedDetail) {
   window.dispatchEvent(new CustomEvent(DESKTOP_CURSOR_EMBED_EVENT, { detail }))
 }
 
-export function isPointerOverBraveEmbed(clientX: number, clientY: number): boolean {
-  const hosts = document.querySelectorAll('.brave-frame-host')
+export function isPointerOverBrowserEmbed(clientX: number, clientY: number): boolean {
+  const hosts = document.querySelectorAll('.browser-frame-host')
   for (const host of hosts) {
     const r = host.getBoundingClientRect()
     if (

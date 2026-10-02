@@ -10,6 +10,9 @@
 }
 
 .clock-app-window {
+  --clock-scrollbar-thumb: rgba(0, 0, 0, 0.22);
+  --clock-scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+
   position: fixed;
   width: min(620px, 94vw);
   display: flex;
@@ -105,9 +108,30 @@
   display: flex;
   flex-direction: column;
   padding-left: 20px;
-  padding-right: 2px;
+  padding-right: 4px;
   border-left: 0.5px solid rgba(0, 0, 0, 0.1);
   scrollbar-width: thin;
+  scrollbar-color: var(--clock-scrollbar-thumb) transparent;
+}
+
+.clock-app-window__faces::-webkit-scrollbar {
+  width: 8px;
+}
+
+.clock-app-window__faces::-webkit-scrollbar-thumb {
+  background: var(--clock-scrollbar-thumb);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.clock-app-window__faces::-webkit-scrollbar-thumb:hover {
+  background: var(--clock-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+.clock-app-window__faces::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .clock-app-window__preview {
@@ -305,6 +329,9 @@
 }
 
 .desktop[data-window-theme='dark'] .clock-app-window {
+  --clock-scrollbar-thumb: rgba(255, 255, 255, 0.28);
+  --clock-scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
+
   background: #2c2c2e;
   color: #f5f5f7;
 }

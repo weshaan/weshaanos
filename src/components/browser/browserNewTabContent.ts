@@ -1,5 +1,5 @@
-import { pickNewTabGreeting } from './braveNewTabGreetings'
-import { pickNewTabDesktopTip } from './braveNewTabTips'
+import { pickNewTabGreeting } from './browserNewTabGreetings'
+import { pickNewTabDesktopTip } from './browserNewTabTips'
 
 export type NewTabPageContent = {
   greeting: string

@@ -1,4 +1,4 @@
-import type { PathSegment } from '../browser/BrowserWindow'
+import type { PathSegment } from '../finder-window/BrowserWindow'
 import type { FinderFolderGlyph } from '../icons/FinderFolderIcon'
 
 export type FinderLocationId =
@@ -34,7 +34,8 @@ export type FinderLaunchId =
   | 'games'
   | 'clock'
   | 'musicapp'
-  | 'brave'
+  | 'browser'
+  | 'notes'
 
 const DESKTOP_FOLDER_IDS = ['projects', 'images', 'misc', 'localhost'] as const
 export type FinderDesktopFolderId = (typeof DESKTOP_FOLDER_IDS)[number]
@@ -129,7 +130,8 @@ export const FINDER_LOCATIONS: Record<FinderLocationId, FinderLocation> = {
       { kind: 'launch', label: 'PDF Viewer', glyph: 'app', launch: 'pdfviewer' },
       { kind: 'launch', label: 'Games', glyph: 'app', launch: 'games' },
       { kind: 'launch', label: 'Music', glyph: 'app', launch: 'musicapp' },
-      { kind: 'launch', label: 'Brave', glyph: 'app', launch: 'brave' },
+      { kind: 'launch', label: 'Notes', glyph: 'app', launch: 'notes' },
+      { kind: 'launch', label: 'Browser', glyph: 'app', launch: 'browser' },
       { kind: 'launch', label: 'Mail', glyph: 'generic', launch: 'mail' },
       { kind: 'launch', label: 'Terminal', glyph: 'generic', launch: 'terminal' },
       { kind: 'launch', label: 'System Settings', glyph: 'app', launch: 'settings' },

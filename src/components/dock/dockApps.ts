@@ -12,7 +12,7 @@ export const dockApps: DockApp[] = [
   { id: 'finder', label: 'Finder', icon: '/dock/finder.png', running: true },
   { id: 'calendar', label: 'Calendar', icon: '/dock/calendar.png' },
   { id: 'weather', label: 'Weather', icon: '/dock/weather.png' },
-  { id: 'brave', label: 'Brave', icon: '/dock/brave.png', running: true },
+  { id: 'browser', label: 'Browser', icon: '/dock/browser.png', running: true },
   { id: 'vscode', label: 'Visual Studio Code', icon: '/dock/vscode.png', running: true },
   { id: 'calculator', label: 'Calculator', icon: '/dock/calculator.png' },
   { id: 'games', label: 'Games', icon: '/dock/games.png' },

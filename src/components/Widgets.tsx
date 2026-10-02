@@ -24,8 +24,8 @@ type Props = {
 }
 
 const reminders: { id: ReminderAction; label: string; list: string }[] = [
-  { id: 'resume', label: 'Open resume', list: 'Portfolio' },
   { id: 'profile', label: 'View profile', list: 'About' },
+  { id: 'resume', label: 'Open resume', list: 'Portfolio' },
   { id: 'projects', label: 'View projects', list: 'Work' },
   { id: 'mail', label: 'Send an email', list: 'Inbox' },
 ]

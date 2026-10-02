@@ -30,7 +30,7 @@ import {
   NotesSearchIcon,
   NotesSidebarMoreIcon,
 } from './NotesIcons'
-import '../browser/BrowserWindow.css'
+import '../finder-window/BrowserWindow.css'
 import './NotesWindow.css'
 
 type Props = {

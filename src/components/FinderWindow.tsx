@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
-import { BrowserWindow } from './browser/BrowserWindow'
+import { BrowserWindow } from './finder-window/BrowserWindow'
 import {
   FINDER_LOCATIONS,
   FINDER_SIDEBAR,

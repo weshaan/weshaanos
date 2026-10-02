@@ -15,8 +15,8 @@
     display: none;
   }
 
-  html.desktop-cursor--active .brave-frame-host,
-  html.desktop-cursor--active .brave-frame-host .brave-window__frame-embed {
+  html.desktop-cursor--active .browser-frame-host,
+  html.desktop-cursor--active .browser-frame-host .browser-window__frame-embed {
     cursor: auto !important;
   }
 }

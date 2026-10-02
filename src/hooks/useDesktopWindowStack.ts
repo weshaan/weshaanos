@@ -24,7 +24,7 @@ const defaultPositions: Record<string, () => WindowPoint> = {
   games: () => centerWindow(720, 520),
   clock: () => centerWindow(620, 420),
   musicapp: () => centerWindow(311, 548),
-  brave: () => centerWindow(1060, 660),
+  browser: () => centerWindow(1060, 660),
   notes: () => centerWindow(920, 580),
   profile: () => {
     const p = centerWindow(440, 320)

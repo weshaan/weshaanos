@@ -1,4 +1,4 @@
-@keyframes brave-window-in {
+@keyframes browser-window-in {
   from {
     opacity: 0;
     transform: scale(0.985) translateY(8px);
@@ -9,33 +9,33 @@
   }
 }
 
-.brave-window {
+.browser-window {
   /* Zen-inspired: warm neutrals, mauve interaction, chrome that recedes */
-  --brave-bg: #1b1a1d;
-  --brave-surface: #222124;
-  --brave-elevated: #2c2a30;
-  --brave-hover: rgba(186, 168, 198, 0.1);
-  --brave-border: rgba(255, 252, 248, 0.07);
-  --brave-text: #f3f0ec;
-  --brave-muted: rgba(243, 240, 236, 0.48);
-  --brave-accent: #b5a3c9;
-  --brave-accent-soft: rgba(181, 163, 201, 0.22);
-  --brave-tab-col: 196px;
-  --brave-pill: #2a2830;
-  --brave-pill-focus: rgba(181, 163, 201, 0.35);
-  --brave-tabs-bg: #18171a;
-  --brave-content-bg: #1f1e22;
-  --brave-newtab-content-bg: #242328;
-  --brave-tab-title-color: rgba(242, 243, 245, 0.88);
-  --brave-toolbar-icon: rgba(243, 240, 236, 0.72);
-  --brave-omnibox-focus-bg: #312e38;
-  --brave-tab-active-bg: rgba(181, 163, 201, 0.14);
-  --brave-tab-active-border: rgba(181, 163, 201, 0.12);
-  --brave-new-tab-btn-bg: rgba(255, 252, 248, 0.04);
-  --brave-page-text: rgba(242, 243, 245, 0.86);
-  --brave-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
-  --brave-card-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-  --brave-tab-scrollbar: rgba(255, 255, 255, 0.15);
+  --browser-bg: #1b1a1d;
+  --browser-surface: #222124;
+  --browser-elevated: #2c2a30;
+  --browser-hover: rgba(186, 168, 198, 0.1);
+  --browser-border: rgba(255, 252, 248, 0.07);
+  --browser-text: #f3f0ec;
+  --browser-muted: rgba(243, 240, 236, 0.48);
+  --browser-accent: #b5a3c9;
+  --browser-accent-soft: rgba(181, 163, 201, 0.22);
+  --browser-tab-col: 196px;
+  --browser-pill: #2a2830;
+  --browser-pill-focus: rgba(181, 163, 201, 0.35);
+  --browser-tabs-bg: #18171a;
+  --browser-content-bg: #1f1e22;
+  --browser-newtab-content-bg: #242328;
+  --browser-tab-title-color: rgba(242, 243, 245, 0.88);
+  --browser-toolbar-icon: rgba(243, 240, 236, 0.72);
+  --browser-omnibox-focus-bg: #312e38;
+  --browser-tab-active-bg: rgba(181, 163, 201, 0.14);
+  --browser-tab-active-border: rgba(181, 163, 201, 0.12);
+  --browser-new-tab-btn-bg: rgba(255, 252, 248, 0.04);
+  --browser-page-text: rgba(242, 243, 245, 0.86);
+  --browser-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --browser-card-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  --browser-tab-scrollbar: rgba(255, 255, 255, 0.15);
 
   position: fixed;
   width: min(1060px, 94vw);
@@ -45,27 +45,27 @@
   border-radius: 16px;
   overflow: hidden;
   font-family: var(--mac-font);
-  color: var(--brave-text);
-  background: var(--brave-bg);
+  color: var(--browser-text);
+  background: var(--browser-bg);
   box-shadow:
     0 0 0 0.5px rgba(255, 252, 248, 0.08),
     0 28px 80px rgba(0, 0, 0, 0.45);
-  animation: brave-window-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: browser-window-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* —— Title bar —— */
-.brave-window__titlebar {
+.browser-window__titlebar {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
   min-height: 36px;
   padding: 8px 14px 6px;
-  background: var(--brave-bg);
+  background: var(--browser-bg);
   border-bottom: none;
 }
 
-.brave-window__traffic {
+.browser-window__traffic {
   display: flex;
   gap: 7px;
   align-items: center;
@@ -76,47 +76,47 @@
   cursor: pointer;
 }
 
-.brave-window__dot {
+.browser-window__dot {
   width: 11px;
   height: 11px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
 }
 
-.brave-window__dot--close {
+.browser-window__dot--close {
   background: #ff5f57;
 }
 
-.brave-window__dot--min {
+.browser-window__dot--min {
   background: #febc2e;
 }
 
-.brave-window__dot--max {
+.browser-window__dot--max {
   background: #28c840;
   opacity: 0.4;
 }
 
-.brave-window__frame {
+.browser-window__frame {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
 /* —— Vertical tab column (rectangles) —— */
-.brave-window__tabs {
-  flex: 0 0 var(--brave-tab-col);
-  width: var(--brave-tab-col);
-  max-width: var(--brave-tab-col);
-  min-width: var(--brave-tab-col);
+.browser-window__tabs {
+  flex: 0 0 var(--browser-tab-col);
+  width: var(--browser-tab-col);
+  max-width: var(--browser-tab-col);
+  min-width: var(--browser-tab-col);
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: var(--brave-tabs-bg);
-  border-right: 1px solid var(--brave-border);
+  background: var(--browser-tabs-bg);
+  border-right: 1px solid var(--browser-border);
 }
 
-.brave-window__tab-list {
+.browser-window__tab-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -125,10 +125,10 @@
   flex-direction: column;
   gap: 6px;
   scrollbar-width: thin;
-  scrollbar-color: var(--brave-tab-scrollbar) transparent;
+  scrollbar-color: var(--browser-tab-scrollbar) transparent;
 }
 
-.brave-tab {
+.browser-tab {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -142,16 +142,16 @@
   transition: background 0.18s ease;
 }
 
-.brave-tab:hover {
-  background: var(--brave-hover);
+.browser-tab:hover {
+  background: var(--browser-hover);
 }
 
-.brave-tab--active {
-  background: var(--brave-tab-active-bg);
-  box-shadow: inset 0 0 0 1px var(--brave-tab-active-border);
+.browser-tab--active {
+  background: var(--browser-tab-active-bg);
+  box-shadow: inset 0 0 0 1px var(--browser-tab-active-border);
 }
 
-.brave-tab__select {
+.browser-tab__select {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -168,7 +168,7 @@
   border-radius: inherit;
 }
 
-.brave-tab__title {
+.browser-tab__title {
   flex: 1 1 auto;
   min-width: 0;
   font-size: 12px;
@@ -177,19 +177,19 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--brave-tab-title-color);
+  color: var(--browser-tab-title-color);
 }
 
-.brave-tab--home .brave-tab__select {
+.browser-tab--home .browser-tab__select {
   padding-right: 12px;
 }
 
-.brave-tab--active .brave-tab__title {
-  color: var(--brave-text);
+.browser-tab--active .browser-tab__title {
+  color: var(--browser-text);
   font-weight: 600;
 }
 
-.brave-tab__close {
+.browser-tab__close {
   flex: 0 0 auto;
   align-self: center;
   width: 26px;
@@ -198,7 +198,7 @@
   border: none;
   border-radius: 7px;
   background: transparent;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -210,24 +210,24 @@
     color 0.12s ease;
 }
 
-.brave-tab:hover .brave-tab__close,
-.brave-tab--active .brave-tab__close {
+.browser-tab:hover .browser-tab__close,
+.browser-tab--active .browser-tab__close {
   opacity: 1;
 }
 
-.brave-tab__close:hover {
+.browser-tab__close:hover {
   background: rgba(186, 168, 198, 0.16);
-  color: var(--brave-text);
+  color: var(--browser-text);
 }
 
 /* Favicons */
-.brave-tab .brave-favicon {
+.browser-tab .browser-favicon {
   flex: 0 0 26px;
   width: 26px;
   height: 26px;
 }
 
-.brave-favicon {
+.browser-favicon {
   flex-shrink: 0;
   width: 26px;
   height: 26px;
@@ -237,60 +237,60 @@
   justify-content: center;
 }
 
-.brave-favicon svg {
+.browser-favicon svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
-.brave-external-card .brave-favicon svg,
-.brave-page__header .brave-favicon svg {
+.browser-external-card .browser-favicon svg,
+.browser-page__header .browser-favicon svg {
   width: 20px;
   height: 20px;
 }
 
-.brave-toolbar-btn svg {
+.browser-toolbar-btn svg {
   display: block;
 }
 
-.brave-favicon--brave {
-  color: var(--brave-accent);
+.browser-favicon--browser {
+  color: var(--browser-accent);
   background: rgba(181, 163, 201, 0.16);
 }
 
-.brave-favicon--github {
+.browser-favicon--github {
   background: #2d333b;
   color: #f0f3f6;
 }
 
-.brave-favicon--linkedin {
+.browser-favicon--linkedin {
   background: rgba(10, 102, 194, 0.22);
   color: #7eb8ff;
 }
 
-.brave-favicon--home {
+.browser-favicon--home {
   background: rgba(72, 180, 130, 0.2);
   color: #9ee8c4;
 }
 
-.brave-favicon--mail {
+.browser-favicon--mail {
   background: rgba(160, 120, 220, 0.22);
   color: #dcc8ff;
 }
 
-.brave-favicon--globe {
+.browser-favicon--globe {
   background: rgba(255, 255, 255, 0.08);
   color: #b8bcc4;
 }
 
-.brave-external-card .brave-favicon,
-.brave-page__header .brave-favicon {
+.browser-external-card .browser-favicon,
+.browser-page__header .browser-favicon {
   width: 40px;
   height: 40px;
   border-radius: 11px;
 }
 
-.brave-window__new-tab {
+.browser-window__new-tab {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -300,8 +300,8 @@
   min-height: 38px;
   border: none;
   border-radius: 12px;
-  background: var(--brave-new-tab-btn-bg);
-  color: var(--brave-muted);
+  background: var(--browser-new-tab-btn-bg);
+  color: var(--browser-muted);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -311,36 +311,36 @@
     color 0.18s ease;
 }
 
-.brave-window__new-tab:hover {
-  background: var(--brave-hover);
-  color: var(--brave-text);
+.browser-window__new-tab:hover {
+  background: var(--browser-hover);
+  color: var(--browser-text);
 }
 
 /* —— Main panel —— */
-.brave-window__main {
+.browser-window__main {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: var(--brave-surface);
+  background: var(--browser-surface);
 }
 
-.brave-window__toolbar {
+.browser-window:not(.finder-window) .browser-window__toolbar {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px 16px 10px;
-  border-bottom: 1px solid var(--brave-border);
-  background: var(--brave-surface);
+  border-bottom: 1px solid var(--browser-border);
+  background: var(--browser-surface);
 }
 
-.brave-window--newtab .brave-window__toolbar--quiet {
+.browser-window--newtab .browser-window__toolbar--quiet {
   border-bottom-color: transparent;
   background: transparent;
 }
 
-.brave-window__nav {
+.browser-window__nav {
   display: flex;
   gap: 2px;
   padding: 0;
@@ -349,13 +349,13 @@
   border: none;
 }
 
-.brave-toolbar-btn {
+.browser-toolbar-btn {
   width: 34px;
   height: 34px;
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: var(--brave-toolbar-icon);
+  color: var(--browser-toolbar-icon);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -363,17 +363,17 @@
   transition: background 0.16s ease, color 0.16s ease;
 }
 
-.brave-toolbar-btn:hover:not(:disabled) {
-  background: var(--brave-hover);
-  color: var(--brave-text);
+.browser-toolbar-btn:hover:not(:disabled) {
+  background: var(--browser-hover);
+  color: var(--browser-text);
 }
 
-.brave-toolbar-btn:disabled {
+.browser-toolbar-btn:disabled {
   opacity: 0.28;
   cursor: default;
 }
 
-.brave-window__omnibox {
+.browser-window__omnibox {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -382,7 +382,7 @@
   height: 40px;
   padding: 0 16px;
   border-radius: 20px;
-  background: var(--brave-pill);
+  background: var(--browser-pill);
   border: 1px solid transparent;
   box-shadow: none;
   transition:
@@ -391,65 +391,75 @@
     box-shadow 0.18s ease;
 }
 
-.brave-window__omnibox:focus-within {
-  border-color: var(--brave-pill-focus);
-  background: var(--brave-omnibox-focus-bg);
-  box-shadow: 0 0 0 3px var(--brave-accent-soft);
+.browser-window__omnibox:focus-within {
+  border-color: var(--browser-pill-focus);
+  background: var(--browser-omnibox-focus-bg);
+  box-shadow: 0 0 0 3px var(--browser-accent-soft);
 }
 
-.brave-window__omnibox-icon {
+.browser-window__omnibox-icon {
   flex-shrink: 0;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
 }
 
-.brave-window__omnibox-icon--secure {
+.browser-window__omnibox-icon--secure {
   color: rgba(152, 196, 170, 0.85);
 }
 
-.brave-window__url {
+.browser-window__url {
   flex: 1;
   min-width: 0;
   border: none;
   background: transparent;
-  color: var(--brave-text);
+  color: var(--browser-text);
   font: inherit;
   font-size: 13px;
   letter-spacing: -0.01em;
   outline: none;
 }
 
-.brave-window__content {
+.browser-window__content {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  background: var(--brave-content-bg);
+  background: var(--browser-content-bg);
   display: flex;
   flex-direction: column;
 }
 
-.brave-window--newtab .brave-window__content {
-  background: var(--brave-newtab-content-bg);
+.browser-window--newtab .browser-window__content {
+  background: var(--browser-newtab-content-bg);
   overflow: hidden;
 }
 
-.brave-window__content > .brave-start {
+.browser-window__content > .browser-start {
   flex: 1;
   min-height: 0;
 }
 
-.brave-window__content > .brave-page,
-.brave-window__content > .brave-external-card {
+.browser-window__content > .browser-page,
+.browser-window__content > .browser-external-card {
   flex: 0 1 auto;
   margin-block: auto;
   max-height: 100%;
   overflow: auto;
 }
 
-.brave-window__content:has(.brave-frame-host) {
+.browser-window__content > .browser-li,
+.browser-window__content > .browser-gh {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  margin-block: 0;
+  max-height: none;
+  overflow: auto;
+}
+
+.browser-window__content:has(.browser-frame-host) {
   overflow: hidden;
 }
 
-.brave-frame-host {
+.browser-frame-host {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -457,7 +467,7 @@
   min-height: 0;
 }
 
-.brave-window__frame-embed {
+.browser-window__frame-embed {
   display: block;
   flex: 1;
   width: 100%;
@@ -467,7 +477,7 @@
 }
 
 /* —— Document pages —— */
-.brave-page {
+.browser-page {
   box-sizing: border-box;
   max-width: 560px;
   margin: 0 auto;
@@ -476,85 +486,85 @@
   font-size: 15px;
 }
 
-.brave-page--doc {
+.browser-page--doc {
   max-width: 620px;
 }
 
-.brave-page__header {
+.browser-page__header {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--brave-border);
+  border-bottom: 1px solid var(--browser-border);
 }
 
-.brave-page__header h1 {
+.browser-page__header h1 {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.04em;
 }
 
-.brave-page p {
+.browser-page p {
   margin: 0 0 16px;
-  color: var(--brave-page-text);
+  color: var(--browser-page-text);
 }
 
-.brave-page ul {
+.browser-page ul {
   margin: 0;
   padding-left: 1.25rem;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
 }
 
-.brave-page li {
+.browser-page li {
   margin-bottom: 8px;
 }
 
-.brave-page strong {
-  color: var(--brave-text);
+.browser-page strong {
+  color: var(--browser-text);
   font-weight: 600;
 }
 
 /* —— Cards & buttons —— */
-.brave-external-card {
+.browser-external-card {
   box-sizing: border-box;
   max-width: 400px;
   margin: auto;
   padding: clamp(20px, 4vh, 32px) clamp(18px, 4vw, 28px);
   text-align: center;
   border-radius: 18px;
-  border: 1px solid var(--brave-border);
-  background: var(--brave-card-bg);
-  box-shadow: var(--brave-card-shadow);
+  border: 1px solid var(--browser-border);
+  background: var(--browser-card-bg);
+  box-shadow: var(--browser-card-shadow);
 }
 
-.brave-external-card .brave-favicon {
+.browser-external-card .browser-favicon {
   margin: 0 auto 16px;
 }
 
-.brave-external-card h2 {
+.browser-external-card h2 {
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.03em;
 }
 
-.brave-external-card__url {
+.browser-external-card__url {
   margin: 0 0 8px;
   font-size: 13px;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
   word-break: break-all;
 }
 
-.brave-external-card__hint {
+.browser-external-card__hint {
   margin: 0 0 22px;
   font-size: 13px;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
   line-height: 1.5;
 }
 
-.brave-btn {
+.browser-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -569,94 +579,94 @@
   transition: filter 0.14s ease, transform 0.14s ease;
 }
 
-.brave-btn--primary {
+.browser-btn--primary {
   background: linear-gradient(180deg, #c4b3d6 0%, #9d8bb8 100%);
   color: #1f1c24;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
-.brave-btn--primary:hover {
+.browser-btn--primary:hover {
   filter: brightness(1.06);
   transform: translateY(-1px);
 }
 
 @media (max-width: 720px) {
-  .brave-window {
-    --brave-tab-col: 168px;
+  .browser-window {
+    --browser-tab-col: 168px;
   }
 }
 
 /* —— Light theme (soft slate + periwinkle — browser only) —— */
-.desktop[data-window-theme='light'] .brave-window {
-  --brave-bg: #f6f8fc;
-  --brave-surface: #eef2f8;
-  --brave-elevated: #ffffff;
-  --brave-hover: rgba(109, 127, 214, 0.08);
-  --brave-border: rgba(148, 163, 184, 0.38);
-  --brave-text: #2e3644;
-  --brave-muted: rgba(46, 54, 68, 0.52);
-  --brave-accent: #6d7fd6;
-  --brave-accent-soft: rgba(109, 127, 214, 0.14);
-  --brave-pill: #e8edf6;
-  --brave-pill-focus: rgba(109, 127, 214, 0.32);
-  --brave-tabs-bg: #e4eaf4;
-  --brave-content-bg: #f6f8fc;
-  --brave-newtab-content-bg: #f6f8fc;
-  --brave-tab-title-color: rgba(46, 54, 68, 0.74);
-  --brave-toolbar-icon: rgba(46, 54, 68, 0.56);
-  --brave-omnibox-focus-bg: #ffffff;
-  --brave-tab-active-bg: rgba(109, 127, 214, 0.12);
-  --brave-tab-active-border: rgba(109, 127, 214, 0.22);
-  --brave-new-tab-btn-bg: rgba(255, 255, 255, 0.65);
-  --brave-page-text: rgba(46, 54, 68, 0.82);
-  --brave-card-bg: linear-gradient(180deg, #ffffff 0%, #f0f4fa 100%);
-  --brave-card-shadow: 0 16px 40px rgba(46, 54, 68, 0.07);
-  --brave-tab-scrollbar: rgba(100, 116, 139, 0.28);
+.desktop[data-window-theme='light'] .browser-window {
+  --browser-bg: #f6f8fc;
+  --browser-surface: #eef2f8;
+  --browser-elevated: #ffffff;
+  --browser-hover: rgba(109, 127, 214, 0.08);
+  --browser-border: rgba(148, 163, 184, 0.38);
+  --browser-text: #2e3644;
+  --browser-muted: rgba(46, 54, 68, 0.52);
+  --browser-accent: #6d7fd6;
+  --browser-accent-soft: rgba(109, 127, 214, 0.14);
+  --browser-pill: #e8edf6;
+  --browser-pill-focus: rgba(109, 127, 214, 0.32);
+  --browser-tabs-bg: #e4eaf4;
+  --browser-content-bg: #f6f8fc;
+  --browser-newtab-content-bg: #f6f8fc;
+  --browser-tab-title-color: rgba(46, 54, 68, 0.74);
+  --browser-toolbar-icon: rgba(46, 54, 68, 0.56);
+  --browser-omnibox-focus-bg: #ffffff;
+  --browser-tab-active-bg: rgba(109, 127, 214, 0.12);
+  --browser-tab-active-border: rgba(109, 127, 214, 0.22);
+  --browser-new-tab-btn-bg: rgba(255, 255, 255, 0.65);
+  --browser-page-text: rgba(46, 54, 68, 0.82);
+  --browser-card-bg: linear-gradient(180deg, #ffffff 0%, #f0f4fa 100%);
+  --browser-card-shadow: 0 16px 40px rgba(46, 54, 68, 0.07);
+  --browser-tab-scrollbar: rgba(100, 116, 139, 0.28);
 
   box-shadow:
     0 0 0 0.5px rgba(148, 163, 184, 0.45),
     0 28px 72px rgba(15, 23, 42, 0.1);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--brave {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--browser {
   background: rgba(109, 127, 214, 0.14);
   color: #6d7fd6;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--github {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--github {
   background: #eef2f8;
   color: #2e3644;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--linkedin {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--linkedin {
   background: rgba(10, 102, 194, 0.1);
   color: #0a66c2;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--home {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--home {
   background: rgba(91, 154, 154, 0.12);
   color: #4f8f8f;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--mail {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--mail {
   background: rgba(109, 127, 214, 0.1);
   color: #6d7fd6;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-favicon--globe {
+.desktop[data-window-theme='light'] .browser-window .browser-favicon--globe {
   background: #eef2f8;
   color: rgba(46, 54, 68, 0.55);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-tab__close:hover {
+.desktop[data-window-theme='light'] .browser-window .browser-tab__close:hover {
   background: rgba(148, 163, 184, 0.22);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-window__omnibox-icon--secure {
+.desktop[data-window-theme='light'] .browser-window .browser-window__omnibox-icon--secure {
   color: #4f8f8f;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-btn--primary {
+.desktop[data-window-theme='light'] .browser-window .browser-btn--primary {
   background: linear-gradient(180deg, #8b9ef5 0%, #6d7fd6 100%);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(109, 127, 214, 0.28);

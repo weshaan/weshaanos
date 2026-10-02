@@ -55,7 +55,7 @@
 
 .desktop-window__titlebar--preview {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
   align-items: center;
   gap: 8px;
   min-height: 52px;
@@ -65,15 +65,19 @@
 }
 
 .desktop-window__titlebar--preview .desktop-window__traffic {
+  grid-column: 1;
   justify-self: start;
 }
 
 .desktop-window__titlebar--preview .desktop-window__title-block {
+  grid-column: 2;
   justify-self: center;
+  max-width: 100%;
 }
 
 .desktop-window__titlebar--preview .desktop-window__toolbar-end,
 .desktop-window__titlebar--preview .desktop-window__toolbar-spacer {
+  grid-column: 3;
   justify-self: end;
 }
 

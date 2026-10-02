@@ -11,22 +11,25 @@ import {
   ReloadIcon,
   SearchIcon,
   TabFaviconIcon,
-} from './braveIcons'
-import { createNewTabPageContent, type NewTabPageContent } from './braveNewTabContent'
-import { BraveNewTabPage } from './BraveNewTabPage'
-import { BraveSearchPage } from './BraveSearchPage'
+} from './browserIcons'
+import { createNewTabPageContent, type NewTabPageContent } from './browserNewTabContent'
+import { BrowserNewTabPage } from './BrowserNewTabPage'
+import { BrowserGitHubPage } from './BrowserGitHubPage'
+import { BrowserLinkedInPage } from './BrowserLinkedInPage'
+import { preloadLinkedInProfileAssets } from './linkedInProfile'
+import { BrowserSearchPage } from './BrowserSearchPage'
 import {
-  BRAVE_HOME_URL,
+  BROWSER_HOME_URL,
   createTabId,
-  defaultBraveTabs,
-  resolveBravePage,
+  defaultBrowserTabs,
+  resolveBrowserPage,
   searchQueryToUrl,
   tabFaviconFor,
   tabTitleFor,
   tabUrlsMatch,
-  type BraveTab,
-} from './braveBrowserModel'
-import './BraveBrowserWindow.css'
+  type BrowserTab,
+} from './browserAppModel'
+import './BrowserAppWindow.css'
 
 type Props = {
   windowId: string
@@ -35,10 +38,13 @@ type Props = {
   onPositionChange: (point: WindowPoint) => void
   onFocus: () => void
   onClose: () => void
+  onOpenMail?: () => void
+  pendingNavigateUrl?: string | null
+  onPendingNavigateHandled?: () => void
 }
 
 type TabState = {
-  tab: BraveTab
+  tab: BrowserTab
   history: string[]
   historyIndex: number
   frameKey: number
@@ -46,9 +52,9 @@ type TabState = {
   newTabPage?: NewTabPageContent
 }
 
-function createTabState(tab: BraveTab): TabState {
+function createTabState(tab: BrowserTab): TabState {
   const session: TabState = { tab, history: [tab.url], historyIndex: 0, frameKey: 0 }
-  if (tab.url === BRAVE_HOME_URL) {
+  if (tab.url === BROWSER_HOME_URL) {
     session.newTabPage = createNewTabPageContent()
   }
   return session
@@ -64,42 +70,45 @@ function refreshStartPageSession(session: TabState): TabState {
   const isHome = session.tab.isHome
   return {
     ...session,
-    history: [BRAVE_HOME_URL],
+    history: [BROWSER_HOME_URL],
     historyIndex: 0,
     frameKey: session.frameKey + 1,
     newTabPage: createNewTabPageContent(),
     tab: {
       ...session.tab,
-      url: BRAVE_HOME_URL,
+      url: BROWSER_HOME_URL,
       title: isHome ? 'Home' : 'New Tab',
-      favicon: isHome ? 'home' : 'brave',
+      favicon: isHome ? 'home' : 'browser',
     },
   }
 }
 
 function withNewTabPage(session: TabState, url: string): TabState {
-  if (url !== BRAVE_HOME_URL) return session
+  if (url !== BROWSER_HOME_URL) return session
   return { ...session, newTabPage: createNewTabPageContent() }
 }
 
-export function BraveBrowserWindow({
+export function BrowserAppWindow({
   windowId,
   zIndex,
   position,
   onPositionChange,
   onFocus,
   onClose,
+  onOpenMail,
+  pendingNavigateUrl = null,
+  onPendingNavigateHandled,
 }: Props) {
   const { titleBarProps, dragHandleProps } = useDraggableWindow(position, onPositionChange)
-  const [sessions, setSessions] = useState<TabState[]>(() => defaultBraveTabs().map(createTabState))
+  const [sessions, setSessions] = useState<TabState[]>(() => defaultBrowserTabs().map(createTabState))
   const [activeId, setActiveId] = useState(() => sessions[0]?.tab.id ?? '')
-  const [addressDraft, setAddressDraft] = useState(sessions[0]?.tab.url ?? 'brave://newtab')
+  const [addressDraft, setAddressDraft] = useState(sessions[0]?.tab.url ?? 'browser://newtab')
   const [addressFocused, setAddressFocused] = useState(false)
 
   const activeSession = sessions.find((s) => s.tab.id === activeId) ?? sessions[0]
-  const activeUrl = activeSession?.history[activeSession.historyIndex] ?? 'brave://newtab'
+  const activeUrl = activeSession?.history[activeSession.historyIndex] ?? 'browser://newtab'
   const displayUrl = addressFocused ? addressDraft : activeUrl
-  const page = resolveBravePage(activeUrl)
+  const page = resolveBrowserPage(activeUrl)
   const canBack = (activeSession?.historyIndex ?? 0) > 0
   const canForward = activeSession ? activeSession.historyIndex < activeSession.history.length - 1 : false
 
@@ -108,6 +117,10 @@ export function BraveBrowserWindow({
       setAddressDraft(activeSession.history[activeSession.historyIndex])
     }
   }, [activeSession, addressFocused])
+
+  useEffect(() => {
+    preloadLinkedInProfileAssets()
+  }, [])
 
   const navigateActive = useCallback((url: string, push = true) => {
     setSessions((prev) =>
@@ -138,7 +151,7 @@ export function BraveBrowserWindow({
   }, [activeId])
 
   const openInNewTab = useCallback((url: string) => {
-    const tab: BraveTab = {
+    const tab: BrowserTab = {
       id: createTabId(),
       title: tabTitleFor(url, false),
       url,
@@ -163,10 +176,10 @@ export function BraveBrowserWindow({
   const openUrl = useCallback(
     (url: string) => {
       const target = url.trim()
-      if (!target || target === BRAVE_HOME_URL || target === 'about:blank') {
+      if (!target || target === BROWSER_HOME_URL || target === 'about:blank') {
         const active = sessions.find((s) => s.tab.id === activeId)
         if (active?.tab.isHome) return
-        navigateActive(BRAVE_HOME_URL)
+        navigateActive(BROWSER_HOME_URL)
         return
       }
 
@@ -191,12 +204,18 @@ export function BraveBrowserWindow({
     [activeId, focusTabById, navigateActive, openInNewTab, sessions],
   )
 
+  useEffect(() => {
+    if (!pendingNavigateUrl) return
+    openUrl(pendingNavigateUrl)
+    onPendingNavigateHandled?.()
+  }, [pendingNavigateUrl, openUrl, onPendingNavigateHandled])
+
   const selectTab = (id: string) => {
     const session = sessions.find((s) => s.tab.id === id)
     if (session?.tab.isHome) {
       setSessions((prev) => prev.map((s) => (s.tab.isHome ? resetHomeSession(s) : s)))
       setActiveId(id)
-      setAddressDraft(BRAVE_HOME_URL)
+      setAddressDraft(BROWSER_HOME_URL)
       return
     }
     setActiveId(id)
@@ -204,11 +223,11 @@ export function BraveBrowserWindow({
   }
 
   const addTab = () => {
-    const tab: BraveTab = {
+    const tab: BrowserTab = {
       id: createTabId(),
       title: 'New Tab',
-      url: 'brave://newtab',
-      favicon: 'brave',
+      url: 'browser://newtab',
+      favicon: 'browser',
     }
     const session = createTabState(tab)
     setSessions((prev) => [...prev, session])
@@ -278,7 +297,7 @@ export function BraveBrowserWindow({
     setSessions((prev) =>
       prev.map((s) => {
         if (s.tab.id !== activeId) return s
-        const onStartPage = s.history[s.historyIndex] === BRAVE_HOME_URL
+        const onStartPage = s.history[s.historyIndex] === BROWSER_HOME_URL
         if (onStartPage) {
           refreshedStartPage = true
           return refreshStartPageSession(s)
@@ -286,7 +305,7 @@ export function BraveBrowserWindow({
         return { ...s, frameKey: s.frameKey + 1 }
       }),
     )
-    if (refreshedStartPage) setAddressDraft(BRAVE_HOME_URL)
+    if (refreshedStartPage) setAddressDraft(BROWSER_HOME_URL)
   }
 
   const commitAddress = () => {
@@ -299,7 +318,7 @@ export function BraveBrowserWindow({
 
   return (
     <div
-      className={`brave-window${isNewTab ? ' brave-window--newtab' : ''}`}
+      className={`browser-window${isNewTab ? ' browser-window--newtab' : ''}`}
       style={{ left: position.x, top: position.y, zIndex }}
       role="dialog"
       aria-label="Browser"
@@ -307,42 +326,42 @@ export function BraveBrowserWindow({
       onPointerDown={onFocus}
     >
       <header
-        className="brave-window__titlebar"
+        className="browser-window__titlebar"
         {...titleBarProps}
         style={{ touchAction: 'none', cursor: 'grab' }}
       >
-        <button type="button" className="brave-window__traffic" onClick={onClose} aria-label="Close">
-          <span className="brave-window__dot brave-window__dot--close" aria-hidden />
-          <span className="brave-window__dot brave-window__dot--min" aria-hidden />
-          <span className="brave-window__dot brave-window__dot--max" aria-hidden />
+        <button type="button" className="browser-window__traffic" onClick={onClose} aria-label="Close">
+          <span className="browser-window__dot browser-window__dot--close" aria-hidden />
+          <span className="browser-window__dot browser-window__dot--min" aria-hidden />
+          <span className="browser-window__dot browser-window__dot--max" aria-hidden />
         </button>
       </header>
 
-      <div className="brave-window__frame">
-        <aside className="brave-window__tabs" aria-label="Tabs">
-          <div className="brave-window__tab-list" role="tablist" aria-orientation="vertical">
+      <div className="browser-window__frame">
+        <aside className="browser-window__tabs" aria-label="Tabs">
+          <div className="browser-window__tab-list" role="tablist" aria-orientation="vertical">
             {sessions.map(({ tab }) => {
               const active = tab.id === activeId
               return (
                 <div
                   key={tab.id}
-                  className={`brave-tab${active ? ' brave-tab--active' : ''}${tab.isHome ? ' brave-tab--home' : ''}`}
+                  className={`browser-tab${active ? ' browser-tab--active' : ''}${tab.isHome ? ' browser-tab--home' : ''}`}
                   role="presentation"
                 >
                   <button
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    className="brave-tab__select"
+                    className="browser-tab__select"
                     onClick={() => selectTab(tab.id)}
                   >
                     <TabFaviconIcon kind={tab.favicon} />
-                    <span className="brave-tab__title" title={tab.title}>{tab.title}</span>
+                    <span className="browser-tab__title" title={tab.title}>{tab.title}</span>
                   </button>
                   {!tab.isHome ? (
                     <button
                       type="button"
-                      className="brave-tab__close"
+                      className="browser-tab__close"
                       aria-label={`Close ${tab.title}`}
                       onClick={(e) => {
                         e.stopPropagation()
@@ -356,15 +375,15 @@ export function BraveBrowserWindow({
               )
             })}
           </div>
-          <button type="button" className="brave-window__new-tab" onClick={addTab}>
+          <button type="button" className="browser-window__new-tab" onClick={addTab}>
             <PlusIcon />
             <span>New tab</span>
           </button>
         </aside>
 
-        <div className="brave-window__main">
-          <div className={`brave-window__toolbar${isNewTab ? ' brave-window__toolbar--quiet' : ''}`}>
-            <div className="brave-window__nav">
+        <div className="browser-window__main">
+          <div className={`browser-window__toolbar${isNewTab ? ' browser-window__toolbar--quiet' : ''}`}>
+            <div className="browser-window__nav">
               <ToolbarBtn label="Back" disabled={!canBack} onClick={goBack}>
                 <ChevronLeftIcon />
               </ToolbarBtn>
@@ -375,15 +394,15 @@ export function BraveBrowserWindow({
                 <ReloadIcon />
               </ToolbarBtn>
             </div>
-            <div className="brave-window__omnibox">
+            <div className="browser-window__omnibox">
               {httpsActive ? (
-                <LockIcon size={15} className="brave-window__omnibox-icon brave-window__omnibox-icon--secure" />
+                <LockIcon size={15} className="browser-window__omnibox-icon browser-window__omnibox-icon--secure" />
               ) : (
-                <SearchIcon size={15} className="brave-window__omnibox-icon" />
+                <SearchIcon size={15} className="browser-window__omnibox-icon" />
               )}
               <input
                 type="text"
-                className="brave-window__url"
+                className="browser-window__url"
                 value={displayUrl}
                 aria-label="Address"
                 spellCheck={false}
@@ -403,9 +422,9 @@ export function BraveBrowserWindow({
             </div>
           </div>
 
-          <div className="brave-window__content" role="tabpanel">
+          <div className="browser-window__content" role="tabpanel">
             {page.kind === 'newtab' && activeSession?.newTabPage ? (
-              <BraveNewTabPage
+              <BrowserNewTabPage
                 key={activeSession.tab.id}
                 greeting={activeSession.newTabPage.greeting}
                 desktopTip={activeSession.newTabPage.tip}
@@ -413,8 +432,8 @@ export function BraveBrowserWindow({
               />
             ) : null}
             {page.kind === 'about' ? (
-              <article className="brave-page brave-page--doc">
-                <header className="brave-page__header">
+              <article className="browser-page browser-page--doc">
+                <header className="browser-page__header">
                   <TabFaviconIcon kind="home" />
                   <h1>About this site</h1>
                 </header>
@@ -427,12 +446,17 @@ export function BraveBrowserWindow({
                 </p>
               </article>
             ) : null}
-            {page.kind === 'search' || page.kind === 'comingsoon' ? <BraveSearchPage /> : null}
+            {page.kind === 'search' ? <BrowserSearchPage /> : null}
+            {page.kind === 'comingsoon' ? <BrowserSearchPage /> : null}
+            {page.kind === 'linkedin' ? (
+              <BrowserLinkedInPage url={page.url} onOpenMail={onOpenMail} />
+            ) : null}
+            {page.kind === 'github' ? <BrowserGitHubPage /> : null}
             {page.kind === 'mailto' ? (
               <MailtoPage href={page.href} />
             ) : null}
             {page.kind === 'iframe' ? (
-              <BraveExternalFrame
+              <BrowserExternalFrame
                 key={`${activeSession?.frameKey ?? 0}-${page.src}`}
                 src={page.src}
               />
@@ -445,7 +469,7 @@ export function BraveBrowserWindow({
   )
 }
 
-function BraveExternalFrame({ src }: { src: string }) {
+function BrowserExternalFrame({ src }: { src: string }) {
   const frameRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
@@ -469,13 +493,13 @@ function BraveExternalFrame({ src }: { src: string }) {
 
   return (
     <div
-      className="brave-frame-host"
+      className="browser-frame-host"
       onMouseEnter={() => dispatchDesktopCursorEmbed({ active: true })}
       onMouseLeave={(e) => releaseEmbedCursor(e.clientX, e.clientY)}
     >
       <iframe
         ref={frameRef}
-        className="brave-window__frame-embed"
+        className="browser-window__frame-embed"
         title="Web content"
         sandbox="allow-scripts allow-forms"
         referrerPolicy="no-referrer"
@@ -489,11 +513,11 @@ function BraveExternalFrame({ src }: { src: string }) {
 function MailtoPage({ href }: { href: string }) {
   const email = href.replace(/^mailto:/i, '')
   return (
-    <div className="brave-external-card">
+    <div className="browser-external-card">
       <TabFaviconIcon kind="mail" />
       <h2>Email</h2>
-      <p className="brave-external-card__url">{email}</p>
-      <a className="brave-btn brave-btn--primary" href={href}>
+      <p className="browser-external-card__url">{email}</p>
+      <a className="browser-btn browser-btn--primary" href={href}>
         Open in Mail
       </a>
     </div>
@@ -512,7 +536,7 @@ function ToolbarBtn({
   children: ReactNode
 }) {
   return (
-    <button type="button" className="brave-toolbar-btn" disabled={disabled} aria-label={label} onClick={onClick}>
+    <button type="button" className="browser-toolbar-btn" disabled={disabled} aria-label={label} onClick={onClick}>
       {children}
     </button>
   )

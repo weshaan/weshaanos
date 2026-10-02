@@ -12,7 +12,7 @@ const DESKTOP_TIPS: string[] = [
   'Did you try the new clock faces?',
   'Games on the dock. No spoilers from me.',
   'Mail opens a contact card, say hi if something clicks.',
-  'Try brave://about in the address bar for the site story.',
+  'Try browser://about in the address bar for the site story.',
   'Notes has a lore to unfold.',
   'Bin on the dock is vibes only. Nothing really gets deleted.',
   'Widgets stack on the right, scroll if you’re on a short screen.',

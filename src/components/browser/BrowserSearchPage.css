@@ -1,4 +1,4 @@
-.brave-search-page {
+.browser-search-page {
   box-sizing: border-box;
   max-width: 360px;
   margin: auto;
@@ -6,7 +6,7 @@
   text-align: center;
 }
 
-.brave-search-page__icon {
+.browser-search-page__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -15,10 +15,10 @@
   margin-bottom: 16px;
   border-radius: 14px;
   background: rgba(181, 163, 201, 0.14);
-  color: var(--brave-accent);
+  color: var(--browser-accent);
 }
 
-.brave-search-page__title {
+.browser-search-page__title {
   margin: 0 0 10px;
   font-size: 20px;
   font-weight: 700;
@@ -26,14 +26,14 @@
   line-height: 1.25;
 }
 
-.brave-search-page__lead {
+.browser-search-page__lead {
   margin: 0;
   font-size: 13px;
   line-height: 1.55;
-  color: var(--brave-muted);
+  color: var(--browser-muted);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-search-page__icon {
+.desktop[data-window-theme='light'] .browser-window .browser-search-page__icon {
   background: rgba(109, 127, 214, 0.12);
-  color: var(--brave-accent);
+  color: var(--browser-accent);
 }

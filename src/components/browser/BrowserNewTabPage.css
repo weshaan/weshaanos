@@ -1,4 +1,4 @@
-.brave-start {
+.browser-start {
   position: relative;
   box-sizing: border-box;
   flex: 1;
@@ -15,22 +15,22 @@
     linear-gradient(180deg, #2a2830 0%, #242328 42%, #1f1e22 100%);
 }
 
-.brave-start__backdrop {
+.browser-start__backdrop {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
 }
 
-.brave-start__orb {
+.browser-start__orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(48px);
   opacity: 0.45;
-  animation: brave-start-drift 22s ease-in-out infinite alternate;
+  animation: browser-start-drift 22s ease-in-out infinite alternate;
 }
 
-.brave-start__orb--a {
+.browser-start__orb--a {
   width: 160px;
   height: 160px;
   top: -12%;
@@ -38,7 +38,7 @@
   background: rgba(181, 163, 201, 0.45);
 }
 
-.brave-start__orb--b {
+.browser-start__orb--b {
   width: 120px;
   height: 120px;
   top: 50%;
@@ -47,7 +47,7 @@
   animation-delay: -6s;
 }
 
-.brave-start__orb--c {
+.browser-start__orb--c {
   width: 100px;
   height: 100px;
   bottom: 4%;
@@ -56,7 +56,7 @@
   animation-delay: -12s;
 }
 
-.brave-start__mesh {
+.browser-start__mesh {
   position: absolute;
   inset: 0;
   opacity: 0.28;
@@ -67,7 +67,7 @@
   mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 15%, transparent 72%);
 }
 
-@keyframes brave-start-drift {
+@keyframes browser-start-drift {
   from {
     transform: translate(0, 0) scale(1);
   }
@@ -76,7 +76,7 @@
   }
 }
 
-.brave-start__inner {
+.browser-start__inner {
   position: relative;
   z-index: 1;
   flex: 1;
@@ -90,12 +90,12 @@
   gap: clamp(10px, 2.5cqh, 16px);
 }
 
-.brave-start__quick {
+.browser-start__quick {
   flex: 0 0 auto;
   min-height: 0;
 }
 
-.brave-start__quick-title {
+.browser-start__quick-title {
   margin: 0 0 8px;
   font-size: 12px;
   font-weight: 600;
@@ -104,7 +104,7 @@
   color: rgba(243, 240, 236, 0.45);
 }
 
-.brave-start__bento {
+.browser-start__bento {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -113,7 +113,7 @@
   gap: 8px;
 }
 
-.brave-start__bento-card {
+.browser-start__bento-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -134,23 +134,23 @@
     background 0.18s ease;
 }
 
-.brave-start__bento-card:hover {
+.browser-start__bento-card:hover {
   border-color: rgba(181, 163, 201, 0.28);
   background: rgba(181, 163, 201, 0.1);
 }
 
-.brave-start__bento-card .brave-favicon {
+.browser-start__bento-card .browser-favicon {
   width: 34px;
   height: 34px;
   border-radius: 10px;
 }
 
-.brave-start__bento-card .brave-favicon svg {
+.browser-start__bento-card .browser-favicon svg {
   width: 18px;
   height: 18px;
 }
 
-.brave-start__bento-label {
+.browser-start__bento-label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -162,7 +162,7 @@
   white-space: nowrap;
 }
 
-.brave-start__greeting {
+.browser-start__greeting {
   margin: clamp(24px, 7cqh, 48px) 0 clamp(14px, 2.5cqh, 22px);
   flex: 0 0 auto;
   text-align: center;
@@ -173,7 +173,7 @@
   color: rgba(243, 240, 236, 0.92);
 }
 
-.brave-start__tip-corner {
+.browser-start__tip-corner {
   position: absolute;
   left: clamp(14px, 3vw, 22px);
   bottom: clamp(10px, 2.5cqh, 16px);
@@ -188,7 +188,7 @@
   pointer-events: none;
 }
 
-.brave-start__tip-label {
+.browser-start__tip-label {
   margin: 0 0 4px;
   font-size: 11px;
   font-weight: 600;
@@ -197,7 +197,7 @@
   color: rgba(181, 163, 201, 0.75);
 }
 
-.brave-start__tip-text {
+.browser-start__tip-text {
   margin: 0;
   font-size: 11px;
   font-weight: 500;
@@ -206,7 +206,7 @@
   color: rgba(243, 240, 236, 0.55);
 }
 
-.brave-start__clock-corner {
+.browser-start__clock-corner {
   position: absolute;
   right: clamp(14px, 3vw, 22px);
   bottom: clamp(10px, 2.5cqh, 16px);
@@ -215,7 +215,7 @@
   pointer-events: none;
 }
 
-.brave-start__time {
+.browser-start__time {
   margin: 0;
   font-size: clamp(1.1rem, 4.5cqh, 1.5rem);
   font-weight: 300;
@@ -225,7 +225,7 @@
   color: rgba(243, 240, 236, 0.88);
 }
 
-.brave-start__date {
+.browser-start__date {
   margin: 4px 0 0;
   font-size: 11px;
   font-weight: 500;
@@ -233,7 +233,7 @@
   color: rgba(243, 240, 236, 0.4);
 }
 
-.brave-start__search {
+.browser-start__search {
   position: relative;
   flex: 0 0 auto;
   min-width: 0;
@@ -241,7 +241,7 @@
   margin-inline: auto;
 }
 
-.brave-start__search-icon {
+.browser-start__search-icon {
   position: absolute;
   left: 14px;
   top: 50%;
@@ -250,7 +250,7 @@
   pointer-events: none;
 }
 
-.brave-start__search-input {
+.browser-start__search-input {
   width: 100%;
   box-sizing: border-box;
   height: 42px;
@@ -258,7 +258,7 @@
   border-radius: 21px;
   border: 1px solid rgba(255, 252, 248, 0.08);
   background: rgba(15, 14, 18, 0.45);
-  color: var(--brave-text);
+  color: var(--browser-text);
   font-family: inherit;
   font-size: 13px;
   letter-spacing: -0.01em;
@@ -269,26 +269,26 @@
     background 0.18s ease;
 }
 
-.brave-start__search-input::placeholder {
+.browser-start__search-input::placeholder {
   color: rgba(243, 240, 236, 0.32);
 }
 
-.brave-start__search-input:hover {
+.browser-start__search-input:hover {
   background: rgba(15, 14, 18, 0.58);
   border-color: rgba(181, 163, 201, 0.18);
 }
 
-.brave-start__search-input:focus {
+.browser-start__search-input:focus {
   border-color: rgba(181, 163, 201, 0.42);
   background: rgba(15, 14, 18, 0.65);
   box-shadow: 0 0 0 3px rgba(181, 163, 201, 0.16);
 }
 
-.brave-start__search-input::-webkit-search-cancel-button {
+.browser-start__search-input::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
 
-.brave-start__search-kbd {
+.browser-start__search-kbd {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -303,115 +303,115 @@
   pointer-events: none;
 }
 
-.brave-start:focus-within .brave-start__search-kbd,
-.brave-start__search:focus-within .brave-start__search-kbd {
+.browser-start:focus-within .browser-start__search-kbd,
+.browser-start__search:focus-within .browser-start__search-kbd {
   color: rgba(181, 163, 201, 0.65);
 }
 
 @container (max-height: 380px) {
-  .brave-start__quick-title {
+  .browser-start__quick-title {
     margin-bottom: 6px;
     font-size: 11px;
   }
 
-  .brave-start__bento {
+  .browser-start__bento {
     gap: 6px;
   }
 
-  .brave-start__bento-card {
+  .browser-start__bento-card {
     padding: 8px 4px;
     gap: 4px;
     border-radius: 12px;
   }
 
-  .brave-start__bento-card .brave-favicon {
+  .browser-start__bento-card .browser-favicon {
     width: 28px;
     height: 28px;
   }
 
-  .brave-start__bento-card .brave-favicon svg {
+  .browser-start__bento-card .browser-favicon svg {
     width: 15px;
     height: 15px;
   }
 
-  .brave-start__bento-label {
+  .browser-start__bento-label {
     font-size: 10px;
   }
 
-  .brave-start__greeting {
+  .browser-start__greeting {
     font-size: 1.6rem;
   }
 
-  .brave-start__search-input {
+  .browser-start__search-input {
     height: 38px;
     font-size: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brave-start__orb {
+  .browser-start__orb {
     animation: none;
   }
 }
 
 @media (max-width: 520px) {
-  .brave-start__bento {
+  .browser-start__bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 /* —— Light theme (soft slate + periwinkle) —— */
-.desktop[data-window-theme='light'] .brave-window .brave-start {
+.desktop[data-window-theme='light'] .browser-window .browser-start {
   background:
     radial-gradient(ellipse 85% 55% at 50% 0%, rgba(180, 195, 235, 0.35), transparent 58%),
     radial-gradient(ellipse 40% 32% at 92% 88%, rgba(200, 210, 230, 0.4), transparent 52%),
     linear-gradient(180deg, #eef2f8 0%, #f6f8fc 55%, #f6f8fc 100%);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__orb--a {
+.desktop[data-window-theme='light'] .browser-window .browser-start__orb--a {
   background: rgba(139, 158, 245, 0.35);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__orb--b {
+.desktop[data-window-theme='light'] .browser-window .browser-start__orb--b {
   background: rgba(186, 200, 230, 0.4);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__orb--c {
+.desktop[data-window-theme='light'] .browser-window .browser-start__orb--c {
   background: rgba(210, 220, 240, 0.45);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__orb {
+.desktop[data-window-theme='light'] .browser-window .browser-start__orb {
   opacity: 0.42;
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__mesh {
+.desktop[data-window-theme='light'] .browser-window .browser-start__mesh {
   opacity: 0.18;
   background-image:
     linear-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px),
     linear-gradient(90deg, rgba(148, 163, 184, 0.22) 1px, transparent 1px);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__quick-title {
+.desktop[data-window-theme='light'] .browser-window .browser-start__quick-title {
   color: rgba(46, 54, 68, 0.42);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__bento-card {
+.desktop[data-window-theme='light'] .browser-window .browser-start__bento-card {
   border-color: rgba(148, 163, 184, 0.32);
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(12px);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__bento-card:hover {
+.desktop[data-window-theme='light'] .browser-window .browser-start__bento-card:hover {
   border-color: rgba(109, 127, 214, 0.28);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 4px 20px rgba(109, 127, 214, 0.08);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__greeting {
+.desktop[data-window-theme='light'] .browser-window .browser-start__greeting {
   color: rgba(46, 54, 68, 0.9);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__tip-corner {
+.desktop[data-window-theme='light'] .browser-window .browser-start__tip-corner {
   border-color: rgba(148, 163, 184, 0.35);
   background: rgba(255, 255, 255, 0.8);
   box-shadow:
@@ -419,53 +419,53 @@
     0 8px 24px rgba(46, 54, 68, 0.06);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__tip-label {
+.desktop[data-window-theme='light'] .browser-window .browser-start__tip-label {
   color: rgba(109, 127, 214, 0.95);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__tip-text {
+.desktop[data-window-theme='light'] .browser-window .browser-start__tip-text {
   color: rgba(46, 54, 68, 0.54);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__time {
+.desktop[data-window-theme='light'] .browser-window .browser-start__time {
   color: rgba(46, 54, 68, 0.82);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__date {
+.desktop[data-window-theme='light'] .browser-window .browser-start__date {
   color: rgba(46, 54, 68, 0.42);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-icon {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-icon {
   color: rgba(46, 54, 68, 0.36);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-input {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-input {
   border-color: rgba(148, 163, 184, 0.35);
   background: rgba(255, 255, 255, 0.65);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-input::placeholder {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-input::placeholder {
   color: rgba(46, 54, 68, 0.34);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-input:hover {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-input:hover {
   background: #ffffff;
   border-color: rgba(109, 127, 214, 0.22);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-input:focus {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-input:focus {
   border-color: rgba(109, 127, 214, 0.45);
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(109, 127, 214, 0.12);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start__search-kbd {
+.desktop[data-window-theme='light'] .browser-window .browser-start__search-kbd {
   border-color: rgba(148, 163, 184, 0.35);
   background: rgba(238, 242, 250, 0.9);
   color: rgba(46, 54, 68, 0.36);
 }
 
-.desktop[data-window-theme='light'] .brave-window .brave-start:focus-within .brave-start__search-kbd,
-.desktop[data-window-theme='light'] .brave-window .brave-start__search:focus-within .brave-start__search-kbd {
+.desktop[data-window-theme='light'] .browser-window .browser-start:focus-within .browser-start__search-kbd,
+.desktop[data-window-theme='light'] .browser-window .browser-start__search:focus-within .browser-start__search-kbd {
   color: rgba(109, 127, 214, 0.85);
 }
