@@ -1,3 +1,5 @@
+export type GameId = 'fivefold'
+
 export type ChapterDetail = {
   /** Shelf line in the detail panel (genre, status, etc.) */
   dateLine: string
@@ -6,14 +8,17 @@ export type ChapterDetail = {
   tags?: string[]
 }
 
+export type ChapterCover = { from: string; via: string; to: string }
+
 export type CalendarChapter = {
   id: string
   /** Shelf label on the cover */
   period: string
   title: string
   subtitle: string
-  cover: { from: string; via: string; to: string }
+  cover: ChapterCover
   detail: ChapterDetail
+  gameId?: GameId
 }
 
 /** Featured shelves and titles for the Games window. */
@@ -21,15 +26,16 @@ export const calendarChapters: CalendarChapter[] = [
   {
     id: 'featured',
     period: 'Featured',
-    title: 'coming soon...',
-    subtitle: 'Something loud is loading in the background',
-    cover: { from: '#2d1f4e', via: '#5c3d7a', to: '#c45c8a' },
+    title: 'Fivefold',
+    subtitle: 'New word every round',
+    cover: { from: '#121213', via: '#1c1c1e', to: '#2d3a2c' },
+    gameId: 'fivefold',
     detail: {
-      dateLine: 'Status · In the oven',
-      title: 'Almost playable',
+      dateLine: 'Word · Unlimited',
+      title: 'Guess the five-letter word',
       body:
-        'The team is on their third coffee and first boss fight with the build pipeline. Expect weird bugs, good vibes, and a launch date that moves like a dock icon.',
-      tags: ['Coming soon', 'Wishlist', 'Chaos'],
+        'Green means right letter, right spot. Yellow means right letter, wrong spot, Guess the word. Win or lose, hit Play again for a new word and go again!',
+      tags: ['Unlimited', 'Word', 'Puzzle'],
     },
   },
   {

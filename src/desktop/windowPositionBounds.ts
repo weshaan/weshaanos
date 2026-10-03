@@ -54,6 +54,13 @@ export function estimateWindowSize(windowId: string): WindowSize {
     }
   }
 
+  if (windowId === 'games') {
+    return {
+      width: Math.min(720, vw * 0.96),
+      height: Math.min(760, vh * 0.96),
+    }
+  }
+
   const base = WINDOW_SIZES[windowId] ?? FALLBACK_SIZE
   const height = Math.min(base.height, vh * 0.9, PANEL_MAX_CLAMP_HEIGHT)
   return {

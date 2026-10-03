@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { calendarChapters, defaultChapterIndex } from '../../games/chapterData'
+import { calendarChapters, defaultChapterIndex, type GameId } from '../../games/chapterData'
 import { WindowBottomDragHandle } from '../desktop/WindowBottomDragHandle'
 import { useDraggableWindow, type WindowPoint } from '../../hooks/useDraggableWindow'
+import { WordleGame } from './wordle/WordleGame'
 import './GamesWindow.css'
+import './wordle/WordleGame.css'
 
 type Props = {
   windowId: string
@@ -16,6 +18,8 @@ type Props = {
 const SCROLL_MS_NAV = 520
 const SCROLL_MS_OPEN = 1150
 const STRIP_EDGE_GUTTER = 16
+const GAME_SHELF_LEAVE_MS = 240
+const GAME_VIEW_FADE_MS = 320
 
 type EaseFn = (t: number) => number
 
@@ -66,9 +70,58 @@ export function GamesWindow({
   const scrollAnimFrameRef = useRef(0)
   const [chapterIndex, setChapterIndex] = useState(defaultChapterIndex)
   const [introSweep, setIntroSweep] = useState(true)
+  const [activeGame, setActiveGame] = useState<GameId | null>(null)
+  const [gameLayout, setGameLayout] = useState(false)
+  const [shellResizeSmooth, setShellResizeSmooth] = useState(false)
+  const [shelfLeaving, setShelfLeaving] = useState(false)
+  const [gameViewVisible, setGameViewVisible] = useState(false)
+  const [shelfEnter, setShelfEnter] = useState(false)
+  const gameTransitionTimerRef = useRef(0)
 
   const activeChapter = calendarChapters[chapterIndex]
   const activeDetail = activeChapter.detail
+  const canPlay = activeChapter.gameId != null
+  const stripThemeStyle = {
+    '--chapter-from': activeChapter.cover.from,
+    '--chapter-via': activeChapter.cover.via,
+    '--chapter-to': activeChapter.cover.to,
+  } as React.CSSProperties
+
+  useEffect(() => {
+    return () => window.clearTimeout(gameTransitionTimerRef.current)
+  }, [])
+
+  const openGame = useCallback((gameId: GameId) => {
+    if (shelfLeaving || activeGame) return
+    window.clearTimeout(gameTransitionTimerRef.current)
+    setShelfEnter(false)
+    setGameViewVisible(false)
+    setShellResizeSmooth(true)
+    setGameLayout(true)
+    setShelfLeaving(true)
+    gameTransitionTimerRef.current = window.setTimeout(() => {
+      setActiveGame(gameId)
+      setShelfLeaving(false)
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => setGameViewVisible(true))
+      })
+    }, GAME_SHELF_LEAVE_MS)
+  }, [activeGame, shelfLeaving])
+
+  const closeGame = useCallback(() => {
+    window.clearTimeout(gameTransitionTimerRef.current)
+    setShellResizeSmooth(true)
+    setGameViewVisible(false)
+    gameTransitionTimerRef.current = window.setTimeout(() => {
+      setActiveGame(null)
+      setGameLayout(false)
+      setShelfEnter(true)
+      window.setTimeout(() => {
+        setShellResizeSmooth(false)
+        setShelfEnter(false)
+      }, 440)
+    }, GAME_VIEW_FADE_MS)
+  }, [])
 
   const setStripScrollAnimating = useCallback((animating: boolean) => {
     stripRef.current?.classList.toggle('calendar-window__strip--animating', animating)
@@ -262,6 +315,7 @@ export function GamesWindow({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (activeGame) return
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       if (e.key === 'ArrowLeft') {
         e.preventDefault()
@@ -273,11 +327,11 @@ export function GamesWindow({
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [chapterIndex, scrollToChapter])
+  }, [chapterIndex, scrollToChapter, activeGame])
 
   return (
     <div
-      className={`calendar-window${introSweep ? ' calendar-window--intro-sweep' : ''}`}
+      className={`calendar-window${introSweep ? ' calendar-window--intro-sweep' : ''}${gameLayout ? ' calendar-window--wordle' : ''}${shellResizeSmooth ? ' calendar-window--game-resize' : ''}`}
       style={{ left: position.x, top: position.y, zIndex }}
       role="dialog"
       aria-label="Games"
@@ -297,10 +351,22 @@ export function GamesWindow({
         <span className="calendar-window__title">Games</span>
       </header>
 
+      {activeGame ? (
+        <div
+          className={`calendar-window__body--wordle${gameViewVisible ? ' calendar-window__body--wordle--visible' : ''}`}
+        >
+          {activeGame === 'fivefold' ? <WordleGame onBack={closeGame} /> : null}
+        </div>
+      ) : null}
+      {!activeGame ? (
+        <div
+          className={`calendar-window__shelf${shelfLeaving ? ' calendar-window__shelf--leave' : ''}${shelfEnter ? ' calendar-window__shelf--enter' : ''}`}
+        >
       <p className="calendar-window__hint">Cooking new games — launching soon</p>
 
       <div className="calendar-window__strip-wrap">
-        <div className="calendar-window__strip" ref={stripRef}>
+        <div className="calendar-window__strip-stage" style={stripThemeStyle}>
+          <div className="calendar-window__strip" ref={stripRef}>
           <div className="calendar-window__strip-track" ref={trackRef}>
             <span className="calendar-window__strip-gutter" aria-hidden />
             {calendarChapters.map((chapter, i) => (
@@ -313,11 +379,47 @@ export function GamesWindow({
                 aria-current={i === chapterIndex ? 'true' : undefined}
               >
                 <div
-                  className="calendar-chapter__cover"
+                  className={`calendar-chapter__cover${chapter.gameId ? ` calendar-chapter__cover--${chapter.gameId}` : ''}`}
                   style={{
                     background: `linear-gradient(145deg, ${chapter.cover.from} 0%, ${chapter.cover.via} 45%, ${chapter.cover.to} 100%)`,
                   }}
                 >
+                  {chapter.gameId === 'fivefold' ? (
+                    <div className="calendar-chapter__fivefold-art" aria-hidden>
+                      <div className="calendar-chapter__fivefold-grid">
+                        {Array.from({ length: 3 }, (_, row) => (
+                          <div className="calendar-chapter__fivefold-row" key={row}>
+                            {Array.from({ length: 5 }, (_, col) => {
+                              if (row === 0) {
+                                const cells = [
+                                  { l: 'W', s: 'correct' },
+                                  { l: 'O', s: 'present' },
+                                  { l: 'R', s: 'absent' },
+                                  { l: 'D', s: 'absent' },
+                                  { l: 'S', s: 'correct' },
+                                ]
+                                const c = cells[col]
+                                return (
+                                  <span
+                                    key={col}
+                                    className={`calendar-chapter__fivefold-tile calendar-chapter__fivefold-tile--${c.s}`}
+                                  >
+                                    {c.l}
+                                  </span>
+                                )
+                              }
+                              return (
+                                <span key={col} className="calendar-chapter__fivefold-tile calendar-chapter__fivefold-tile--empty" />
+                              )
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                      <span className="calendar-chapter__fivefold-shape calendar-chapter__fivefold-shape--g" />
+                      <span className="calendar-chapter__fivefold-shape calendar-chapter__fivefold-shape--y" />
+                      <span className="calendar-chapter__fivefold-shape calendar-chapter__fivefold-shape--a" />
+                    </div>
+                  ) : null}
                   <span className="calendar-chapter__period">{chapter.period}</span>
                   <h2 className="calendar-chapter__name">{chapter.title}</h2>
                   <p className="calendar-chapter__subtitle">{chapter.subtitle}</p>
@@ -326,6 +428,7 @@ export function GamesWindow({
             ))}
             <span className="calendar-window__strip-gutter" aria-hidden />
           </div>
+        </div>
         </div>
 
         <nav className="calendar-window__nav" aria-label="Game navigation">
@@ -345,7 +448,7 @@ export function GamesWindow({
                 type="button"
                 className={`calendar-window__nav-dot${i === chapterIndex ? ' calendar-window__nav-dot--active' : ''}`}
                 onClick={() => scrollToChapter(i)}
-                aria-label={`${ch.period}: coming soon`}
+                aria-label={`${ch.period}: ${ch.title}`}
                 aria-current={i === chapterIndex ? 'true' : undefined}
               />
             ))}
@@ -376,11 +479,21 @@ export function GamesWindow({
           )}
         </div>
         <div className="calendar-window__detail-play-slot">
-          <button type="button" className="calendar-window__play-btn" aria-label="Play">
-            Play
+          <button
+            type="button"
+            className="calendar-window__play-btn"
+            aria-label={canPlay ? `Play ${activeChapter.title}` : 'Play (coming soon)'}
+            disabled={!canPlay || shelfLeaving}
+            onClick={() => {
+              if (activeChapter.gameId) openGame(activeChapter.gameId)
+            }}
+          >
+            {canPlay ? 'Play' : 'Soon'}
           </button>
         </div>
       </section>
+        </div>
+      ) : null}
       <WindowBottomDragHandle dragHandleProps={dragHandleProps} />
     </div>
   )
